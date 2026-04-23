@@ -725,6 +725,7 @@
 
     // ---------- 主应用 ----------
     function App() {
+      // 状态
       const [memos, setMemos] = useState(() => {
         try {
           const saved = localStorage.getItem('memos_app_v2');
@@ -742,7 +743,7 @@
       const [showSettings, setShowSettings] = useState(false);
       const [dragOver, setDragOver] = useState(false);
       const [showEditorMenu, setShowEditorMenu] = useState(false);
-      const [editorMenuPos, setEditorMenuPos] = useState(null); // 菜单按钮位置
+      const [editorMenuPos, setEditorMenuPos] = useState(null);
       const [activeTextBlockId, setActiveTextBlockId] = useState(null);
       const [dismissedLinks, setDismissedLinks] = useState({});
       const dismissLink = (blockId, url) => setDismissedLinks(prev => ({ ...prev, [blockId + "|" + url]: true }));
@@ -770,7 +771,7 @@
       const bodyRef = useRef(null);
       const fileInputRef = useRef(null);
       const searchInputRef = useRef(null);
-      const moreBtnRef = useRef(null); // “...”按钮引用
+      const moreBtnRef = useRef(null);
 
       const activeLang = settings.lang === "auto" ? getSystemLang() : settings.lang;
       const L = I18N[activeLang];
@@ -1088,7 +1089,6 @@
         return () => window.removeEventListener("keydown", handleKeyDown);
       }, [showSettings, editTitle]);
 
-      // 打开菜单时，记录按钮位置
       const toggleEditorMenu = () => {
         if (!showEditorMenu) {
           const rect = moreBtnRef.current?.getBoundingClientRect();
@@ -1169,6 +1169,10 @@
             );
           })}
         </div>
+        {/* 底部统计信息，去掉 borderTop */}
+        <div style={{ padding: isMobile ? "12px 16px calc(12px + env(safe-area-inset-bottom))" : "10px 16px", fontSize: 11.5, color: t.textMuted, textAlign: "center" }}>
+          {L.memoCount(list.length)}
+        </div>
       </aside>}
 
       {showEditorPane && active ? (
@@ -1205,7 +1209,6 @@
             </div>
           )}
 
-          {/* 菜单使用 fixed 定位，避免被 overflow 裁剪 */}
           {showEditorMenu && editorMenuPos && (
             <>
               <div onClick={() => { setShowEditorMenu(false); setEditorMenuPos(null); }} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
@@ -1234,7 +1237,6 @@
           <div style={{ flex: 1, display: "flex", flexDirection: "row", overflow: "hidden", minHeight: 0 }}>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", minWidth: 0, position: "relative" }}>
                 <div style={{ width: "100%", maxWidth: typeof editorMaxWidth === "number" ? editorMaxWidth : "100%", margin: "0 auto", display: "flex", flexDirection: "column", flex: 1 }}>
-                {/* 标签栏（去除边框） */}
                 <div style={{ padding: isShortLandscape ? `12px ${editorPaddingX}px 6px` : isMobile ? `16px ${editorPaddingX}px 8px` : `20px 40px 10px`, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, flexShrink: 0 }}>
                   <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 5, background: actualDark ? "#262626" : "#f0ede8", borderRadius: 999, padding: "7px 16px" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 5 }}>
@@ -1254,7 +1256,6 @@
                     </span>
                   </div>
                 </div>
-                {/* 去除标题下方分割线 */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: isShortLandscape ? `12px ${editorPaddingX}px 72px` : isMobile ? `14px ${editorPaddingX}px 96px` : `16px 40px 72px`, width: "100%", boxSizing: "border-box" }}>
                   {activeBlocks.map((block, index) => {
                     if (block.type === "attachment") {
