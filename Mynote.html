@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh">
 <head>
   <link rel="apple-touch-icon" href="icon.png">
@@ -13,6 +12,16 @@
   <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
   <style>
+    :root {
+      background-color: #faf9f7;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root, body {
+        background-color: #141210 !important;
+      }
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -23,9 +32,8 @@
       background: #faf9f7;
       overflow: hidden;
     }
-    /* 由 React 内联样式接管，这里只保留 fallback */
     #root {
-      height: 100vh;
+      height: 100dvh;
       width: 100vw;
     }
   </style>
@@ -225,9 +233,7 @@
       };
     }
 
-
     // ─── 链接识别 & 卡片组件 ───────────────────────────────────────────────────
-
     const URL_RE = /https?:\/\/[^\s"'<>()\u3000-\uffff]{4,}/gi;
 
     function extractUrls(text) {
@@ -238,7 +244,6 @@
       try {
         const u = new URL(url);
         const host = u.hostname.replace(/^www\./, "");
-        // 网易云音乐
         if (host === "music.163.com" || host === "y.music.163.com") {
           const isSong   = /\/song/.test(u.pathname) || u.hash?.includes("song") || u.searchParams.get("id");
           const isAlbum  = /\/album/.test(u.pathname) || u.hash?.includes("album");
@@ -254,45 +259,35 @@
             kind: isSong ? "单曲" : isAlbum ? "专辑" : isList ? "歌单" : isArtist ? "歌手" : "音乐",
           };
         }
-        // QQ音乐
         if (host === "y.qq.com" || host === "i.y.qq.com") {
           return { platform: "qqmusic", label: "QQ 音乐", icon: "🎶", color: "#1DB954", bgLight: "#f0faf4", bgDark: "#0a2010", kind: "音乐" };
         }
-        // 微博
         if (host === "weibo.com" || host === "m.weibo.cn" || host === "t.cn") {
           return { platform: "weibo", label: "微博", icon: "🟠", color: "#E6162D", bgLight: "#fff8f5", bgDark: "#2a0a06", kind: "内容" };
         }
-        // 微信文章
         if (host === "mp.weixin.qq.com") {
           return { platform: "wechat", label: "微信公众号", icon: "💬", color: "#07C160", bgLight: "#f0fff6", bgDark: "#071a0e", kind: "文章" };
         }
-        // Bilibili
         if (host === "bilibili.com" || host === "b23.tv" || host === "www.bilibili.com") {
           return { platform: "bilibili", label: "哔哩哔哩", icon: "📺", color: "#00A1D6", bgLight: "#f0faff", bgDark: "#031520", kind: "视频" };
         }
-        // YouTube
         if (host === "youtube.com" || host === "youtu.be") {
           return { platform: "youtube", label: "YouTube", icon: "▶️", color: "#FF0000", bgLight: "#fff5f5", bgDark: "#1a0505", kind: "视频" };
         }
-        // 抖音
         if (host === "douyin.com" || host === "v.douyin.com") {
           return { platform: "douyin", label: "抖音", icon: "🎬", color: "#161823", bgLight: "#f8f8ff", bgDark: "#0a0a1a", kind: "短视频" };
         }
-        // 小红书
         if (host === "xiaohongshu.com" || host === "xhslink.com") {
           return { platform: "xhs", label: "小红书", icon: "📖", color: "#FE2C55", bgLight: "#fff5f7", bgDark: "#200610", kind: "笔记" };
         }
-        // 知乎
         if (host === "zhihu.com" || host === "zhuanlan.zhihu.com") {
           const kind = /zhuanlan/.test(url) ? "专栏" : /answer/.test(url) ? "回答" : /question/.test(url) ? "问题" : "内容";
           return { platform: "zhihu", label: "知乎", icon: "💡", color: "#0066FF", bgLight: "#f0f6ff", bgDark: "#03102a", kind };
         }
-        // 豆瓣
         if (host === "douban.com" || host.endsWith(".douban.com")) {
           const kind = /movie/.test(url) ? "影视" : /music/.test(url) ? "音乐" : /book/.test(url) ? "书目" : "内容";
           return { platform: "douban", label: "豆瓣", icon: "📗", color: "#3C9B3C", bgLight: "#f4fff4", bgDark: "#081408", kind };
         }
-        // 通用
         return {
           platform: "generic",
           label: host,
@@ -348,8 +343,7 @@
       );
     }
 
-    // ─── 链接识别 end ──────────────────────────────────────────────────────────
-    // ---------- 附件标签组件 (修复了 URL 释放, 由父组件调用) ----------
+    // ---------- 附件标签组件 ----------
     function AttachmentChip({ file, dark, onRemove, onOpen }) {
       const t = tokens(dark);
       return (
@@ -377,7 +371,7 @@
       );
     }
 
-    // ---------- 标签编辑器 (增加删除确认) ----------
+    // ---------- 标签编辑器 ----------
     function TagEditor({ tags, onChange, dark, t, L }) {
       const [editingIdx, setEditingIdx] = useState(null);
       const [editVal, setEditVal]       = useState("");
@@ -551,7 +545,7 @@
       );
     }
 
-    // ---------- 设置面板 (增加手动主题切换) ----------
+    // ---------- 设置面板 ----------
     function SettingsPanel({ dark, settings, onChange, tags, onTagsChange, L, activeLang, onClose, account, onLogout, guestMode, onRelogin }) {
       const t = tokens(dark);
       const [showAbout, setShowAbout] = useState(false);
@@ -728,7 +722,6 @@
       const [showSettings, setShowSettings] = useState(false);
       const [dragOver, setDragOver] = useState(false);
       const [activeTextBlockId, setActiveTextBlockId] = useState(null);
-      // 已手动关闭的链接卡片（key = blockId + url）
       const [dismissedLinks, setDismissedLinks] = useState({});
       const dismissLink = (blockId, url) => setDismissedLinks(prev => ({ ...prev, [blockId + "|" + url]: true }));
       const [account, setAccount] = useState(() => {
@@ -763,13 +756,23 @@
       const actualDark = settings.theme === 'system' ? sysDark : settings.theme === 'dark';
       const t = tokens(actualDark);
       
-      // ── 响应式断点（覆盖 iPhone 全系列）──
-      const isLandscape = viewport.width > viewport.height;
-      // 核心修正：判断是否为手机设备（无论横竖屏，只要短边<=430均视为手机，兼容 iPhone 全系列）
-      const isPhoneDevice = Math.min(viewport.width, viewport.height) <= 430;
-      // 综合判断是否使用移动端单列布局
-      const isMobile = isPhoneDevice || viewport.width <= 820;
+      // 动态更新 theme-color 和背景色
+      useEffect(() => {
+        const themeColor = actualDark ? "#141210" : "#faf9f7";
+        let metaColor = document.querySelector('meta[name="theme-color"]');
+        if (!metaColor) {
+          metaColor = document.createElement('meta');
+          metaColor.setAttribute('name', 'theme-color');
+          document.head.appendChild(metaColor);
+        }
+        metaColor.setAttribute('content', themeColor);
+        document.documentElement.style.backgroundColor = themeColor;
+        document.body.style.backgroundColor = themeColor;
+      }, [actualDark]);
 
+      const isLandscape = viewport.width > viewport.height;
+      const isPhoneDevice = Math.min(viewport.width, viewport.height) <= 430;
+      const isMobile = isPhoneDevice || viewport.width <= 820;
       const isNarrow    = viewport.width <= 430;   
       const isTiny      = viewport.width <= 375;   
       const isShortLandscape = isLandscape && viewport.height <= 430;
@@ -777,19 +780,16 @@
       const showListPane  = !isMobile || showMobileList;
       const showEditorPane = !isMobile || !showMobileList;
 
-      // 内边距
       const shellPadding   = isTiny ? 10 : isNarrow ? 14 : isMobile ? 16 : 28;
       const editorPaddingX = isTiny ? 12 : isNarrow ? 14 : isMobile ? 16 : 24;
       const titlePaddingX  = isTiny ? 14 : isNarrow ? 18 : isMobile ? 20 : 32;
 
-      // 侧边栏宽度
       const sidebarWidth = isMobile
         ? "100%"
         : isLandscape
           ? Math.min(Math.max(viewport.width * 0.26, 240), 300)
           : Math.min(Math.max(viewport.width * 0.30, 280), 340);
 
-      // 编辑区内容最大宽度（横屏时收窄，避免过度拉伸，提升阅读体验）
       const editorMaxWidth = isMobile && isLandscape
         ? 650 
         : isMobile 
@@ -798,7 +798,6 @@
             ? Math.min(viewport.width - sidebarWidth - 40, 520)
             : 560;
 
-      // 字号
       const titleFontSize  = isTiny ? 18 : isNarrow ? 19 : isShortLandscape ? 18 : isMobile ? 20 : 22;
       const bodyFontSize   = isTiny ? 13 : isNarrow ? Math.max(settings.fontSize - 1, 13) : isShortLandscape ? Math.max(settings.fontSize - 1, 13) : settings.fontSize;
       const bodyLineHeight = isShortLandscape ? 1.75 : isMobile ? 1.85 : 1.95;
@@ -806,7 +805,6 @@
         ? Math.max(isLandscape ? 120 : 200, viewport.height * (isLandscape ? 0.20 : 0.35))
         : 200;
 
-      // 监听系统主题变化
       useEffect(() => {
         const mq = window.matchMedia("(prefers-color-scheme: dark)");
         const handler = e => setSysDark(e.matches);
@@ -814,7 +812,6 @@
         return () => mq.removeEventListener("change", handler);
       }, []);
 
-      // 响应式尺寸监听
       useEffect(() => {
         const syncViewport = () => {
           const width = window.innerWidth;
@@ -829,7 +826,6 @@
         return () => window.removeEventListener("resize", syncViewport);
       }, [activeId]);
 
-      // 持久化
       useEffect(() => {
         localStorage.setItem('memos_app_v2', JSON.stringify(memos));
       }, [memos]);
@@ -848,7 +844,6 @@
         else localStorage.removeItem('memos_guest_v1');
       }, [guestMode]);
 
-      // 自动聚焦标题 (修复)
       useEffect(() => {
         if (editTitle && titleRef.current) {
           titleRef.current.focus();
@@ -881,7 +876,6 @@
       const upd = (id, ch) =>
         setMemos(ms => ms.map(m => m.id === id ? { ...m, ...ch, updatedAt: new Date().toISOString() } : m));
 
-      // 新建笔记 (修复聚焦)
       const create = () => {
         const id = Date.now().toString();
         const defaultTag = tags[0] || (activeLang === 'zh' ? '工作' : 'Work');
@@ -894,7 +888,6 @@
         setEditTitle(true);
       };
 
-      // 删除笔记 (释放附件 URL)
       const del = (id, e) => {
         e?.stopPropagation();
         setMemos(ms => {
@@ -911,7 +904,6 @@
         upd(id, { pinned: !memos.find(m => m.id === id)?.pinned });
       };
 
-      // 添加附件：将文件转为 base64 data URL 后插入（确保持久化后仍可显示）
       const addFiles = useCallback((files, memoId) => {
         const id = memoId ?? activeId;
         if (!id) return;
@@ -921,7 +913,7 @@
             const att = {
               id: Math.random().toString(36).slice(2),
               name: f.name, size: f.size, type: f.type,
-              url: ev.target.result,   // base64 data URL — 可序列化、可持久化
+              url: ev.target.result,
               addedAt: new Date().toISOString()
             };
             setMemos(ms => ms.map(m => {
@@ -950,7 +942,6 @@
         });
       }, [activeId, activeTextBlockId]);
 
-      // 移除附件（同步移除正文块）
       const removeAttachment = (memoId, fileId) => {
         setMemos(ms => ms.map(m => {
           if (m.id !== memoId) return m;
@@ -971,7 +962,6 @@
 
       const openAttachment = (file) => {
         if (file.url && file.url.startsWith("data:")) {
-          // data URL → convert to blob for reliable download/open
           fetch(file.url)
             .then(r => r.blob())
             .then(blob => {
@@ -995,14 +985,11 @@
           if (m.id !== memoId) return m;
           const urls = extractUrls(text);
           if (urls.length === 0) {
-            // 无链接 — 正常更新文本
             const blocks = ensureBlocks(m).map(block => block.id === blockId ? { ...block, text } : block);
             return { ...m, blocks, content: blocksToContent(blocks, m.attachments || []), updatedAt: new Date().toISOString() };
           }
-          // 有链接 — 从文本中移除 URL，在当前块后插入 link blocks
           let cleanText = text;
           const newLinkBlocks = [];
-          // 收集所有 URL，生成 link block（去重：已有相同 URL 的 link block 不重复插入）
           const existingLinkUrls = new Set(ensureBlocks(m).filter(b => b.type === "link").map(b => b.url));
           urls.forEach(url => {
             cleanText = cleanText.replace(url, "").replace(/[ \t]+$/gm, "").trimEnd();
@@ -1011,14 +998,11 @@
               existingLinkUrls.add(url);
             }
           });
-          // 清理多余空行
           cleanText = cleanText.replace(/\n{3,}/g, "\n\n").trimStart();
           const oldBlocks = ensureBlocks(m);
           const updatedBlocks = oldBlocks.map(block => block.id === blockId ? { ...block, text: cleanText } : block);
-          // 在当前块后插入 link blocks，并确保其后有可输入的 text block
           const idx = updatedBlocks.findIndex(b => b.id === blockId);
           const blockAfter = updatedBlocks[idx + 1];
-          // 若紧随其后已是 text block，不重复插入空块
           const trailingTextBlock = (blockAfter && blockAfter.type === "text") ? [] : [makeTextBlock("")];
           const finalBlocks = [
             ...updatedBlocks.slice(0, idx + 1),
@@ -1053,7 +1037,6 @@
         if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
       };
 
-      // 过滤列表 (useMemo 优化)
       const list = useMemo(() => {
         return memos
           .filter(m => filter === "**all**" || m.tag === filter)
@@ -1063,7 +1046,6 @@
 
       const filterKeys = [{ key: "**all**", label: L.all }, ...tags.map(t => ({ key: t, label: t }))];
 
-      // 快捷键
       useEffect(() => {
         const handleKeyDown = (e) => {
           if (e.key === "Escape") {
@@ -1142,7 +1124,6 @@
         </div>
       </aside>}
 
-      {/* 编辑器 */}
       {showEditorPane && active ? (
         <main key={active.id} className="editor"
           style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: t.editorBg, overflow: "hidden", position: "relative", height: "100%" }}
@@ -1179,7 +1160,6 @@
 
           <div style={{ flex: 1, display: "flex", flexDirection: "row", overflow: "hidden", minHeight: 0 }}>
               <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", minWidth: 0, position: "relative" }}>
-                {/* 内容居中容器 */}
                 <div style={{ width: "100%", maxWidth: typeof editorMaxWidth === "number" ? editorMaxWidth : "100%", margin: "0 auto", display: "flex", flexDirection: "column", flex: 1 }}>
                 <div style={{ padding: isShortLandscape ? `12px ${titlePaddingX}px 0` : isMobile ? `16px ${titlePaddingX}px 0` : "24px 48px 0", flexShrink: 0, textAlign: "center" }}>
                   {editTitle ? (
@@ -1197,7 +1177,6 @@
                 <div style={{ margin: isShortLandscape ? `10px ${titlePaddingX}px 0` : isMobile ? `14px ${titlePaddingX}px 0` : "18px 36px 0", height: 1, background: t.border, flexShrink: 0 }} />
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: isShortLandscape ? `0 ${editorPaddingX}px 72px` : isMobile ? `0 ${editorPaddingX}px 96px` : `0 40px 72px`, width: "100%", boxSizing: "border-box" }}>
                   {activeBlocks.map((block, index) => {
-                    // ── 附件块 ──
                     if (block.type === "attachment") {
                       const file = (active.attachments || []).find(f => f.id === block.fileId);
                       if (!file) return null;
@@ -1228,9 +1207,7 @@
                         </div>
                       );
                     }
-                    // ── 链接块 — 直接渲染 LinkCard + 其后可继续输入 ──
                     if (block.type === "link") {
-                      // 找到该 link block 在 activeBlocks 中的位置，取紧随其后的 text block
                       const linkIdx = activeBlocks.findIndex(b => b.id === block.id);
                       const nextTextBlock = activeBlocks.slice(linkIdx + 1).find(b => b.type === "text");
                       return (
@@ -1240,7 +1217,6 @@
                             dark={actualDark}
                             onRemove={() => removeLinkBlock(active.id, block.id)}
                           />
-                          {/* 卡片下方点击区：聚焦下一个文本块 */}
                           {nextTextBlock && (
                             <div
                               style={{ height: 8, cursor: "text" }}
@@ -1253,7 +1229,6 @@
                         </div>
                       );
                     }
-                    // ── 文本块 ──
                     return (
                       <textarea
                         key={block.id}
@@ -1269,10 +1244,9 @@
                     );
                   })}
                 </div>
-                </div>{/* end centering container */}
+                </div>
               </div>
 
-              {/* 悬浮插入附件按钮 */}
               <div style={{ 
                 position: "absolute", 
                 bottom: isShortLandscape ? "calc(12px + env(safe-area-inset-bottom))" : isMobile ? "calc(16px + env(safe-area-inset-bottom))" : 24, 
