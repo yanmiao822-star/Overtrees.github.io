@@ -13,18 +13,14 @@
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
   <style>
     :root { background-color: #faf9f7; }
-    @media (prefers-color-scheme: dark) {
-      :root, body { background-color: #0d0d0d !important; }
-    }
+    @media (prefers-color-scheme: dark) { :root, body { background-color: #0d0d0d !important; } }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Noto Sans SC', 'PingFang SC', system-ui, sans-serif; background: #faf9f7; overflow: hidden; }
     #root { height: 100dvh; width: 100vw; }
   </style>
 </head>
 <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(console.error);
-  }
+  if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(console.error); }
   function callIOS(scheme) { window.location.href = scheme; }
 </script>
 <body>
@@ -177,16 +173,7 @@
 
     function AttachmentChip({ file, dark, onRemove, onOpen }) { const t = tokens(dark); return (<div onClick={() => onOpen(file)} title={file.name} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: dark ? "#1a1a1a" : "#f4f1ec", border: `1px solid ${t.border}`, borderRadius: 10, padding: "8px 12px", cursor: "pointer", maxWidth: "100%", boxShadow: dark ? "0 2px 8px rgba(0,0,0,0.3)" : "none", }}><span style={{ fontSize: 18, flexShrink: 0 }}>{fileIcon(file.name)}</span><div style={{ overflow: "hidden", flex: 1 }}><div style={{ fontSize: 12, color: t.text, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</div><div style={{ fontSize: 11, color: t.textSub }}>{fmtSize(file.size)}</div></div><button onClick={e => { e.stopPropagation(); onRemove(file.id); }} style={{ border: "none", background: "none", cursor: "pointer", color: t.textSub, fontSize: 13, padding: "0 2px", flexShrink: 0, lineHeight: 1, borderRadius: 4 }}>✕</button></div>); }
 
-    function TagEditor({ tags, onChange, dark, t, L }) {/* ... 省略，内容不变 ... */
-      const [editingIdx, setEditingIdx] = useState(null); const [editVal, setEditVal] = useState(""); const [newVal, setNewVal] = useState(""); const [adding, setAdding] = useState(false); const newInputRef = useRef(null); const editInputRef = useRef(null);
-      const startEdit = (i) => { setEditingIdx(i); setEditVal(tags[i]); setTimeout(() => editInputRef.current?.select(), 30); };
-      const commitEdit = (i) => { const v = editVal.trim(); if (v && v !== tags[i]) { const next = [...tags]; next[i] = v; onChange(next); } setEditingIdx(null); };
-      const deleteTag = (i) => { if (window.confirm(L.deleteTagConfirm)) { onChange(tags.filter((_, idx) => idx !== i)); } };
-      const startAdd = () => { setAdding(true); setNewVal(""); setTimeout(() => newInputRef.current?.focus(), 30); };
-      const commitAdd = () => { const v = newVal.trim(); if (v && !tags.includes(v)) onChange([...tags, v]); setAdding(false); setNewVal(""); };
-      const chip = { display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", borderRadius: 7, border: `1px solid ${t.border}`, background: dark ? "#262626" : "#f7f4f0", fontSize: 12, color: t.text, };
-      return (<div style={{ display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center" }}>{tags.map((tag, i) => (<div key={tag + i} style={chip}>{editingIdx === i ? (<input ref={editInputRef} value={editVal} onChange={e => setEditVal(e.target.value)} onBlur={() => commitEdit(i)} onKeyDown={e => { if (e.key === "Enter") commitEdit(i); if (e.key === "Escape") setEditingIdx(null); }} style={{ width: Math.max(editVal.length * 14, 40) + "px", fontSize: 12, color: t.text, border: "none", outline: "none", background: "transparent", fontFamily: "inherit" }} />) : (<span onClick={() => startEdit(i)} style={{ cursor: "text", userSelect: "none" }} title="点击编辑">{tag}</span>)}<button onClick={() => deleteTag(i)} style={{ border: "none", background: "none", cursor: "pointer", color: t.textSub, fontSize: 11, padding: "0 1px", lineHeight: 1, borderRadius: 3 }} onMouseEnter={e => e.currentTarget.style.color = "#d04040"} onMouseLeave={e => e.currentTarget.style.color = t.textSub}>✕</button></div>))}{adding ? (<div style={{ ...chip, border: `1px solid ${t.accent}` }}><input ref={newInputRef} value={newVal} onChange={e => setNewVal(e.target.value)} onBlur={commitAdd} onKeyDown={e => { if (e.key === "Enter") commitAdd(); if (e.key === "Escape") { setAdding(false); setNewVal(""); } }} placeholder={L.tagPlaceholder} style={{ width: 64, fontSize: 12, color: t.text, border: "none", outline: "none", background: "transparent", fontFamily: "inherit" }} /></div>) : (<button onClick={startAdd} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 7, border: `1px dashed ${t.border}`, background: "transparent", color: t.textSub, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }} onMouseEnter={e => { e.currentTarget.style.borderColor = t.accent; e.currentTarget.style.color = t.accent; }} onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textSub; }}>{L.addTag}</button>)}</div>);
-    }
+    function TagEditor({ tags, onChange, dark, t, L }) { const [editingIdx, setEditingIdx] = useState(null); const [editVal, setEditVal] = useState(""); const [newVal, setNewVal] = useState(""); const [adding, setAdding] = useState(false); const newInputRef = useRef(null); const editInputRef = useRef(null); const startEdit = (i) => { setEditingIdx(i); setEditVal(tags[i]); setTimeout(() => editInputRef.current?.select(), 30); }; const commitEdit = (i) => { const v = editVal.trim(); if (v && v !== tags[i]) { const next = [...tags]; next[i] = v; onChange(next); } setEditingIdx(null); }; const deleteTag = (i) => { if (window.confirm(L.deleteTagConfirm)) { onChange(tags.filter((_, idx) => idx !== i)); } }; const startAdd = () => { setAdding(true); setNewVal(""); setTimeout(() => newInputRef.current?.focus(), 30); }; const commitAdd = () => { const v = newVal.trim(); if (v && !tags.includes(v)) onChange([...tags, v]); setAdding(false); setNewVal(""); }; const chip = { display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", borderRadius: 7, border: `1px solid ${t.border}`, background: dark ? "#262626" : "#f7f4f0", fontSize: 12, color: t.text, }; return (<div style={{ display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center" }}>{tags.map((tag, i) => (<div key={tag + i} style={chip}>{editingIdx === i ? (<input ref={editInputRef} value={editVal} onChange={e => setEditVal(e.target.value)} onBlur={() => commitEdit(i)} onKeyDown={e => { if (e.key === "Enter") commitEdit(i); if (e.key === "Escape") setEditingIdx(null); }} style={{ width: Math.max(editVal.length * 14, 40) + "px", fontSize: 12, color: t.text, border: "none", outline: "none", background: "transparent", fontFamily: "inherit" }} />) : (<span onClick={() => startEdit(i)} style={{ cursor: "text", userSelect: "none" }} title="点击编辑">{tag}</span>)}<button onClick={() => deleteTag(i)} style={{ border: "none", background: "none", cursor: "pointer", color: t.textSub, fontSize: 11, padding: "0 1px", lineHeight: 1, borderRadius: 3 }} onMouseEnter={e => e.currentTarget.style.color = "#d04040"} onMouseLeave={e => e.currentTarget.style.color = t.textSub}>✕</button></div>))}{adding ? (<div style={{ ...chip, border: `1px solid ${t.accent}` }}><input ref={newInputRef} value={newVal} onChange={e => setNewVal(e.target.value)} onBlur={commitAdd} onKeyDown={e => { if (e.key === "Enter") commitAdd(); if (e.key === "Escape") { setAdding(false); setNewVal(""); } }} placeholder={L.tagPlaceholder} style={{ width: 64, fontSize: 12, color: t.text, border: "none", outline: "none", background: "transparent", fontFamily: "inherit" }} /></div>) : (<button onClick={startAdd} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 7, border: `1px dashed ${t.border}`, background: "transparent", color: t.textSub, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }} onMouseEnter={e => { e.currentTarget.style.borderColor = t.accent; e.currentTarget.style.color = t.accent; }} onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textSub; }}>{L.addTag}</button>)}</div>); }
 
     function SettingRow({ label, children, t, last }) { return (<div style={{ display: "flex", flexDirection: "column", gap: 10, paddingBottom: last ? 0 : 18, marginBottom: last ? 0 : 18, borderBottom: last ? "none" : `1px solid ${t.border}` }}><span style={{ fontSize: 12, color: t.textSub, letterSpacing: 0.5 }}>{label}</span>{children}</div>); }
     function SettingGroupTitle({ children, t }) { return <div style={{ fontSize: 11, color: t.textMuted, letterSpacing: 1, marginBottom: 12 }}>{children}</div>; }
@@ -248,7 +235,48 @@
       const create = () => { const id = Date.now().toString(); const defaultTag = tags[0] || (activeLang === 'zh' ? '工作' : 'Work'); setMemos(ms => [{ id, title: L.untitled, content: '', tag: defaultTag, pinned: false, attachments: [], blocks: [makeTextBlock("")], updatedAt: new Date().toISOString() }, ...ms]); setActiveId(id); if (window.innerWidth <= 820) setShowMobileList(false); setEditTitle(true); };
       const del = (id, e) => { e?.stopPropagation(); setMemos(ms => { const memo = ms.find(m => m.id === id); memo?.attachments?.forEach(f => { if (f.url?.startsWith('blob:')) URL.revokeObjectURL(f.url); }); const next = ms.filter(m => m.id !== id); if (activeId === id) setActiveId(next[0]?.id ?? null); return next; }); };
       const togglePin = (id, e) => { e?.stopPropagation(); upd(id, { pinned: !memos.find(m => m.id === id)?.pinned }); };
-      const addFiles = useCallback((files, memoId) => { const id = memoId ?? activeId; if (!id) return; Array.from(files).forEach(f => { const reader = new FileReader(); reader.onload = (ev) => { const att = { id: Math.random().toString(36).slice(2), name: f.name, size: f.size, type: f.type, url: ev.target.result, addedAt: new Date().toISOString() }; setMemos(ms => ms.map(m => { if (m.id !== id) return m; const blocks = ensureBlocks(m); const insertAfter = activeTextBlockId && blocks.findIndex(b => b.id === activeTextBlockId) >= 0 ? blocks.findIndex(b => b.id === activeTextBlockId) : (() => { const lastTextIndex = [...blocks].map((b, i) => [b, i]).filter(([b]) => b.type === "text").map(([, i]) => i).pop(); return lastTextIndex ?? (blocks.length - 1); })(); const attachmentBlock = makeAttachmentBlock(att); const nextBlocks = [...blocks]; nextBlocks.splice(insertAfter + 1, 0, attachmentBlock, makeTextBlock("")); const nextAttachments = [...(m.attachments || []), att]; return { ...m, attachments: nextAttachments, blocks: nextBlocks, content: blocksToContent(nextBlocks, nextAttachments), updatedAt: new Date().toISOString() }; })); }; reader.readAsDataURL(f); }); }, [activeId, activeTextBlockId]);
+
+      // ★ 修复核心：addFiles 中校验 activeTextBlockId 是否属于当前备忘录
+      const addFiles = useCallback((files, memoId) => {
+        const id = memoId ?? activeId;
+        if (!id) return;
+        Array.from(files).forEach(f => {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const att = {
+              id: Math.random().toString(36).slice(2),
+              name: f.name, size: f.size, type: f.type,
+              url: ev.target.result,
+              addedAt: new Date().toISOString()
+            };
+            setMemos(ms => ms.map(m => {
+              if (m.id !== id) return m;
+              const blocks = ensureBlocks(m);
+              // 检查 activeTextBlockId 是否在当前备忘录的 blocks 中
+              const blockExists = activeTextBlockId && blocks.some(b => b.id === activeTextBlockId);
+              const insertAfter = blockExists
+                ? blocks.findIndex(b => b.id === activeTextBlockId)
+                : (() => {
+                    const lastTextIndex = [...blocks].map((b, i) => [b, i]).filter(([b]) => b.type === "text").map(([, i]) => i).pop();
+                    return lastTextIndex ?? (blocks.length - 1);
+                  })();
+              const attachmentBlock = makeAttachmentBlock(att);
+              const nextBlocks = [...blocks];
+              nextBlocks.splice(insertAfter + 1, 0, attachmentBlock, makeTextBlock(""));
+              const nextAttachments = [...(m.attachments || []), att];
+              return {
+                ...m,
+                attachments: nextAttachments,
+                blocks: nextBlocks,
+                content: blocksToContent(nextBlocks, nextAttachments),
+                updatedAt: new Date().toISOString()
+              };
+            }));
+          };
+          reader.readAsDataURL(f);
+        });
+      }, [activeId, activeTextBlockId]);
+
       const removeAttachment = (memoId, fileId) => { setMemos(ms => ms.map(m => { if (m.id !== memoId) return m; const targetFile = m.attachments.find(a => a.id === fileId); if (targetFile?.url?.startsWith('blob:')) URL.revokeObjectURL(targetFile.url); const nextAttachments = m.attachments.filter(a => a.id !== fileId); const nextBlocksRaw = ensureBlocks(m).filter(b => !(b.type === "attachment" && b.fileId === fileId)); const nextBlocks = nextBlocksRaw.length ? nextBlocksRaw : [makeTextBlock("")]; return { ...m, attachments: nextAttachments, blocks: nextBlocks, content: blocksToContent(nextBlocks, nextAttachments), updatedAt: new Date().toISOString() }; })); };
       const openAttachment = (file) => { if (file.url && file.url.startsWith("data:")) { fetch(file.url).then(r => r.blob()).then(blob => { const blobUrl = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = blobUrl; a.download = file.name; a.click(); setTimeout(() => URL.revokeObjectURL(blobUrl), 10000); }); } else { const a = document.createElement("a"); a.href = file.url; a.download = file.name; a.click(); } };
       const updateTextBlock = (memoId, blockId, text) => { setMemos(ms => ms.map(m => { if (m.id !== memoId) return m; const urls = extractUrls(text); if (urls.length === 0) { const blocks = ensureBlocks(m).map(block => block.id === blockId ? { ...block, text } : block); return { ...m, blocks, content: blocksToContent(blocks, m.attachments || []), updatedAt: new Date().toISOString() }; } let cleanText = text; const newLinkBlocks = []; const existingLinkUrls = new Set(ensureBlocks(m).filter(b => b.type === "link").map(b => b.url)); urls.forEach(url => { cleanText = cleanText.replace(url, "").replace(/[ \t]+$/gm, "").trimEnd(); if (!existingLinkUrls.has(url)) { newLinkBlocks.push(makeLinkBlock(url)); existingLinkUrls.add(url); } }); cleanText = cleanText.replace(/\n{3,}/g, "\n\n").trimStart(); const oldBlocks = ensureBlocks(m); const updatedBlocks = oldBlocks.map(block => block.id === blockId ? { ...block, text: cleanText } : block); const idx = updatedBlocks.findIndex(b => b.id === blockId); const blockAfter = updatedBlocks[idx + 1]; const trailingTextBlock = (blockAfter && blockAfter.type === "text") ? [] : [makeTextBlock("")]; const finalBlocks = [...updatedBlocks.slice(0, idx + 1), ...newLinkBlocks, ...trailingTextBlock, ...updatedBlocks.slice(idx + 1)]; return { ...m, blocks: finalBlocks, content: blocksToContent(finalBlocks, m.attachments || []), updatedAt: new Date().toISOString() }; })); };
