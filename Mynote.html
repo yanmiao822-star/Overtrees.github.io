@@ -4,10 +4,10 @@
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="随手记">
+  <meta name="apple-mobile-web-app-title" content="精美手记">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>随手记</title>
+  <title>备忘录 · 精致版</title>
   <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
@@ -228,7 +228,7 @@
       const [showMobileList, setShowMobileList] = useState(() => window.innerWidth <= 820);
       const [tags, setTags] = useState(["工作", "生活", "灵感"]);
       const [settings, setSettings] = useState(() => { const saved = localStorage.getItem('memos_settings_v2'); return saved ? JSON.parse(saved) : { fontSize: 15, fontFamily: "'PingFang SC', 'Noto Sans SC', sans-serif", uiScale: 1.00, lang: "auto", theme: "system" }; });
-      const titleRef = useRef(null); const bodyRef = useRef(null); const fileInputRef = useRef(null); const searchInputRef = useRef(null); const moreBtnRef = useRef(null);
+      const titleRef = useRef(null); const bodyRef = useRef(null); const fileInputRef = useRef(null); const searchInputRef = useRef(null); const moreBtnRef = useRef(null); const metaBarRef = useRef(null);
       const dbRef = useRef(null);
       const initialLoadDone = useRef(false);
       const activeLang = settings.lang === "auto" ? getSystemLang() : settings.lang; const L = I18N[activeLang];
@@ -324,7 +324,7 @@
       const list = useMemo(() => { return memos.filter(m => filter === "**all**" || m.tag === filter).filter(m => !search || m.title.includes(search) || m.content.includes(search)).sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.updatedAt) - new Date(a.updatedAt)); }, [memos, filter, search]);
       const filterKeys = [{ key: "**all**", label: L.all }, ...tags.map(t => ({ key: t, label: t }))];
       useEffect(() => { const handleKeyDown = (e) => { if (e.key === "Escape") { if (showSettings) setShowSettings(false); else if (editTitle) setEditTitle(false); } if ((e.ctrlKey || e.metaKey) && e.key === "n") { e.preventDefault(); create(); } if ((e.ctrlKey || e.metaKey) && e.key === "f") { e.preventDefault(); searchInputRef.current?.focus(); } }; window.addEventListener("keydown", handleKeyDown); return () => window.removeEventListener("keydown", handleKeyDown); }, [showSettings, editTitle]);
-      const toggleEditorMenu = () => { if (!showEditorMenu) { const rect = moreBtnRef.current?.getBoundingClientRect(); if (rect) setEditorMenuPos({ bottom: rect.bottom, right: window.innerWidth - rect.right }); setShowEditorMenu(true); } else { setShowEditorMenu(false); setEditorMenuPos(null); } };
+      const toggleEditorMenu = () => { if (!showEditorMenu) { const rect = moreBtnRef.current?.getBoundingClientRect(); const metaRect = metaBarRef.current?.getBoundingClientRect(); if (rect) setEditorMenuPos({ bottom: rect.bottom, right: window.innerWidth - rect.right, metaTop: metaRect ? metaRect.top : rect.bottom + 4 }); setShowEditorMenu(true); } else { setShowEditorMenu(false); setEditorMenuPos(null); } };
 
       if (!account && !guestMode) return <LoginScreen dark={actualDark} L={L} onLogin={handleLogin} onSkip={handleSkipLogin} />;
 
@@ -343,221 +343,313 @@
       const editorMaxWidth = isMobile && isLandscape ? 650 : isMobile ? "100%" : isShortLandscape ? Math.min(viewport.width - sidebarWidth - 40, 520) : 560;
       const titleFontSize = isTiny ? 18 : isNarrow ? 19 : isShortLandscape ? 18 : isMobile ? 20 : 22;
       const bodyFontSize = isTiny ? 13 : isNarrow ? Math.max(settings.fontSize - 1, 13) : isShortLandscape ? Math.max(settings.fontSize - 1, 13) : settings.fontSize;
-      const bodyLineHeight = isShortLandscape ? 1.75 : isMobile ? 1.85 : 1.95;
+      const bodyLineHeight = isShortLandscape ? 1.55 : isMobile ? 1.6 : 1.65;
       const editorMinHeight = isMobile ? Math.max(isLandscape ? 120 : 200, viewport.height * (isLandscape ? 0.20 : 0.35)) : 200;
 
       return (
         <div style={{ display: "flex", flexDirection: isMobile ? "column" : "row", height: "100vh", minHeight: "100dvh", background: t.bg, fontFamily: "'Noto Sans SC', 'PingFang SC', sans-serif", color: t.text, overflow: "hidden", transition: "background 0.25s, color 0.25s", paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)", paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}>
-          <style>{`@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&family=Noto+Serif+SC&family=JetBrains+Mono&display=swap'); *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } html, body, #root { height: 100%; } body { overflow: hidden; } ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-thumb { background: ${actualDark ? "#3a3a3a" : "#ddd8d0"}; border-radius: 4px; } button, input, textarea { font-family: 'Noto Sans SC', 'PingFang SC', sans-serif; -webkit-tap-highlight-color: transparent; } input, textarea { border: none; outline: none; background: transparent; } textarea { resize: none; } .card { padding: 12px 14px; border-radius: 12px; cursor: pointer; transition: background 0.12s; position: relative; } .card:hover { background: ${t.cardHover}; } .card:hover .card-actions { opacity: 1; } .card.is-active { background: ${t.cardActive}; box-shadow: ${actualDark ? "0 2px 12px rgba(0,0,0,0.5)" : "0 1px 8px rgba(0,0,0,0.08)"}; } .card-actions { opacity: 0; transition: opacity 0.15s; display: flex; gap: 2px; position: absolute; top: 10px; right: 10px; } .iBtn { width: 26px; height: 26px; border: none; background: none; cursor: pointer; border-radius: 6px; color: ${t.textSub}; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: background 0.12s, color 0.12s; } .iBtn:hover { background: ${actualDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}; color: ${t.text}; } .iBtn.danger:hover { background: ${actualDark ? "#3a1a1a" : "#fce8e8"}; color: #d04040; } .pill { display: inline-flex; align-items: center; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; white-space: nowrap; } .filter-btn { border: none; cursor: pointer; border-radius: 20px; padding: 6px 13px; font-size: 12.5px; font-family: inherit; transition: all 0.15s; white-space: nowrap; } .new-btn { border: none; cursor: pointer; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-family: inherit; font-weight: 500; transition: opacity 0.15s; white-space: nowrap; } .new-btn:hover { opacity: 0.8; } .settings-btn { border: none; cursor: pointer; border-radius: 8px; padding: 7px 10px; font-size: 15px; font-family: inherit; background: transparent; color: ${t.textSub}; transition: background 0.15s; } .settings-btn:hover { background: ${actualDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"}; color: ${t.text}; } .attach-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px dashed ${t.border}; border-radius: 8px; padding: 6px 14px; cursor: pointer; background: none; font-family: inherit; font-size: 13px; color: ${t.textSub}; transition: all 0.15s; } .attach-btn:hover { border-color: ${t.accent}; color: ${t.accent}; } .drag-overlay { position: absolute; inset: 0; background: ${actualDark ? "rgba(230,180,80,0.08)" : "rgba(28,25,23,0.04)"}; border: 2px dashed ${t.accent}; border-radius: 12px; z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; } .mobile-topbar { display: flex; align-items: center; gap: 8px; padding: 10px 12px 8px; background: ${actualDark ? "rgba(13,13,13,0.85)" : t.sidebar}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); } .mobile-back { border: none; background: transparent; color: ${t.text}; font-size: 18px; line-height: 1; padding: 6px 8px; border-radius: 8px; cursor: pointer; } .mobile-back:hover { background: ${actualDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"}; } .meta-text { flex-shrink: 0; } @media (max-width: 430px) { .card { padding: 11px 12px; } .filter-btn { font-size: 12px; padding: 6px 11px; } .pill { font-size: 10.5px; padding: 4px 8px; } .meta-text { font-size: 11px !important; } } @media (max-height: 500px) and (orientation: landscape) { .mobile-topbar { padding: 6px 10px 5px; } .filter-btn { padding: 5px 10px; font-size: 11.5px; } .new-btn { padding: 7px 12px; } .card { padding: 9px 12px; } } @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } } @keyframes popIn  { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } } .editor { animation: fadeUp 0.18s ease; }`}</style>
+          <style>{`@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&family=Noto+Serif+SC&family=JetBrains+Mono&display=swap'); *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } html, body, #root { height: 100%; } body { overflow: hidden; } ::-webkit-scrollbar { width: 4px; height: 4px; } ::-webkit-scrollbar-thumb { background: ${actualDark ? "#3a3a3a" : "#ddd8d0"}; border-radius: 4px; } button, input, textarea { font-family: 'Noto Sans SC', 'PingFang SC', sans-serif; -webkit-tap-highlight-color: transparent; } input, textarea { border: none; outline: none; background: transparent; } textarea { resize: none; } .card { padding: 12px 14px; border-radius: 12px; cursor: pointer; transition: background 0.12s; position: relative; } .card:hover { background: ${t.cardHover}; } .card:hover .card-actions { opacity: 1; } .card.is-active { background: ${t.cardActive}; box-shadow: ${actualDark ? "0 2px 12px rgba(0,0,0,0.5)" : "0 1px 8px rgba(0,0,0,0.08)"}; } .card-actions { opacity: 0; transition: opacity 0.15s; display: flex; gap: 2px; position: absolute; top: 10px; right: 10px; } .iBtn { width: 26px; height: 26px; border: none; background: none; cursor: pointer; border-radius: 6px; color: ${t.textSub}; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: background 0.12s, color 0.12s; ${actualDark ? "backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" : ""} } .iBtn:hover { background: ${actualDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}; color: ${t.text}; } .iBtn.danger:hover { background: ${actualDark ? "#3a1a1a" : "#fce8e8"}; color: #d04040; } .pill { display: inline-flex; align-items: center; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; white-space: nowrap; ${actualDark ? "backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" : ""} } .filter-btn { border: none; cursor: pointer; border-radius: 20px; padding: 6px 13px; font-size: 12.5px; font-family: inherit; transition: all 0.15s; white-space: nowrap; ${actualDark ? "backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" : ""} } .new-btn { border: none; cursor: pointer; border-radius: 10px; padding: 8px 14px; font-size: 13px; font-family: inherit; font-weight: 500; transition: opacity 0.15s; white-space: nowrap; ${actualDark ? "backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);" : ""} } .new-btn:hover { opacity: 0.8; } .settings-btn { border: none; cursor: pointer; border-radius: 8px; padding: 7px 10px; font-size: 15px; font-family: inherit; background: transparent; color: ${t.textSub}; transition: background 0.15s; ${actualDark ? "backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" : ""} } .settings-btn:hover { background: ${actualDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"}; color: ${t.text}; } .attach-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px dashed ${t.border}; border-radius: 8px; padding: 6px 14px; cursor: pointer; background: none; font-family: inherit; font-size: 13px; color: ${t.textSub}; transition: all 0.15s; } .attach-btn:hover { border-color: ${t.accent}; color: ${t.accent}; } .drag-overlay { position: absolute; inset: 0; background: ${actualDark ? "rgba(230,180,80,0.08)" : "rgba(28,25,23,0.04)"}; border: 2px dashed ${t.accent}; border-radius: 12px; z-index: 10; display: flex; align-items: center; justify-content: center; pointer-events: none; } .mobile-topbar { display: flex; align-items: center; gap: 8px; padding: 10px 12px 8px; background: ${actualDark ? "rgba(13,13,13,0.85)" : t.sidebar}; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); } .mobile-back { border: none; background: transparent; color: ${t.text}; font-size: 18px; line-height: 1; padding: 6px 8px; border-radius: 8px; cursor: pointer; ${actualDark ? "backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);" : ""} } .mobile-back:hover { background: ${actualDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.05)"}; } .meta-text { flex-shrink: 0; } @media (max-width: 430px) { .card { padding: 11px 12px; } .filter-btn { font-size: 12px; padding: 6px 11px; } .pill { font-size: 10.5px; padding: 4px 8px; } .meta-text { font-size: 11px !important; } } @media (max-height: 500px) and (orientation: landscape) { .mobile-topbar { padding: 6px 10px 5px; } .filter-btn { padding: 5px 10px; font-size: 11.5px; } .new-btn { padding: 7px 12px; } .card { padding: 9px 12px; } } @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } } @keyframes popIn  { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } } @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } } .editor { animation: fadeUp 0.18s ease; }`}</style>
 
-      {showListPane && <aside style={{ width: sidebarWidth, maxWidth: "100%", display: "flex", flexDirection: "column", borderRight: !isMobile ? `1px solid ${t.border}` : "none", borderBottom: "none", background: t.sidebar, flexShrink: 0, transition: "background 0.25s", minHeight: 0, height: isMobile ? "100%" : "auto" }}>
-        <div style={{ padding: isShortLandscape ? "8px 10px 6px" : isTiny ? "10px 10px 8px" : isMobile ? "14px 12px 10px" : "20px 14px 12px", display: "flex", alignItems: "center", gap: 6 }}>
-          <button onClick={() => setShowSettings(true)} title="Settings" style={{ border: "none", background: "none", cursor: "pointer", padding: 0, flexShrink: 0, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            {account?.name ? (
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: actualDark ? "#e6b450" : "#1c1917", color: actualDark ? "#0d0d0d" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, fontFamily: "inherit", flexShrink: 0 }}>
-                {account.name.charAt(0).toUpperCase()}
-              </div>
-            ) : (
-              <div style={{ width: 34, height: 34, borderRadius: "50%", background: actualDark ? "#262626" : "#eae7e2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
-                👽
-              </div>
-            )}
-          </button>
-          <span style={{ fontSize: isTiny ? 16 : isMobile ? 17 : 17, fontWeight: 700, fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: 0, color: t.text, flex: 1, lineHeight: 1, textAlign: "center" }}>{L.appTitle}</span>
-          <button className="new-btn" onClick={create} style={{ background: actualDark ? "#262626" : "#eae7e2", color: t.text, padding: "0", width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>＋</button>
-        </div>
-        <div style={{ padding: isTiny ? "0 10px 8px" : isMobile ? "0 12px 10px" : "0 10px 10px", position: "relative" }}>
-          <input ref={searchInputRef} value={search} onChange={e => setSearch(e.target.value)} placeholder={L.searchPlaceholder}
-            style={{ width: "100%", padding: "7px 12px", background: t.inputBg, borderRadius: 8, fontSize: 13, color: t.text }} />
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 5, padding: isMobile ? "0 12px 12px 12px" : "0 10px 12px 10px" }}>
-          {filterKeys.map(f => (
-            <button key={f.key} className="filter-btn" onClick={() => setFilter(f.key)}
-              style={{ background: filter === f.key ? t.tagBtnActive : "transparent", color: filter === f.key ? (actualDark ? "#e6b450" : "#fff") : t.tagBtnText }}>
-              {f.label}
-            </button>
-          ))}
-        </div>
-        <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "0 8px 12px" : "0 6px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
-          {list.length === 0 && <p style={{ textAlign: "center", color: t.textMuted, fontSize: 13, marginTop: 48 }}>{L.noMemos}</p>}
-          {list.map(m => {
-            const ts = TAG_STYLE[m.tag]?.[actualDark ? "dark" : "light"];
-            return (
-              <div key={m.id} className={`card${activeId === m.id ? " is-active" : ""}`} onClick={() => { setActiveId(m.id); setActiveTextBlockId(null); if (isMobile) setShowMobileList(false); }}>
-                <div className="card-actions">
-                  <button className="iBtn" title={m.pinned ? L.unpinTip : L.pinTip} onClick={e => togglePin(m.id, e)}>{m.pinned ? "◉" : "○"}</button>
-                  <button className="iBtn danger" title={L.deleteTip} onClick={e => del(m.id, e)}>✕</button>
-                </div>
-                <div style={{ fontSize: 13.5, fontWeight: 500, color: t.text, paddingRight: 52, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", marginBottom: 4 }}>
-                  {m.pinned && <span style={{ marginRight: 5, fontSize: 9, opacity: 0.5 }}>●</span>}
-                  {m.title || L.untitled}
-                </div>
-                <div style={{ fontSize: 12, color: t.textSub, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", marginBottom: 8 }}>
-                  {((ensureBlocks(m).find(b => b.type === "text" && (b.text || "").trim())?.text || m.content || "").split("\n")[0]) || L.noContent}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  {ts ? <span className="pill" style={{ background: ts.bg, color: ts.text }}>{m.tag}</span> : <span style={{ fontSize: 11, background: actualDark ? "#262626" : "#f0ede8", color: t.textSub, padding: "2px 9px", borderRadius: 20 }}>{m.tag}</span>}
-                  <span style={{ fontSize: 11, color: t.textMuted, marginLeft: "auto" }}>
-                    {m.attachments?.length > 0 && <span style={{ marginRight: 6 }}>📎{m.attachments.length}</span>}
-                    {timeAgo(m.updatedAt, activeLang)}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div style={{ padding: isMobile ? "12px 16px calc(12px + env(safe-area-inset-bottom))" : "10px 16px", fontSize: 11.5, color: t.textMuted, textAlign: "center" }}>
-          {L.memoCount(list.length)}
-        </div>
-      </aside>}
-
-      {showEditorPane && active ? (
-        <main key={active.id} className="editor"
-          style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: t.editorBg, overflow: "hidden", position: "relative", height: "100%" }}
-          onDragOver={e => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={handleDrop}
-        >
-          {dragOver && <div className="drag-overlay"><span style={{ fontSize: 15, color: t.accent }}>{L.dropHint}</span></div>}
-
-          {isMobile && (
-            <div className="mobile-topbar" style={{ position: "relative" }}>
-              <button className="mobile-back" onClick={() => setShowMobileList(true)} style={{ width: 48, height: 34, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: actualDark ? "#262626" : "#eae7e2", color: t.text }}>‹</button>
-              <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", maxWidth: "55%", textAlign: "center" }}>
-                {editTitle ? (
-                  <input ref={titleRef} value={active.title}
-                    onChange={e => upd(active.id, { title: e.target.value })}
-                    onBlur={() => setEditTitle(false)}
-                    onKeyDown={e => { if (e.key === "Enter") setEditTitle(false); }}
-                    style={{ fontSize: 16, fontWeight: 600, color: t.text, width: "100%", border: "none", outline: "none", background: "transparent", fontFamily: "inherit", textAlign: "center" }} />
+          {showListPane && <aside style={{ width: sidebarWidth, maxWidth: "100%", display: "flex", flexDirection: "column", borderRight: !isMobile ? `1px solid ${t.border}` : "none", borderBottom: "none", background: t.sidebar, flexShrink: 0, transition: "background 0.25s", minHeight: 0, height: isMobile ? "100%" : "auto" }}>
+            <div style={{ padding: isShortLandscape ? "8px 10px 6px" : isTiny ? "10px 10px 8px" : isMobile ? "14px 12px 10px" : "20px 14px 12px", display: "flex", alignItems: "center", gap: 6 }}>
+              <button onClick={() => setShowSettings(true)} title="Settings" style={{ border: "none", background: "none", cursor: "pointer", padding: 0, flexShrink: 0, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {account?.name ? (
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: actualDark ? "#e6b450" : "#1c1917", color: actualDark ? "#0d0d0d" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, fontFamily: "inherit", flexShrink: 0 }}>
+                    {account.name.charAt(0).toUpperCase()}
+                  </div>
                 ) : (
-                  <div onClick={() => setEditTitle(true)} style={{ fontSize: 16, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "text", color: t.text }}>
-                    {active.title || <span style={{ color: t.textMuted, fontWeight: 400 }}>{L.titlePlaceholder}</span>}
+                  <div style={{ width: 34, height: 34, borderRadius: "50%", background: actualDark ? "#262626" : "#eae7e2", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
+                    👽
                   </div>
                 )}
-              </div>
-              <div style={{ flex: 1 }} />
-              <div style={{ position: "relative" }}>
-                <button ref={moreBtnRef} onClick={toggleEditorMenu} style={{ width: 48, height: 34, borderRadius: 999, border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: actualDark ? "#262626" : "#eae7e2", color: t.text, cursor: "pointer", fontSize: 16, letterSpacing: 1 }}>…</button>
-              </div>
-              <input ref={fileInputRef} type="file" multiple style={{ display: "none" }}
-                onChange={e => { if (e.target.files?.length) addFiles(e.target.files); e.target.value = ""; }} />
+              </button>
+              <span style={{ fontSize: isTiny ? 16 : isMobile ? 17 : 17, fontWeight: 700, fontFamily: "system-ui, -apple-system, sans-serif", letterSpacing: 0, color: t.text, flex: 1, lineHeight: 1, textAlign: "center" }}>{L.appTitle}</span>
+              <button className="new-btn" onClick={create} style={{ background: actualDark ? "#262626" : "#eae7e2", color: t.text, padding: "0", width: 34, height: 34, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>＋</button>
             </div>
-          )}
-
-          {showEditorMenu && editorMenuPos && (
-            <>
-              <div onClick={() => { setShowEditorMenu(false); setEditorMenuPos(null); }} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
-              <div style={{
-                position: "fixed", top: editorMenuPos.bottom + 8, right: editorMenuPos.right, zIndex: 100,
-                background: actualDark ? "#1a1a1a" : "#f0ede8", borderRadius: 20,
-                boxShadow: actualDark ? "0 8px 28px rgba(0,0,0,0.7)" : "0 8px 28px rgba(0,0,0,0.12)",
-                overflow: "hidden", minWidth: 140, display: "flex", flexDirection: "column", padding: "4px 0"
-              }}>
-                <button onClick={() => { setShowEditorMenu(false); setEditorMenuPos(null); fileInputRef.current?.click(); }} style={{ width: "100%", display: "flex", alignItems: "center", gap: 7, padding: "9px 14px", border: "none", background: "none", color: t.text, fontSize: 12, cursor: "pointer", fontFamily: "inherit", textAlign: "left" }}>
-                  <span style={{ fontSize: 13 }}>📎</span>
-                  <span>{L.addAttach}</span>
+            <div style={{ padding: isTiny ? "0 10px 8px" : isMobile ? "0 12px 10px" : "0 10px 10px", position: "relative" }}>
+              <input ref={searchInputRef} value={search} onChange={e => setSearch(e.target.value)} placeholder={L.searchPlaceholder}
+                style={{ width: "100%", padding: "7px 12px", background: t.inputBg, borderRadius: 8, fontSize: 13, color: t.text }} />
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 5, padding: isMobile ? "0 12px 12px 12px" : "0 10px 12px 10px" }}>
+              {filterKeys.map(f => (
+                <button key={f.key} className="filter-btn" onClick={() => setFilter(f.key)}
+                  style={{ background: filter === f.key ? t.tagBtnActive : "transparent", color: filter === f.key ? (actualDark ? "#e6b450" : "#fff") : t.tagBtnText }}>
+                  {f.label}
                 </button>
-              </div>
-            </>
-          )}
+              ))}
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "0 8px 12px" : "0 6px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
+              {list.length === 0 && <p style={{ textAlign: "center", color: t.textMuted, fontSize: 13, marginTop: 48 }}>{L.noMemos}</p>}
+              {list.map(m => {
+                const ts = TAG_STYLE[m.tag]?.[actualDark ? "dark" : "light"];
+                return (
+                  <div key={m.id} className={`card${activeId === m.id ? " is-active" : ""}`} onClick={() => { setActiveId(m.id); setActiveTextBlockId(null); if (isMobile) setShowMobileList(false); }}>
+                    <div className="card-actions">
+                      <button className="iBtn" title={m.pinned ? L.unpinTip : L.pinTip} onClick={e => togglePin(m.id, e)}>{m.pinned ? "◉" : "○"}</button>
+                      <button className="iBtn danger" title={L.deleteTip} onClick={e => del(m.id, e)}>✕</button>
+                    </div>
+                    <div style={{ fontSize: 13.5, fontWeight: 500, color: t.text, paddingRight: 52, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", marginBottom: 4 }}>
+                      {m.pinned && <span style={{ marginRight: 5, fontSize: 9, opacity: 0.5 }}>●</span>}
+                      {m.title || L.untitled}
+                    </div>
+                    <div style={{ fontSize: 12, color: t.textSub, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", marginBottom: 8 }}>
+                      {((ensureBlocks(m).find(b => b.type === "text" && (b.text || "").trim())?.text || m.content || "").split("\n")[0]) || L.noContent}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      {ts ? <span className="pill" style={{ background: ts.bg, color: ts.text }}>{m.tag}</span> : <span style={{ fontSize: 11, background: actualDark ? "#262626" : "#f0ede8", color: t.textSub, padding: "2px 9px", borderRadius: 20 }}>{m.tag}</span>}
+                      <span style={{ fontSize: 11, color: t.textMuted, marginLeft: "auto" }}>
+                        {m.attachments?.length > 0 && <span style={{ marginRight: 6 }}>📎{m.attachments.length}</span>}
+                        {timeAgo(m.updatedAt, activeLang)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={{ padding: isMobile ? "12px 16px calc(12px + env(safe-area-inset-bottom))" : "10px 16px", fontSize: 11.5, color: t.textMuted, textAlign: "center" }}>
+              {L.memoCount(list.length)}
+            </div>
+          </aside>}
 
-          <div style={{ flex: 1, display: "flex", flexDirection: "row", overflow: "hidden", minHeight: 0 }}>
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", minWidth: 0, position: "relative" }}>
-                <div style={{ width: "100%", maxWidth: typeof editorMaxWidth === "number" ? editorMaxWidth : "100%", margin: "0 auto", display: "flex", flexDirection: "column", flex: 1 }}>
-                <div style={{ padding: isShortLandscape ? `12px ${editorPaddingX}px 6px` : isMobile ? `16px ${editorPaddingX}px 8px` : `20px 40px 10px`, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, flexShrink: 0 }}>
-                  <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 5, background: actualDark ? "#262626" : "#f0ede8", borderRadius: 999, padding: "7px 16px" }}>
-                    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 5 }}>
-                      {tags.map(tag => {
-                        const ts = TAG_STYLE[tag]?.[actualDark ? "dark" : "light"];
+          {showEditorPane && active ? (
+            <main key={active.id} className="editor"
+              style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: t.editorBg, overflow: "hidden", position: "relative", height: "100%" }}
+              onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+            >
+              {dragOver && <div className="drag-overlay"><span style={{ fontSize: 15, color: t.accent }}>{L.dropHint}</span></div>}
+
+              {isMobile && (
+                <div className="mobile-topbar" style={{ position: "relative" }}>
+                  <button className="mobile-back" onClick={() => setShowMobileList(true)} style={{ width: 48, height: 34, borderRadius: 999, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: actualDark ? "#262626" : "#eae7e2", color: t.text }}>‹</button>
+                  <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", maxWidth: "55%", textAlign: "center" }}>
+                    {editTitle ? (
+                      <input ref={titleRef} value={active.title}
+                        onChange={e => upd(active.id, { title: e.target.value })}
+                        onBlur={() => setEditTitle(false)}
+                        onKeyDown={e => { if (e.key === "Enter") setEditTitle(false); }}
+                        style={{ fontSize: 16, fontWeight: 600, color: t.text, width: "100%", border: "none", outline: "none", background: "transparent", fontFamily: "inherit", textAlign: "center" }} />
+                    ) : (
+                      <div onClick={() => setEditTitle(true)} style={{ fontSize: 16, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", cursor: "text", color: t.text }}>
+                        {active.title || <span style={{ color: t.textMuted, fontWeight: 400 }}>{L.titlePlaceholder}</span>}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ flex: 1 }} />
+                  <div style={{ position: "relative" }}>
+                    <button ref={moreBtnRef} onClick={toggleEditorMenu} style={{ width: 48, height: 34, borderRadius: 999, border: "none", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, background: actualDark ? "#262626" : "#eae7e2", color: t.text, cursor: "pointer", fontSize: 16, letterSpacing: 1 }}>…</button>
+                  </div>
+                  <input ref={fileInputRef} type="file" multiple style={{ display: "none" }}
+                    onChange={e => { if (e.target.files?.length) addFiles(e.target.files); e.target.value = ""; }} />
+                </div>
+              )}
+
+              {showEditorMenu && editorMenuPos && (
+                <>
+                  <div onClick={() => { setShowEditorMenu(false); setEditorMenuPos(null); }} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
+                  <div style={{
+                    position: "fixed", top: editorMenuPos.metaTop, right: editorMenuPos.right, zIndex: 100,
+                    background: actualDark ? "rgba(30,30,30,0.72)" : "#f0ede8",
+                    backdropFilter: actualDark ? "blur(18px)" : "none",
+                    WebkitBackdropFilter: actualDark ? "blur(18px)" : "none",
+                    borderRadius: 12,
+                    boxShadow: actualDark ? "0 4px 16px rgba(0,0,0,0.6)" : "0 4px 16px rgba(0,0,0,0.10)",
+                    overflow: "hidden", minWidth: 88, display: "flex", flexDirection: "column", padding: "2px 0"
+                  }}>
+                    <button onClick={() => { setShowEditorMenu(false); setEditorMenuPos(null); fileInputRef.current?.click(); }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "center", padding: "7px 10px", border: "none", background: "none", color: t.text, fontSize: 11, cursor: "pointer", fontFamily: "inherit", textAlign: "center" }}>
+                      <span>{L.addAttach}</span>
+                    </button>
+                  </div>
+                </>
+              )}
+
+              <div style={{ flex: 1, display: "flex", flexDirection: "row", overflow: "hidden", minHeight: 0 }}>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto", minWidth: 0, position: "relative" }}>
+                    <div style={{ width: "100%", maxWidth: typeof editorMaxWidth === "number" ? editorMaxWidth : "100%", margin: "0 auto", display: "flex", flexDirection: "column", flex: 1 }}>
+                    <div ref={metaBarRef} style={{ padding: isShortLandscape ? `12px ${editorPaddingX}px 6px` : isMobile ? `16px ${editorPaddingX}px 8px` : `20px 40px 10px`, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, flexShrink: 0 }}>
+                      <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 5, background: actualDark ? "#262626" : "#f0ede8", borderRadius: 999, padding: "7px 16px" }}>
+                        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 5 }}>
+                          {tags.map(tag => {
+                            const ts = TAG_STYLE[tag]?.[actualDark ? "dark" : "light"];
+                            return (
+                              <button key={tag} className="pill"
+                                onClick={() => upd(active.id, { tag })}
+                                style={{ background: active.tag === tag ? (ts?.bg ?? (actualDark ? "#3a3028" : "#e0dbd4")) : "transparent", color: active.tag === tag ? (ts?.text ?? t.text) : t.textMuted, fontSize: 10.5, padding: "3px 8px" }}>
+                                {tag}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <span style={{ fontSize: 10.5, color: t.textMuted }}>
+                          {timeAgo(active.updatedAt, activeLang)} · {L.charCount(activeBlocks.filter(b => b.type === "text").map(b => b.text || "").join("").replace(/\n/g, "").length)}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 0, padding: isShortLandscape ? `12px ${editorPaddingX}px 72px` : isMobile ? `14px ${editorPaddingX}px 96px` : `16px 40px 72px`, width: "100%", boxSizing: "border-box" }}>
+                      {activeBlocks.map((block, index) => {
+                        if (block.type === "attachment") {
+                          const file = (active.attachments || []).find(f => f.id === block.fileId);
+                          if (!file) return null;
+
+                          // iOS 风格内联光标锚点
+                          const InlineCursorAnchor = ({ blockId, fileId }) => {
+                            const [focused, setFocused] = React.useState(false);
+                            const inputRef = React.useRef(null);
+
+                            const commitInput = (text) => {
+                              if (!text) return;
+                              setMemos(ms => ms.map(m => {
+                                if (m.id !== active.id) return m;
+                                const blocks = ensureBlocks(m);
+                                const idx = blocks.findIndex(b => b.id === blockId);
+                                const next = blocks[idx + 1];
+                                if (next && next.type === "text") {
+                                  const updated = blocks.map((b, i) =>
+                                    i === idx + 1 ? { ...b, text: text + b.text } : b
+                                  );
+                                  setTimeout(() => {
+                                    const ta = document.querySelector(`textarea[data-blockid="${next.id}"]`);
+                                    if (ta) { ta.focus(); ta.setSelectionRange(text.length, text.length); }
+                                  }, 20);
+                                  return { ...m, blocks: updated, content: blocksToContent(updated, m.attachments || []), updatedAt: new Date().toISOString() };
+                                } else {
+                                  const nb = makeTextBlock(text);
+                                  const updated = [...blocks.slice(0, idx + 1), nb, ...blocks.slice(idx + 1)];
+                                  setTimeout(() => {
+                                    const ta = document.querySelector(`textarea[data-blockid="${nb.id}"]`);
+                                    if (ta) { ta.focus(); ta.setSelectionRange(text.length, text.length); }
+                                  }, 20);
+                                  return { ...m, blocks: updated, content: blocksToContent(updated, m.attachments || []), updatedAt: new Date().toISOString() };
+                                }
+                              }));
+                            };
+
+                            return (
+                              <span
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  width: "100%",
+                                  alignSelf: "stretch",
+                                  cursor: "text",
+                                  position: "relative",
+                                }}
+                                onClick={() => inputRef.current?.focus()}
+                              >
+                                <input
+                                  ref={inputRef}
+                                  type="text"
+                                  inputMode="text"
+                                  value=""
+                                  readOnly={false}
+                                  onFocus={() => { setFocused(true); setActiveTextBlockId(blockId); }}
+                                  onBlur={() => setFocused(false)}
+                                  onChange={e => {
+                                    const v = e.target.value;
+                                    if (v) { commitInput(v); e.target.value = ""; }
+                                  }}
+                                  onKeyDown={e => {
+                                    if (e.key === "Backspace") {
+                                      e.preventDefault();
+                                      removeAttachment(active.id, fileId);
+                                    }
+                                  }}
+                                  style={{
+                                    position: "absolute", left: 0, top: 0,
+                                    width: "100%", height: "100%",
+                                    opacity: 0, border: "none", outline: "none",
+                                    background: "transparent", fontSize: bodyFontSize,
+                                    caretColor: "transparent",
+                                    padding: 0, margin: 0,
+                                  }}
+                                />
+                                {focused && (
+                                  <span style={{
+                                    display: "block", width: 2, height: "70%", minHeight: 20,
+                                    background: actualDark ? "#e6b450" : "#007AFF",
+                                    borderRadius: 1,
+                                    animation: "blink 1s step-end infinite",
+                                    pointerEvents: "none",
+                                    alignSelf: "center",
+                                  }} />
+                                )}
+                              </span>
+                            );
+                          };
+
+                          return isImageFile(file) ? (
+                            <div key={block.id} style={{ position: "relative", width: "100%", paddingTop: 4, paddingBottom: 4 }}>
+                              {file.url ? (
+                                <img
+                                  src={file.url} alt={file.name}
+                                  style={{ display: "block", width: "100%", height: "auto", borderRadius: 14, boxShadow: actualDark ? "0 10px 24px rgba(0,0,0,0.6)" : "0 8px 22px rgba(0,0,0,0.08)" }}
+                                />
+                              ) : (
+                                <div style={{ width: "100%", height: 120, background: actualDark ? "#1a1a1a" : "#f0ede8", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", color: t.textMuted, fontSize: 13 }}>
+                                  📁 附件已过期
+                                </div>
+                              )}
+                              <div style={{ position: "absolute", right: -10, top: 0, bottom: 0, width: 20, display: "flex", alignItems: "stretch" }}>
+                                <InlineCursorAnchor blockId={block.id} fileId={file.id} />
+                              </div>
+                            </div>
+                          ) : (
+                            <div key={block.id} style={{ position: "relative", display: "inline-flex", paddingTop: 4, paddingBottom: 4, maxWidth: "100%" }}>
+                              <AttachmentChip file={file} dark={actualDark} onRemove={(fileId) => removeAttachment(active.id, fileId)} onOpen={openAttachment} />
+                              <div style={{ position: "absolute", right: -10, top: 0, bottom: 0, width: 20, display: "flex", alignItems: "stretch" }}>
+                                <InlineCursorAnchor blockId={block.id} fileId={file.id} />
+                              </div>
+                            </div>
+                          );
+                        }
+                        if (block.type === "link") {
+                          const linkIdx = activeBlocks.findIndex(b => b.id === block.id);
+                          const nextTextBlock = activeBlocks.slice(linkIdx + 1).find(b => b.type === "text");
+                          return (
+                            <div key={block.id} style={{ display: "flex", flexDirection: "column" }}>
+                              <LinkCard url={block.url} dark={actualDark} onRemove={() => removeLinkBlock(active.id, block.id)} />
+                              {nextTextBlock && (
+                                <div style={{ height: 8, cursor: "text" }} onClick={() => { const ta = document.querySelector(`textarea[data-blockid="${nextTextBlock.id}"]`); if (ta) { ta.focus(); const len = ta.value.length; ta.setSelectionRange(len, len); } }} />
+                              )}
+                            </div>
+                          );
+                        }
                         return (
-                          <button key={tag} className="pill"
-                            onClick={() => upd(active.id, { tag })}
-                            style={{ background: active.tag === tag ? (ts?.bg ?? (actualDark ? "#3a3028" : "#e0dbd4")) : "transparent", color: active.tag === tag ? (ts?.text ?? t.text) : t.textMuted, fontSize: 10.5, padding: "3px 8px" }}>
-                            {tag}
-                          </button>
+                          <textarea key={block.id} data-blockid={block.id} value={block.text}
+                            ref={el => { if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }}
+                            onFocus={e => { setActiveTextBlockId(block.id); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
+                            onClick={() => setActiveTextBlockId(block.id)}
+                            onChange={e => { updateTextBlock(active.id, block.id, e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
+                            placeholder="" rows={1}
+                            style={{ display: "block", width: "100%", minHeight: bodyFontSize * bodyLineHeight, fontSize: bodyFontSize, fontFamily: settings.fontFamily, color: t.text, lineHeight: bodyLineHeight, letterSpacing: 0.2, overflow: "hidden", border: "none", outline: "none", background: "transparent" }}
+                          />
                         );
                       })}
                     </div>
-                    <span style={{ fontSize: 10.5, color: t.textMuted }}>
-                      {timeAgo(active.updatedAt, activeLang)} · {L.charCount(activeBlocks.filter(b => b.type === "text").map(b => b.text || "").join("").replace(/\n/g, "").length)}
-                    </span>
+                    </div>
                   </div>
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: isShortLandscape ? `12px ${editorPaddingX}px 72px` : isMobile ? `14px ${editorPaddingX}px 96px` : `16px 40px 72px`, width: "100%", boxSizing: "border-box" }}>
-                  {activeBlocks.map((block, index) => {
-                    if (block.type === "attachment") {
-                      const file = (active.attachments || []).find(f => f.id === block.fileId);
-                      if (!file) return null;
-                      return isImageFile(file) ? (
-                        <div key={block.id} style={{ display: "block", width: "100%", paddingTop: 2, paddingBottom: 2 }}>
-                          <div style={{ position: "relative", width: "100%" }}>
-                            {file.url ? (
-                              <img src={file.url} alt={file.name} style={{ display: "block", width: "auto", maxWidth: "100%", height: "auto", borderRadius: 14, boxShadow: actualDark ? "0 10px 24px rgba(0,0,0,0.6)" : "0 8px 22px rgba(0,0,0,0.08)" }} />
-                            ) : (
-                              <div style={{ width: "100%", height: 120, background: actualDark ? "#1a1a1a" : "#f0ede8", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", color: t.textMuted, fontSize: 13 }}>
-                                📁 附件已过期
-                              </div>
-                            )}
-                            <button onClick={() => removeAttachment(active.id, file.id)} style={{ position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: "50%", border: "none", background: "rgba(0,0,0,0.5)", color: "#fff", cursor: "pointer", fontSize: 12 }}>✕</button>
-                          </div>
-                          <input value={block.caption || ""} onChange={e => updateAttachmentCaption(active.id, block.id, e.target.value)} placeholder={activeLang === "zh" ? "添加图片说明…" : "Add caption…"} style={{ width: "100%", marginTop: 8, fontSize: 13, lineHeight: 1.6, color: t.textSub, fontFamily: settings.fontFamily, textAlign: "left", border: "none", outline: "none", background: "transparent" }} />
-                        </div>
-                      ) : (
-                        <div key={block.id} style={{ display: "block", width: "100%", paddingTop: 2, paddingBottom: 2 }}>
-                          <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
-                            <AttachmentChip file={file} dark={actualDark} onRemove={(fileId) => removeAttachment(active.id, fileId)} onOpen={openAttachment} />
-                            <input value={block.caption || ""} onChange={e => updateAttachmentCaption(active.id, block.id, e.target.value)} placeholder={activeLang === "zh" ? "添加附件说明…" : "Add file note…"} style={{ width: isMobile ? "100%" : 280, maxWidth: "100%", fontSize: 13, lineHeight: 1.6, color: t.textSub, fontFamily: settings.fontFamily, textAlign: "left", border: "none", outline: "none", background: "transparent" }} />
-                          </div>
-                        </div>
-                      );
-                    }
-                    if (block.type === "link") {
-                      const linkIdx = activeBlocks.findIndex(b => b.id === block.id);
-                      const nextTextBlock = activeBlocks.slice(linkIdx + 1).find(b => b.type === "text");
-                      return (
-                        <div key={block.id} style={{ display: "flex", flexDirection: "column" }}>
-                          <LinkCard url={block.url} dark={actualDark} onRemove={() => removeLinkBlock(active.id, block.id)} />
-                          {nextTextBlock && (
-                            <div style={{ height: 8, cursor: "text" }} onClick={() => { const ta = document.querySelector(`textarea[data-blockid="${nextTextBlock.id}"]`); if (ta) { ta.focus(); const len = ta.value.length; ta.setSelectionRange(len, len); } }} />
-                          )}
-                        </div>
-                      );
-                    }
-                    return (
-                      <textarea key={block.id} data-blockid={block.id} value={block.text}
-                        ref={el => { if (el) { el.style.height = "auto"; el.style.height = el.scrollHeight + "px"; } }}
-                        onFocus={e => { setActiveTextBlockId(block.id); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
-                        onClick={() => setActiveTextBlockId(block.id)}
-                        onChange={e => { updateTextBlock(active.id, block.id, e.target.value); e.target.style.height = "auto"; e.target.style.height = e.target.scrollHeight + "px"; }}
-                        placeholder="" rows={1}
-                        style={{ display: "block", width: "100%", minHeight: block.text ? 32 : 80, fontSize: bodyFontSize, fontFamily: settings.fontFamily, color: t.text, lineHeight: bodyLineHeight, letterSpacing: 0.2, overflow: "hidden", border: "none", outline: "none", background: "transparent" }}
-                      />
-                    );
-                  })}
-                </div>
-                </div>
               </div>
-          </div>
-        </main>
-      ) : showEditorPane ? (
-        <main style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: t.editorBg, gap: 14, padding: shellPadding }}>
-          <div style={{ fontSize: isMobile ? 38 : 44, opacity: 0.1, color: t.text }}>✎</div>
-          <p style={{ color: t.textMuted, fontSize: isMobile ? 13 : 14, letterSpacing: 1.2, textAlign: "center" }}>{L.emptyEditor}</p>
-        </main>
-      ) : null}
+            </main>
+          ) : showEditorPane ? (
+            <main style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: t.editorBg, gap: 14, padding: shellPadding }}>
+              <div style={{ fontSize: isMobile ? 38 : 44, opacity: 0.1, color: t.text }}>✎</div>
+              <p style={{ color: t.textMuted, fontSize: isMobile ? 13 : 14, letterSpacing: 1.2, textAlign: "center" }}>{L.emptyEditor}</p>
+            </main>
+          ) : null}
 
-      {showSettings && (
-        <SettingsPanel dark={actualDark} settings={settings} onChange={setSetting} tags={tags} onTagsChange={setTags}
-          L={L} activeLang={activeLang} account={account} onLogout={handleLogout} guestMode={guestMode} onRelogin={handleRelogin}
-          onClose={() => setShowSettings(false)} />
-      )}
-    </div>
-  );
-}
+          {showSettings && (
+            <SettingsPanel dark={actualDark} settings={settings} onChange={setSetting} tags={tags} onTagsChange={setTags}
+              L={L} activeLang={activeLang} account={account} onLogout={handleLogout} guestMode={guestMode} onRelogin={handleRelogin}
+              onClose={() => setShowSettings(false)} />
+          )}
+        </div>
+      );
+    }
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
   </script>
 </body>
 </html>
