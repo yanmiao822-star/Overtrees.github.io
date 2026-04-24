@@ -29,8 +29,12 @@
   <script type="text/babel">
     const { useState, useRef, useEffect, useCallback, useMemo } = React;
 
-    // ---- 可配置的 CORS 代理（若部署自有后端，改这里即可） ----
-    const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
+    // ---- 可配置的 CORS 代理（优先使用第一个，失败则尝试第二个） ----
+    const CORS_PROXY_LIST = [
+      'https://api.akko.one/',
+      'https://api.allorigins.win/raw?url=',
+      'https://corsproxy.io/?',
+    ];
 
     // ---------- IndexedDB 工具 ----------
     function openDB() {
@@ -259,27 +263,35 @@
       }
     }
 
-    // 提取 Open Graph 元数据的工具函数
-    function fetchOGMeta(url) {
-      return fetch(CORS_PROXY + encodeURIComponent(url))
-        .then(r => r.text())
-        .then(html => {
+    // 提取 Open Graph 元数据，带备用代理
+    async function fetchOGMeta(url) {
+      for (const proxy of CORS_PROXY_LIST) {
+        try {
+          const res = await fetch(proxy + encodeURIComponent(url));
+          if (!res.ok) continue;
+          const html = await res.text();
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
           const getMeta = (prop) => {
             const el = doc.querySelector(`meta[property="og:${prop}"]`) || doc.querySelector(`meta[name="${prop}"]`);
             return el ? el.getAttribute('content') : null;
           };
-          return {
-            title: getMeta('title') || doc.title || '',
-            image: getMeta('image') || '',
-            description: getMeta('description') || ''
-          };
-        })
-        .catch(() => null);
+          const title = getMeta('title') || doc.title || '';
+          const image = getMeta('image') || '';
+          const description = getMeta('description') || '';
+          if (title || image) {
+            return { title, image, description };
+          }
+          // 即使没有 og 数据，只要有页面标题也可返回
+          if (doc.title) return { title: doc.title, image: '', description: '' };
+        } catch (e) {
+          // 尝试下一个代理
+        }
+      }
+      return null;
     }
 
-    // 增强版 LinkCard，保持圆形药丸风格，但可用 OG 数据丰富显示
+    // 增强版 LinkCard，保持圆形药丸，优先展示 OG 数据
     function LinkCard({ url, dark, onRemove }) {
       const info = classifyUrl(url);
       if (!info) return null;
@@ -296,7 +308,7 @@
             if (!cancelled && data && (data.title || data.image)) {
               setMeta(data);
             }
-            setLoading(false);
+            if (!cancelled) setLoading(false);
           });
         }
         return () => { cancelled = true; };
@@ -305,7 +317,7 @@
       const t = tokens(dark);
       const bg = dark ? info.bgDark : info.bgLight;
 
-      // 基础药丸样式（所有情况共用）
+      // 通用样式
       const pillStyle = {
         display: "flex",
         alignItems: "center",
@@ -321,8 +333,6 @@
         boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.4)" : "0 2px 8px rgba(0,0,0,0.06)",
         opacity: loading ? 0.7 : 1,
       };
-
-      // 移除按钮通用样式
       const removeBtnStyle = {
         border: "none",
         background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
@@ -377,9 +387,6 @@
         </div>
       );
     }
-
-    // 其余组件（AttachmentChip, TagEditor, SettingRow, SettingGroupTitle, SettingNavItem, LoginScreen, SettingsPanel）保持不变，为节省篇幅此处省略，但在完整代码中包含
-    // 注意：这里需要在最终输出中包含所有这些组件的完整代码，因为要生成完整 HTML。以下将粘贴完整的其余部分。
 
     function AttachmentChip({ file, dark, onRemove, onOpen }) { const t = tokens(dark); return (<div onClick={() => onOpen(file)} title={file.name} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: dark ? "#1a1a1a" : "#f4f1ec", border: `1px solid ${t.border}`, borderRadius: 10, padding: "8px 12px", cursor: "pointer", maxWidth: "100%", boxShadow: dark ? "0 2px 8px rgba(0,0,0,0.3)" : "none", }}><span style={{ fontSize: 18, flexShrink: 0 }}>{fileIcon(file.name)}</span><div style={{ overflow: "hidden", flex: 1 }}><div style={{ fontSize: 12, color: t.text, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</div><div style={{ fontSize: 11, color: t.textSub }}>{fmtSize(file.size)}</div></div><button onClick={e => { e.stopPropagation(); onRemove(file.id); }} style={{ border: "none", background: "none", cursor: "pointer", color: t.textSub, fontSize: 13, padding: "0 2px", flexShrink: 0, lineHeight: 1, borderRadius: 4 }}>✕</button></div>); }
     function TagEditor({ tags, onChange, dark, t, L }) { const [editingIdx, setEditingIdx] = useState(null); const [editVal, setEditVal] = useState(""); const [newVal, setNewVal] = useState(""); const [adding, setAdding] = useState(false); const newInputRef = useRef(null); const editInputRef = useRef(null); const startEdit = (i) => { setEditingIdx(i); setEditVal(tags[i]); setTimeout(() => editInputRef.current?.select(), 30); }; const commitEdit = (i) => { const v = editVal.trim(); if (v && v !== tags[i]) { const next = [...tags]; next[i] = v; onChange(next); } setEditingIdx(null); }; const deleteTag = (i) => { if (window.confirm(L.deleteTagConfirm)) { onChange(tags.filter((_, idx) => idx !== i)); } }; const startAdd = () => { setAdding(true); setNewVal(""); setTimeout(() => newInputRef.current?.focus(), 30); }; const commitAdd = () => { const v = newVal.trim(); if (v && !tags.includes(v)) onChange([...tags, v]); setAdding(false); setNewVal(""); }; const chip = { display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", borderRadius: 7, border: `1px solid ${t.border}`, background: dark ? "#262626" : "#f7f4f0", fontSize: 12, color: t.text, }; return (<div style={{ display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center" }}>{tags.map((tag, i) => (<div key={tag + i} style={chip}>{editingIdx === i ? (<input ref={editInputRef} value={editVal} onChange={e => setEditVal(e.target.value)} onBlur={() => commitEdit(i)} onKeyDown={e => { if (e.key === "Enter") commitEdit(i); if (e.key === "Escape") setEditingIdx(null); }} style={{ width: Math.max(editVal.length * 14, 40) + "px", fontSize: 12, color: t.text, border: "none", outline: "none", background: "transparent", fontFamily: "inherit" }} />) : (<span onClick={() => startEdit(i)} style={{ cursor: "text", userSelect: "none" }} title="点击编辑">{tag}</span>)}<button onClick={() => deleteTag(i)} style={{ border: "none", background: "none", cursor: "pointer", color: t.textSub, fontSize: 11, padding: "0 1px", lineHeight: 1, borderRadius: 3 }} onMouseEnter={e => e.currentTarget.style.color = "#d04040"} onMouseLeave={e => e.currentTarget.style.color = t.textSub}>✕</button></div>))}{adding ? (<div style={{ ...chip, border: `1px solid ${t.accent}` }}><input ref={newInputRef} value={newVal} onChange={e => setNewVal(e.target.value)} onBlur={commitAdd} onKeyDown={e => { if (e.key === "Enter") commitAdd(); if (e.key === "Escape") { setAdding(false); setNewVal(""); } }} placeholder={L.tagPlaceholder} style={{ width: 64, fontSize: 12, color: t.text, border: "none", outline: "none", background: "transparent", fontFamily: "inherit" }} /></div>) : (<button onClick={startAdd} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 7, border: `1px dashed ${t.border}`, background: "transparent", color: t.textSub, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }} onMouseEnter={e => { e.currentTarget.style.borderColor = t.accent; e.currentTarget.style.color = t.accent; }} onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textSub; }}>{L.addTag}</button>)}</div>); }
@@ -582,7 +589,8 @@
                 </button>
               ))}
             </div>
-            <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "0 8px 12px" : "0 6px 12px", display: "flex", flexDirection: "column", gap: 6 }}>
+            {/* 列表滚动容器 + 底部渐变遮罩 */}
+            <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "0 8px 22px" : "0 6px 18px", display: "flex", flexDirection: "column", gap: 6, position: "relative", minHeight: 0 }}>
               {list.length === 0 && <p style={{ textAlign: "center", color: t.textMuted, fontSize: 13, marginTop: 48 }}>{L.noMemos}</p>}
               {list.map(m => {
                 const ts = TAG_STYLE[m.tag]?.[actualDark ? "dark" : "light"];
@@ -609,6 +617,17 @@
                   </div>
                 );
               })}
+              {/* 渐变遮罩层 */}
+              <div style={{
+                position: "absolute",
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 40,
+                background: `linear-gradient(to top, ${t.sidebar} 0%, transparent 100%)`,
+                pointerEvents: "none",
+                zIndex: 2,
+              }} />
             </div>
             <div style={{ padding: isMobile ? "12px 16px calc(12px + env(safe-area-inset-bottom))" : "10px 16px", fontSize: 11.5, color: t.textMuted, textAlign: "center" }}>
               {L.memoCount(list.length)}
