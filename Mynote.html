@@ -4,10 +4,10 @@
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="此刻">
+  <meta name="apple-mobile-web-app-title" content="精美手记">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>此刻</title>
+  <title>备忘录 · 精致版</title>
   <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
@@ -28,6 +28,9 @@
 
   <script type="text/babel">
     const { useState, useRef, useEffect, useCallback, useMemo } = React;
+
+    // ---- 可配置的 CORS 代理（若部署自有后端，改这里即可） ----
+    const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
 
     // ---------- IndexedDB 工具 ----------
     function openDB() {
@@ -199,11 +202,185 @@
 
     const URL_RE = /https?:\/\/[^\s"'<>()\u3000-\uffff]{4,}/gi;
     function extractUrls(text) { return [...new Set((text || "").match(URL_RE) || [])]; }
+
+    // 扩展 classifyUrl，返回 id（若可解析）
     function classifyUrl(url) {
-      try { const u = new URL(url); const host = u.hostname.replace(/^www\./, ""); if (host === "music.163.com" || host === "y.music.163.com") { const isSong = /\/song/.test(u.pathname) || u.hash?.includes("song") || u.searchParams.get("id"); const isAlbum = /\/album/.test(u.pathname) || u.hash?.includes("album"); const isList = /\/playlist/.test(u.pathname) || u.hash?.includes("playlist"); const isArtist = /\/artist/.test(u.pathname) || u.hash?.includes("artist"); return { platform: "netease", label: "网易云音乐", icon: "🎵", color: "#C20C0C", bgLight: "#fff5f5", bgDark: "#2a0a0a", kind: isSong ? "单曲" : isAlbum ? "专辑" : isList ? "歌单" : isArtist ? "歌手" : "音乐" }; } if (host === "y.qq.com" || host === "i.y.qq.com") { return { platform: "qqmusic", label: "QQ 音乐", icon: "🎶", color: "#1DB954", bgLight: "#f0faf4", bgDark: "#0a2010", kind: "音乐" }; } if (host === "weibo.com" || host === "m.weibo.cn" || host === "t.cn") { return { platform: "weibo", label: "微博", icon: "🟠", color: "#E6162D", bgLight: "#fff8f5", bgDark: "#2a0a06", kind: "内容" }; } if (host === "mp.weixin.qq.com") { return { platform: "wechat", label: "微信公众号", icon: "💬", color: "#07C160", bgLight: "#f0fff6", bgDark: "#071a0e", kind: "文章" }; } if (host === "bilibili.com" || host === "b23.tv" || host === "www.bilibili.com") { return { platform: "bilibili", label: "哔哩哔哩", icon: "📺", color: "#00A1D6", bgLight: "#f0faff", bgDark: "#031520", kind: "视频" }; } if (host === "youtube.com" || host === "youtu.be") { return { platform: "youtube", label: "YouTube", icon: "▶️", color: "#FF0000", bgLight: "#fff5f5", bgDark: "#1a0505", kind: "视频" }; } if (host === "douyin.com" || host === "v.douyin.com") { return { platform: "douyin", label: "抖音", icon: "🎬", color: "#161823", bgLight: "#f8f8ff", bgDark: "#0a0a1a", kind: "短视频" }; } if (host === "xiaohongshu.com" || host === "xhslink.com") { return { platform: "xhs", label: "小红书", icon: "📖", color: "#FE2C55", bgLight: "#fff5f7", bgDark: "#200610", kind: "笔记" }; } if (host === "zhihu.com" || host === "zhuanlan.zhihu.com") { const kind = /zhuanlan/.test(url) ? "专栏" : /answer/.test(url) ? "回答" : /question/.test(url) ? "问题" : "内容"; return { platform: "zhihu", label: "知乎", icon: "💡", color: "#0066FF", bgLight: "#f0f6ff", bgDark: "#03102a", kind }; } if (host === "douban.com" || host.endsWith(".douban.com")) { const kind = /movie/.test(url) ? "影视" : /music/.test(url) ? "音乐" : /book/.test(url) ? "书目" : "内容"; return { platform: "douban", label: "豆瓣", icon: "📗", color: "#3C9B3C", bgLight: "#f4fff4", bgDark: "#081408", kind }; } return { platform: "generic", label: host, icon: "🔗", color: "#6b7280", bgLight: "#f9fafb", bgDark: "#1a1a20", kind: "链接" }; } catch { return null; }
+      try {
+        const u = new URL(url);
+        const host = u.hostname.replace(/^www\./, "");
+        if (host === "music.163.com" || host === "y.music.163.com") {
+          const id = u.searchParams.get("id") || "";
+          const isSong = /\/song/.test(u.pathname) || u.hash?.includes("song") || id;
+          const isAlbum = /\/album/.test(u.pathname) || u.hash?.includes("album");
+          const isList = /\/playlist/.test(u.pathname) || u.hash?.includes("playlist");
+          const isArtist = /\/artist/.test(u.pathname) || u.hash?.includes("artist");
+          return {
+            platform: "netease",
+            label: "网易云音乐",
+            icon: "🎵",
+            color: "#C20C0C",
+            bgLight: "#fff5f5", bgDark: "#2a0a0a",
+            kind: isSong ? "单曲" : isAlbum ? "专辑" : isList ? "歌单" : isArtist ? "歌手" : "音乐",
+            id: id || undefined
+          };
+        }
+        if (host === "y.qq.com" || host === "i.y.qq.com") {
+          return { platform: "qqmusic", label: "QQ 音乐", icon: "🎶", color: "#1DB954", bgLight: "#f0faf4", bgDark: "#0a2010", kind: "音乐", id: u.searchParams.get("songid") || undefined };
+        }
+        if (host === "weibo.com" || host === "m.weibo.cn" || host === "t.cn") {
+          return { platform: "weibo", label: "微博", icon: "🟠", color: "#E6162D", bgLight: "#fff8f5", bgDark: "#2a0a06", kind: "内容" };
+        }
+        if (host === "mp.weixin.qq.com") {
+          return { platform: "wechat", label: "微信公众号", icon: "💬", color: "#07C160", bgLight: "#f0fff6", bgDark: "#071a0e", kind: "文章" };
+        }
+        if (host === "bilibili.com" || host === "b23.tv" || host === "www.bilibili.com") {
+          return { platform: "bilibili", label: "哔哩哔哩", icon: "📺", color: "#00A1D6", bgLight: "#f0faff", bgDark: "#031520", kind: "视频" };
+        }
+        if (host === "youtube.com" || host === "youtu.be") {
+          return { platform: "youtube", label: "YouTube", icon: "▶️", color: "#FF0000", bgLight: "#fff5f5", bgDark: "#1a0505", kind: "视频" };
+        }
+        if (host === "douyin.com" || host === "v.douyin.com") {
+          return { platform: "douyin", label: "抖音", icon: "🎬", color: "#161823", bgLight: "#f8f8ff", bgDark: "#0a0a1a", kind: "短视频" };
+        }
+        if (host === "xiaohongshu.com" || host === "xhslink.com") {
+          return { platform: "xhs", label: "小红书", icon: "📖", color: "#FE2C55", bgLight: "#fff5f7", bgDark: "#200610", kind: "笔记" };
+        }
+        if (host === "zhihu.com" || host === "zhuanlan.zhihu.com") {
+          const kind = /zhuanlan/.test(url) ? "专栏" : /answer/.test(url) ? "回答" : /question/.test(url) ? "问题" : "内容";
+          return { platform: "zhihu", label: "知乎", icon: "💡", color: "#0066FF", bgLight: "#f0f6ff", bgDark: "#03102a", kind };
+        }
+        if (host === "douban.com" || host.endsWith(".douban.com")) {
+          const kind = /movie/.test(url) ? "影视" : /music/.test(url) ? "音乐" : /book/.test(url) ? "书目" : "内容";
+          return { platform: "douban", label: "豆瓣", icon: "📗", color: "#3C9B3C", bgLight: "#f4fff4", bgDark: "#081408", kind };
+        }
+        return { platform: "generic", label: host, icon: "🔗", color: "#6b7280", bgLight: "#f9fafb", bgDark: "#1a1a20", kind: "链接" };
+      } catch {
+        return null;
+      }
     }
 
-    function LinkCard({ url, dark, onRemove }) { const info = classifyUrl(url); if (!info) return null; const bg = dark ? info.bgDark : info.bgLight; const displayUrl = (() => { try { const u = new URL(url); return u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname.slice(0, 28) + (u.pathname.length > 28 ? "…" : "") : ""); } catch { return url.slice(0, 36); } })(); return (<div style={{ display: "flex", alignItems: "center", gap: 10, background: bg, borderRadius: 999, padding: "8px 14px 8px 10px", cursor: "pointer", position: "relative", transition: "opacity 0.15s, box-shadow 0.15s", marginTop: 2, maxWidth: "100%", boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.4)" : "0 2px 8px rgba(0,0,0,0.06)", }} onClick={() => window.open(url, "_blank", "noopener,noreferrer")} title={url}><span style={{ fontSize: 18, flexShrink: 0, lineHeight: 1 }}>{info.icon}</span><div style={{ flex: 1, minWidth: 0 }}><div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1 }}><span style={{ fontSize: 11, fontWeight: 600, color: info.color, letterSpacing: 0.3 }}>{info.label}</span><span style={{ fontSize: 10, color: dark ? "#8b8b8b" : "#b5aca2", background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)", borderRadius: 999, padding: "1px 6px" }}>{info.kind}</span></div><div style={{ fontSize: 11, color: dark ? "#8b8b8b" : "#aaa", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>{displayUrl}</div></div><button onClick={e => { e.stopPropagation(); onRemove(); }} title="移除卡片" style={{ border: "none", background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)", cursor: "pointer", color: dark ? "#8b8b8b" : "#bbb", fontSize: 11, width: 20, height: 20, borderRadius: "50%", flexShrink: 0, lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", transition: "color 0.12s" }} onMouseEnter={e => e.currentTarget.style.color = "#d04040"} onMouseLeave={e => e.currentTarget.style.color = dark ? "#8b8b8b" : "#bbb"}>✕</button></div>); }
+    // 提取 Open Graph 元数据的工具函数
+    function fetchOGMeta(url) {
+      return fetch(CORS_PROXY + encodeURIComponent(url))
+        .then(r => r.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const getMeta = (prop) => {
+            const el = doc.querySelector(`meta[property="og:${prop}"]`) || doc.querySelector(`meta[name="${prop}"]`);
+            return el ? el.getAttribute('content') : null;
+          };
+          return {
+            title: getMeta('title') || doc.title || '',
+            image: getMeta('image') || '',
+            description: getMeta('description') || ''
+          };
+        })
+        .catch(() => null);
+    }
+
+    // 增强版 LinkCard，保持圆形药丸风格，但可用 OG 数据丰富显示
+    function LinkCard({ url, dark, onRemove }) {
+      const info = classifyUrl(url);
+      if (!info) return null;
+
+      const [meta, setMeta] = useState(null);
+      const [loading, setLoading] = useState(false);
+
+      useEffect(() => {
+        let cancelled = false;
+        const platformsToEnrich = ['netease', 'qqmusic', 'bilibili', 'youtube', 'douyin', 'xhs', 'zhihu', 'douban', 'weibo'];
+        if (platformsToEnrich.includes(info.platform)) {
+          setLoading(true);
+          fetchOGMeta(url).then(data => {
+            if (!cancelled && data && (data.title || data.image)) {
+              setMeta(data);
+            }
+            setLoading(false);
+          });
+        }
+        return () => { cancelled = true; };
+      }, [url, info.platform]);
+
+      const t = tokens(dark);
+      const bg = dark ? info.bgDark : info.bgLight;
+
+      // 基础药丸样式（所有情况共用）
+      const pillStyle = {
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        background: bg,
+        borderRadius: 999,
+        padding: meta?.title ? "10px 14px 10px 10px" : "8px 14px 8px 10px",
+        cursor: "pointer",
+        position: "relative",
+        transition: "opacity 0.15s, box-shadow 0.15s",
+        marginTop: 2,
+        maxWidth: "100%",
+        boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.4)" : "0 2px 8px rgba(0,0,0,0.06)",
+        opacity: loading ? 0.7 : 1,
+      };
+
+      // 移除按钮通用样式
+      const removeBtnStyle = {
+        border: "none",
+        background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+        cursor: "pointer",
+        color: dark ? "#8b8b8b" : "#bbb",
+        fontSize: 11,
+        width: 20,
+        height: 20,
+        borderRadius: "50%",
+        flexShrink: 0,
+        lineHeight: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "color 0.12s",
+      };
+
+      return (
+        <div style={pillStyle} onClick={() => window.open(url, "_blank", "noopener,noreferrer")} title={url}>
+          <span style={{ fontSize: 18, flexShrink: 0, lineHeight: 1 }}>{info.icon}</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {meta?.title ? (
+              <>
+                <div style={{ fontSize: 12, fontWeight: 600, color: t.text, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", marginBottom: 2 }}>
+                  {meta.title}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: info.color, background: dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)", borderRadius: 999, padding: "1px 7px" }}>{info.label}</span>
+                  <span style={{ fontSize: 10, color: dark ? "#8b8b8b" : "#b5aca2" }}>{info.kind}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: info.color, letterSpacing: 0.3 }}>{info.label}</span>
+                  <span style={{ fontSize: 10, color: dark ? "#8b8b8b" : "#b5aca2", background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)", borderRadius: 999, padding: "1px 6px" }}>{info.kind}</span>
+                </div>
+                <div style={{ fontSize: 11, color: dark ? "#8b8b8b" : "#aaa", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                  {(() => { try { const u = new URL(url); return u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname.slice(0, 28) + (u.pathname.length > 28 ? "…" : "") : ""); } catch { return url.slice(0, 36); } })()}
+                </div>
+              </>
+            )}
+          </div>
+          <button
+            onClick={e => { e.stopPropagation(); onRemove(); }}
+            style={removeBtnStyle}
+            onMouseEnter={e => e.currentTarget.style.color = "#d04040"}
+            onMouseLeave={e => e.currentTarget.style.color = dark ? "#8b8b8b" : "#bbb"}
+          >
+            ✕
+          </button>
+        </div>
+      );
+    }
+
+    // 其余组件（AttachmentChip, TagEditor, SettingRow, SettingGroupTitle, SettingNavItem, LoginScreen, SettingsPanel）保持不变，为节省篇幅此处省略，但在完整代码中包含
+    // 注意：这里需要在最终输出中包含所有这些组件的完整代码，因为要生成完整 HTML。以下将粘贴完整的其余部分。
+
     function AttachmentChip({ file, dark, onRemove, onOpen }) { const t = tokens(dark); return (<div onClick={() => onOpen(file)} title={file.name} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: dark ? "#1a1a1a" : "#f4f1ec", border: `1px solid ${t.border}`, borderRadius: 10, padding: "8px 12px", cursor: "pointer", maxWidth: "100%", boxShadow: dark ? "0 2px 8px rgba(0,0,0,0.3)" : "none", }}><span style={{ fontSize: 18, flexShrink: 0 }}>{fileIcon(file.name)}</span><div style={{ overflow: "hidden", flex: 1 }}><div style={{ fontSize: 12, color: t.text, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{file.name}</div><div style={{ fontSize: 11, color: t.textSub }}>{fmtSize(file.size)}</div></div><button onClick={e => { e.stopPropagation(); onRemove(file.id); }} style={{ border: "none", background: "none", cursor: "pointer", color: t.textSub, fontSize: 13, padding: "0 2px", flexShrink: 0, lineHeight: 1, borderRadius: 4 }}>✕</button></div>); }
     function TagEditor({ tags, onChange, dark, t, L }) { const [editingIdx, setEditingIdx] = useState(null); const [editVal, setEditVal] = useState(""); const [newVal, setNewVal] = useState(""); const [adding, setAdding] = useState(false); const newInputRef = useRef(null); const editInputRef = useRef(null); const startEdit = (i) => { setEditingIdx(i); setEditVal(tags[i]); setTimeout(() => editInputRef.current?.select(), 30); }; const commitEdit = (i) => { const v = editVal.trim(); if (v && v !== tags[i]) { const next = [...tags]; next[i] = v; onChange(next); } setEditingIdx(null); }; const deleteTag = (i) => { if (window.confirm(L.deleteTagConfirm)) { onChange(tags.filter((_, idx) => idx !== i)); } }; const startAdd = () => { setAdding(true); setNewVal(""); setTimeout(() => newInputRef.current?.focus(), 30); }; const commitAdd = () => { const v = newVal.trim(); if (v && !tags.includes(v)) onChange([...tags, v]); setAdding(false); setNewVal(""); }; const chip = { display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 8px", borderRadius: 7, border: `1px solid ${t.border}`, background: dark ? "#262626" : "#f7f4f0", fontSize: 12, color: t.text, }; return (<div style={{ display: "flex", flexWrap: "wrap", gap: 7, alignItems: "center" }}>{tags.map((tag, i) => (<div key={tag + i} style={chip}>{editingIdx === i ? (<input ref={editInputRef} value={editVal} onChange={e => setEditVal(e.target.value)} onBlur={() => commitEdit(i)} onKeyDown={e => { if (e.key === "Enter") commitEdit(i); if (e.key === "Escape") setEditingIdx(null); }} style={{ width: Math.max(editVal.length * 14, 40) + "px", fontSize: 12, color: t.text, border: "none", outline: "none", background: "transparent", fontFamily: "inherit" }} />) : (<span onClick={() => startEdit(i)} style={{ cursor: "text", userSelect: "none" }} title="点击编辑">{tag}</span>)}<button onClick={() => deleteTag(i)} style={{ border: "none", background: "none", cursor: "pointer", color: t.textSub, fontSize: 11, padding: "0 1px", lineHeight: 1, borderRadius: 3 }} onMouseEnter={e => e.currentTarget.style.color = "#d04040"} onMouseLeave={e => e.currentTarget.style.color = t.textSub}>✕</button></div>))}{adding ? (<div style={{ ...chip, border: `1px solid ${t.accent}` }}><input ref={newInputRef} value={newVal} onChange={e => setNewVal(e.target.value)} onBlur={commitAdd} onKeyDown={e => { if (e.key === "Enter") commitAdd(); if (e.key === "Escape") { setAdding(false); setNewVal(""); } }} placeholder={L.tagPlaceholder} style={{ width: 64, fontSize: 12, color: t.text, border: "none", outline: "none", background: "transparent", fontFamily: "inherit" }} /></div>) : (<button onClick={startAdd} style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 7, border: `1px dashed ${t.border}`, background: "transparent", color: t.textSub, fontSize: 12, cursor: "pointer", fontFamily: "inherit" }} onMouseEnter={e => { e.currentTarget.style.borderColor = t.accent; e.currentTarget.style.color = t.accent; }} onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textSub; }}>{L.addTag}</button>)}</div>); }
     function SettingRow({ label, children, t, last }) { return (<div style={{ display: "flex", flexDirection: "column", gap: 10, paddingBottom: last ? 0 : 18, marginBottom: last ? 0 : 18, borderBottom: last ? "none" : `1px solid ${t.border}` }}><span style={{ fontSize: 12, color: t.textSub, letterSpacing: 0.5 }}>{label}</span>{children}</div>); }
@@ -229,6 +406,7 @@
       const [tags, setTags] = useState(["工作", "生活", "灵感"]);
       const [settings, setSettings] = useState(() => { const saved = localStorage.getItem('memos_settings_v2'); return saved ? JSON.parse(saved) : { fontSize: 15, fontFamily: "'PingFang SC', 'Noto Sans SC', sans-serif", uiScale: 1.00, lang: "auto", theme: "system" }; });
       const titleRef = useRef(null); const bodyRef = useRef(null); const fileInputRef = useRef(null); const searchInputRef = useRef(null); const moreBtnRef = useRef(null); const metaBarRef = useRef(null);
+      const editorBodyRef = useRef(null);
       const dbRef = useRef(null);
       const initialLoadDone = useRef(false);
       const activeLang = settings.lang === "auto" ? getSystemLang() : settings.lang; const L = I18N[activeLang];
@@ -321,6 +499,32 @@
       const removeLinkBlock = (memoId, blockId) => { setMemos(ms => ms.map(m => { if (m.id !== memoId) return m; const blocks = ensureBlocks(m).filter(b => b.id !== blockId); const finalBlocks = blocks.length ? blocks : [makeTextBlock("")]; return { ...m, blocks: finalBlocks, content: blocksToContent(finalBlocks, m.attachments || []), updatedAt: new Date().toISOString() }; })); };
       const updateAttachmentCaption = (memoId, blockId, caption) => { setMemos(ms => ms.map(m => { if (m.id !== memoId) return m; const blocks = ensureBlocks(m).map(block => block.id === blockId ? { ...block, caption } : block); return { ...m, blocks, content: blocksToContent(blocks, m.attachments || []), updatedAt: new Date().toISOString() }; })); };
       const handleDrop = (e) => { e.preventDefault(); setDragOver(false); if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files); };
+
+      // 正文区空白点击处理：自动聚焦到最近的文本块
+      const handleEditorBodyClick = useCallback((e) => {
+        const target = e.target;
+        if (target.closest('[data-editor-no-focus]')) return;
+        if (target.closest('textarea, input, button, a')) return;
+        const textareas = Array.from(document.querySelectorAll('textarea[data-blockid]'));
+        if (textareas.length === 0) return;
+        const { clientX, clientY } = e;
+        let nearest = null;
+        let minDist = Infinity;
+        for (const ta of textareas) {
+          const rect = ta.getBoundingClientRect();
+          const centerY = rect.top + rect.height / 2;
+          const centerX = rect.left + rect.width / 2;
+          const dist = Math.hypot(clientX - centerX, clientY - centerY);
+          if (dist < minDist) { minDist = dist; nearest = ta; }
+        }
+        if (nearest) {
+          const rect = nearest.getBoundingClientRect();
+          if (clientY < rect.top + rect.height / 2) nearest.setSelectionRange(0, 0);
+          else { const len = nearest.value.length; nearest.setSelectionRange(len, len); }
+          nearest.focus();
+        }
+      }, []);
+
       const list = useMemo(() => { return memos.filter(m => filter === "**all**" || m.tag === filter).filter(m => !search || m.title.includes(search) || m.content.includes(search)).sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.updatedAt) - new Date(a.updatedAt)); }, [memos, filter, search]);
       const filterKeys = [{ key: "**all**", label: L.all }, ...tags.map(t => ({ key: t, label: t }))];
       useEffect(() => { const handleKeyDown = (e) => { if (e.key === "Escape") { if (showSettings) setShowSettings(false); else if (editTitle) setEditTitle(false); } if ((e.ctrlKey || e.metaKey) && e.key === "n") { e.preventDefault(); create(); } if ((e.ctrlKey || e.metaKey) && e.key === "f") { e.preventDefault(); searchInputRef.current?.focus(); } }; window.addEventListener("keydown", handleKeyDown); return () => window.removeEventListener("keydown", handleKeyDown); }, [showSettings, editTitle]);
@@ -486,17 +690,14 @@
                         </span>
                       </div>
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 0, padding: isShortLandscape ? `12px ${editorPaddingX}px 72px` : isMobile ? `14px ${editorPaddingX}px 96px` : `16px 40px 72px`, width: "100%", boxSizing: "border-box" }}>
+                    <div ref={editorBodyRef} onClick={handleEditorBodyClick} style={{ display: "flex", flexDirection: "column", gap: 0, padding: isShortLandscape ? `12px ${editorPaddingX}px 72px` : isMobile ? `14px ${editorPaddingX}px 96px` : `16px 40px 72px`, width: "100%", boxSizing: "border-box" }}>
                       {activeBlocks.map((block, index) => {
                         if (block.type === "attachment") {
                           const file = (active.attachments || []).find(f => f.id === block.fileId);
                           if (!file) return null;
-
-                          // iOS 风格内联光标锚点
                           const InlineCursorAnchor = ({ blockId, fileId }) => {
                             const [focused, setFocused] = React.useState(false);
                             const inputRef = React.useRef(null);
-
                             const commitInput = (text) => {
                               if (!text) return;
                               setMemos(ms => ms.map(m => {
@@ -505,102 +706,39 @@
                                 const idx = blocks.findIndex(b => b.id === blockId);
                                 const next = blocks[idx + 1];
                                 if (next && next.type === "text") {
-                                  const updated = blocks.map((b, i) =>
-                                    i === idx + 1 ? { ...b, text: text + b.text } : b
-                                  );
-                                  setTimeout(() => {
-                                    const ta = document.querySelector(`textarea[data-blockid="${next.id}"]`);
-                                    if (ta) { ta.focus(); ta.setSelectionRange(text.length, text.length); }
-                                  }, 20);
+                                  const updated = blocks.map((b, i) => i === idx + 1 ? { ...b, text: text + b.text } : b);
+                                  setTimeout(() => { const ta = document.querySelector(`textarea[data-blockid="${next.id}"]`); if (ta) { ta.focus(); ta.setSelectionRange(text.length, text.length); } }, 20);
                                   return { ...m, blocks: updated, content: blocksToContent(updated, m.attachments || []), updatedAt: new Date().toISOString() };
                                 } else {
                                   const nb = makeTextBlock(text);
                                   const updated = [...blocks.slice(0, idx + 1), nb, ...blocks.slice(idx + 1)];
-                                  setTimeout(() => {
-                                    const ta = document.querySelector(`textarea[data-blockid="${nb.id}"]`);
-                                    if (ta) { ta.focus(); ta.setSelectionRange(text.length, text.length); }
-                                  }, 20);
+                                  setTimeout(() => { const ta = document.querySelector(`textarea[data-blockid="${nb.id}"]`); if (ta) { ta.focus(); ta.setSelectionRange(text.length, text.length); } }, 20);
                                   return { ...m, blocks: updated, content: blocksToContent(updated, m.attachments || []), updatedAt: new Date().toISOString() };
                                 }
                               }));
                             };
-
                             return (
-                              <span
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  width: "100%",
-                                  alignSelf: "stretch",
-                                  cursor: "text",
-                                  position: "relative",
-                                }}
-                                onClick={() => inputRef.current?.focus()}
-                              >
-                                <input
-                                  ref={inputRef}
-                                  type="text"
-                                  inputMode="text"
-                                  value=""
-                                  readOnly={false}
+                              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", alignSelf: "stretch", cursor: "text", position: "relative" }} onClick={() => inputRef.current?.focus()}>
+                                <input ref={inputRef} type="text" inputMode="text" value="" readOnly={false}
                                   onFocus={() => { setFocused(true); setActiveTextBlockId(blockId); }}
                                   onBlur={() => setFocused(false)}
-                                  onChange={e => {
-                                    const v = e.target.value;
-                                    if (v) { commitInput(v); e.target.value = ""; }
-                                  }}
-                                  onKeyDown={e => {
-                                    if (e.key === "Backspace") {
-                                      e.preventDefault();
-                                      removeAttachment(active.id, fileId);
-                                    }
-                                  }}
-                                  style={{
-                                    position: "absolute", left: 0, top: 0,
-                                    width: "100%", height: "100%",
-                                    opacity: 0, border: "none", outline: "none",
-                                    background: "transparent", fontSize: bodyFontSize,
-                                    caretColor: "transparent",
-                                    padding: 0, margin: 0,
-                                  }}
+                                  onChange={e => { const v = e.target.value; if (v) { commitInput(v); e.target.value = ""; } }}
+                                  onKeyDown={e => { if (e.key === "Backspace") { e.preventDefault(); removeAttachment(active.id, fileId); } }}
+                                  style={{ position: "absolute", left: 0, top: 0, width: "100%", height: "100%", opacity: 0, border: "none", outline: "none", background: "transparent", fontSize: bodyFontSize, caretColor: "transparent", padding: 0, margin: 0 }}
                                 />
-                                {focused && (
-                                  <span style={{
-                                    display: "block", width: 2, height: "70%", minHeight: 20,
-                                    background: actualDark ? "#e6b450" : "#007AFF",
-                                    borderRadius: 1,
-                                    animation: "blink 1s step-end infinite",
-                                    pointerEvents: "none",
-                                    alignSelf: "center",
-                                  }} />
-                                )}
+                                {focused && <span style={{ display: "block", width: 2, height: "70%", minHeight: 20, background: actualDark ? "#e6b450" : "#007AFF", borderRadius: 1, animation: "blink 1s step-end infinite", pointerEvents: "none", alignSelf: "center" }} />}
                               </span>
                             );
                           };
-
                           return isImageFile(file) ? (
-                            <div key={block.id} style={{ position: "relative", width: "100%", paddingTop: 4, paddingBottom: 4 }}>
-                              {file.url ? (
-                                <img
-                                  src={file.url} alt={file.name}
-                                  style={{ display: "block", width: "100%", height: "auto", borderRadius: 14, boxShadow: actualDark ? "0 10px 24px rgba(0,0,0,0.6)" : "0 8px 22px rgba(0,0,0,0.08)" }}
-                                />
-                              ) : (
-                                <div style={{ width: "100%", height: 120, background: actualDark ? "#1a1a1a" : "#f0ede8", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", color: t.textMuted, fontSize: 13 }}>
-                                  📁 附件已过期
-                                </div>
-                              )}
-                              <div style={{ position: "absolute", right: -10, top: 0, bottom: 0, width: 20, display: "flex", alignItems: "stretch" }}>
-                                <InlineCursorAnchor blockId={block.id} fileId={file.id} />
-                              </div>
+                            <div key={block.id} data-editor-no-focus="true" style={{ position: "relative", width: "100%", paddingTop: 4, paddingBottom: 4 }}>
+                              {file.url ? <img src={file.url} alt={file.name} style={{ display: "block", width: "100%", height: "auto", borderRadius: 14, boxShadow: actualDark ? "0 10px 24px rgba(0,0,0,0.6)" : "0 8px 22px rgba(0,0,0,0.08)" }} /> : <div style={{ width: "100%", height: 120, background: actualDark ? "#1a1a1a" : "#f0ede8", borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center", color: t.textMuted, fontSize: 13 }}>📁 附件已过期</div>}
+                              <div style={{ position: "absolute", right: -10, top: 0, bottom: 0, width: 20, display: "flex", alignItems: "stretch" }}><InlineCursorAnchor blockId={block.id} fileId={file.id} /></div>
                             </div>
                           ) : (
-                            <div key={block.id} style={{ position: "relative", display: "inline-flex", paddingTop: 4, paddingBottom: 4, maxWidth: "100%" }}>
+                            <div key={block.id} data-editor-no-focus="true" style={{ position: "relative", display: "inline-flex", paddingTop: 4, paddingBottom: 4, maxWidth: "100%" }}>
                               <AttachmentChip file={file} dark={actualDark} onRemove={(fileId) => removeAttachment(active.id, fileId)} onOpen={openAttachment} />
-                              <div style={{ position: "absolute", right: -10, top: 0, bottom: 0, width: 20, display: "flex", alignItems: "stretch" }}>
-                                <InlineCursorAnchor blockId={block.id} fileId={file.id} />
-                              </div>
+                              <div style={{ position: "absolute", right: -10, top: 0, bottom: 0, width: 20, display: "flex", alignItems: "stretch" }}><InlineCursorAnchor blockId={block.id} fileId={file.id} /></div>
                             </div>
                           );
                         }
@@ -608,11 +746,9 @@
                           const linkIdx = activeBlocks.findIndex(b => b.id === block.id);
                           const nextTextBlock = activeBlocks.slice(linkIdx + 1).find(b => b.type === "text");
                           return (
-                            <div key={block.id} style={{ display: "flex", flexDirection: "column" }}>
+                            <div key={block.id} data-editor-no-focus="true" style={{ display: "flex", flexDirection: "column" }}>
                               <LinkCard url={block.url} dark={actualDark} onRemove={() => removeLinkBlock(active.id, block.id)} />
-                              {nextTextBlock && (
-                                <div style={{ height: 8, cursor: "text" }} onClick={() => { const ta = document.querySelector(`textarea[data-blockid="${nextTextBlock.id}"]`); if (ta) { ta.focus(); const len = ta.value.length; ta.setSelectionRange(len, len); } }} />
-                              )}
+                              {nextTextBlock && <div style={{ height: 8, cursor: "text" }} onClick={() => { const ta = document.querySelector(`textarea[data-blockid="${nextTextBlock.id}"]`); if (ta) { ta.focus(); const len = ta.value.length; ta.setSelectionRange(len, len); } }} />}
                             </div>
                           );
                         }
