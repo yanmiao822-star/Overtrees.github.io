@@ -1,7 +1,7 @@
 {
   "name": "此刻",
   "short_name": "此刻",
-  "start_url": "/Overtrees.github.io/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
