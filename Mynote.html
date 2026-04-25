@@ -206,6 +206,7 @@
     const URL_RE = /https?:\/\/[^\s"'<>()\u3000-\uffff]{4,}/gi;
     function extractUrls(text) { return [...new Set((text || "").match(URL_RE) || [])]; }
 
+    // classifyUrl 保持不变，用于渲染颜色/图标
     function classifyUrl(url) {
       try {
         const u = new URL(url);
@@ -276,7 +277,7 @@
       }
     }
 
-    // 获取元数据（仅使用自己的 Worker，带超时与缓存）
+    // 获取元数据（仅使用 Worker，带超时与缓存）
     async function fetchMeta(url) {
       const key = url.trim();
       if (metaCache.has(key)) return metaCache.get(key);
@@ -295,7 +296,7 @@
           }
         }
       } catch (e) {
-        // Worker 不可用或其他错误，返回 null
+        // 网络错误或超时
       }
 
       metaCache.set(key, null);
@@ -386,17 +387,12 @@
         );
       }
 
-      // ---------- 以下为有 meta 数据的丰富卡片 ----------
-      // 解析标题：音乐类拆分歌名和歌手，其余用原 title 和 desc
+      // ---------- 丰富卡片 ----------
       const isMusic = meta.metaType === "music";
-      // 常见格式 "Love On The Run - Broken Bells - 单曲 - 网易云音乐"
       const titleParts = isMusic ? meta.title.split(" - ") : [];
       const songName = isMusic && titleParts.length >= 1 ? titleParts[0].trim() : meta.title;
-      const artistName = isMusic && titleParts.length >= 2 ? titleParts[1].trim() : meta.desc;
-
-      // 视频平台、社交平台
-      const videoPlatforms = ["bilibili", "youtube", "douyin"];
-      const socialPlatforms = ["xhs", "weibo", "zhihu", "douban"];
+      const artistName = isMusic && titleParts.length >= 2 ? titleParts[1].trim() : (meta.desc || info.label);
+      const subtitle = isMusic ? artistName : (meta.desc || info.label);
 
       const handlePlayClick = (e) => {
         e.stopPropagation();
@@ -404,30 +400,33 @@
       };
 
       const coverImg = meta.image ? (
-        <img src={meta.image} alt="" referrerPolicy="no-referrer" style={{
-          width: 36,
-          height: 36,
-          borderRadius: 8,
-          objectFit: "cover",
-          flexShrink: 0,
-        }} />
+        <img
+          src={`${MY_WORKER}/img?url=${encodeURIComponent(meta.image)}`}
+          alt=""
+          referrerPolicy="no-referrer"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 8,
+            objectFit: "cover",
+            flexShrink: 0,
+          }}
+        />
       ) : (
         <span style={{ fontSize: 20, flexShrink: 0 }}>{info.icon}</span>
       );
 
-      // 公共内容区域
       const contentBlock = (
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: t.text, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", marginBottom: 2 }}>
             {songName}
           </div>
           <div style={{ fontSize: 11, color: t.textSub, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-            {artistName || info.label}
+            {subtitle}
           </div>
         </div>
       );
 
-      // 仅在音乐类卡片显示播放按钮
       const playBtn = isMusic ? (
         <div onClick={handlePlayClick} style={{
           width: 28,
