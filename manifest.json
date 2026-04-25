@@ -1,14 +1,21 @@
 {
-  "name": "我的沉浸式应用",
-  "short_name": "AppDemo",
-"start_url": "/Overtrees.github.io/index.html",
+  "name": "我的沉浸式笔记",
+  "short_name": "MyNote",
+  "description": "基于 GitHub Pages 的沉浸式 PWA 应用",
+  "start_url": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "icons": [
     {
-      "src": "icon-192.png",
-      "sizes": "192x192",
+      "src": "icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
