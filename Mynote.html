@@ -10,7 +10,6 @@
 
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#ffffff">
 
     <title>此刻</title>
 
@@ -20,7 +19,7 @@
             --text-main: #1a1a1a;
             --text-secondary: #8e8e93;
             --card-bg: #f6f8fa;
-            --btn-bg: rgba(240, 240, 242, 0.7); /* 提高透明度 */
+            --btn-bg: rgba(240, 240, 242, 0.7);
             --border-color: rgba(0, 0, 0, 0.05);
         }
 
@@ -49,7 +48,7 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* --- 优化 1：Header 仅作为按钮容器，不产生视觉隔断 --- */
+        /* Header：全透明、穿透式容器 */
         header {
             position: sticky;
             top: 0;
@@ -57,7 +56,6 @@
             padding-top: env(safe-area-inset-top);
             width: 100%;
             background: transparent;
-            /* 关键：允许点击穿透到下方的标题 */
             pointer-events: none; 
         }
 
@@ -68,7 +66,6 @@
             justify-content: flex-end;
             padding: 0 16px;
             gap: 12px;
-            /* 关键：恢复按钮自身的点击 */
             pointer-events: auto; 
         }
 
@@ -80,25 +77,20 @@
             font-size: 14px;
             font-weight: 500;
             text-decoration: none;
-            /* 极简风模糊 */
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
-            /* 减弱阴影，减少突兀感 */
             border: 0.5px solid var(--border-color);
         }
 
-        /* --- 优化 2：标题负边距向上冲，实现“此刻”在大刘海区域浮现 --- */
+        /* 标题层：交互穿透 */
         .page-title {
             position: relative;
             z-index: 1000;
-            /* 移除过大的 margin，让它自然上浮 */
             padding: 4px 20px 10px 20px;
             font-size: 34px;
             font-weight: 800;
             letter-spacing: -1px;
-            /* 关键：标题文字不响应点击，防止挡住按钮操作 */
             pointer-events: none; 
-            /* 视觉减弱：让重叠部分看起来像艺术水印 */
             opacity: 0.9;
         }
 
@@ -127,7 +119,6 @@
         }
 
         .list-item:last-child { border-bottom: none; }
-
         .item-count { color: var(--text-secondary); font-size: 15px; }
 
         footer { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 12px; }
@@ -154,10 +145,6 @@
                 <span>今日感悟</span>
                 <span class="item-count">3</span>
             </a>
-        </div>
-        
-        <div style="height: 1000px; padding-top: 20px; color: var(--text-secondary);">
-            滑动感受文字穿梭于按钮后的通透感...
         </div>
     </div>
 
