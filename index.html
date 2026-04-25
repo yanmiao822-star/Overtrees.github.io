@@ -3,21 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
+    
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <meta name="apple-mobile-web-app-title" content="此刻">
+    
     <link rel="apple-touch-icon" href="icon.png">
+    
     <link rel="manifest" href="manifest.json">
+
     <script>
+        /**
+         * 核心跳转逻辑（立即执行函数）
+         */
         (function() {
+            // 1. 判断是否处于“独立运行模式”（即用户从桌面点击图标打开）
             const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-            if (isStandalone || window.location.search.includes('from=safari')) {
+            
+            // 2. 判断 URL 参数中是否带有 'from=safari' 标记（用于从管理页回跳测试）
+            const isFromSafari = window.location.search.includes('from=safari');
+
+            // 如果符合上述任一条件，则直接跳转到笔记主页面
+            if (isStandalone || isFromSafari) {
+                // 使用 replace 确保用户点击“返回”时不会跳回这个中转页，防止死循环
                 window.location.replace('Mynote.html');
             }
+            
+            // 如果是在普通浏览器（Safari/Chrome）中打开，则停留在本页（通常用于管理或引导添加桌面）
         })();
     </script>
 </head>
 <body style="background: #ffffff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-    <div style="font-family:-apple-system, sans-serif; color:#888;">此刻 · 开启中</div>
+    <div style="font-family:-apple-system, sans-serif; color:#888; font-size: 14px;">
+        此刻 · 开启中
+    </div>
 </body>
 </html>
