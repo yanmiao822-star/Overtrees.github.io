@@ -10,7 +10,6 @@
 
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
-
     <title>此刻</title>
 
     <style>
@@ -34,12 +33,7 @@
             }
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
@@ -48,7 +42,6 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* Header：全透明、穿透式容器 */
         header {
             position: sticky;
             top: 0;
@@ -82,7 +75,6 @@
             border: 0.5px solid var(--border-color);
         }
 
-        /* 标题层：交互穿透 */
         .page-title {
             position: relative;
             z-index: 1000;
@@ -94,11 +86,7 @@
             opacity: 0.9;
         }
 
-        .container {
-            padding: 12px 16px;
-            position: relative;
-            z-index: 1;
-        }
+        .container { padding: 12px 16px; position: relative; z-index: 1; }
 
         .list-group {
             background: var(--card-bg);
@@ -125,11 +113,10 @@
     </style>
 </head>
 <body>
-
     <header>
         <div class="header-actions">
             <div class="action-btn">📁⁺</div>
-            <a href="index.html" class="action-btn" id="admin-btn">管理</a>
+            <a href="index.html" class="action-btn">管理</a>
         </div>
     </header>
 
@@ -137,14 +124,8 @@
 
     <div class="container">
         <div class="list-group">
-            <a href="#" class="list-item">
-                <span>全部笔记</span>
-                <span class="item-count">12</span>
-            </a>
-            <a href="#" class="list-item">
-                <span>今日感悟</span>
-                <span class="item-count">3</span>
-            </a>
+            <a href="#" class="list-item"><span>全部笔记</span><span class="item-count">12</span></a>
+            <a href="#" class="list-item"><span>今日感悟</span><span class="item-count">3</span></a>
         </div>
     </div>
 
