@@ -1,3 +1,47 @@
-<a href="Mynote.html" class="btn">打开我的笔记</a>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
 
-<a href="index.html">返回首页</a>
+    <title>正在加载记录...</title>
+
+    <script>
+        // 【核心脚本】自动跳转逻辑
+        (function() {
+            // 检查是否是从桌面图标打开 (Standalone 模式)
+            const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+            
+            // 如果是在桌面打开的，且当前还没在 Mynote 页面
+            if (isStandalone) {
+                window.location.href = 'Mynote.html';
+            }
+        })();
+    </script>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: -apple-system, sans-serif;
+            background: #ffffff;
+            color: #888;
+        }
+        .loader {
+            text-align: center;
+        }
+    </script>
+</head>
+<body>
+    <div class="loader">
+        <p>正在进入我的笔记...</p>
+    </div>
+</body>
+</html>
