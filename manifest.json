@@ -2,7 +2,7 @@
   "name": "我的沉浸式笔记",
   "short_name": "MyNote",
   "description": "基于 GitHub Pages 的沉浸式 PWA 应用",
-  "start_url": "./",
+  "start_url": "/Overtrees.github.io/index.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
