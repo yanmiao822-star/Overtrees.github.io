@@ -785,7 +785,7 @@
                 return grouped.map(key => {
                   const { label, items } = buckets[key];
                   return (
-                    <div key={key} style={{ marginBottom: 22 }}>
+                    <div key={key} style={{ marginBottom: 0 }}>
                       <div style={{ fontSize: 15, fontWeight: 700, color: t.text, padding: "0 2px 8px" }}>{label}</div>
                       <div style={{ background: groupCard, borderRadius: 12, overflow: "hidden", boxShadow: actualDark ? "none" : "0 1px 3px rgba(0,0,0,0.06)" }}>
                         {items.map((m, idx) => {
