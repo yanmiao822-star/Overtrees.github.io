@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="我的沉浸App">
+
+    <link rel="apple-touch-icon" href="icon.png">
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ffffff">
+
+    <title>沉浸式体验 Demo</title>
+
+    <style>
+        :root {
+            --primary-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --border-color: #d0d7de;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            
+            /* 关键：使用 env() 环境变量避开刘海和底部横条 */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        /* 顶部导航栏：模仿 GitHub 效果 */
+        header {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .card {
+            background: #f6f8fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #2ea44f;
+            color: white;
+            padding: 10px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            color: #6e7781;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <strong>Dashboard</strong>
+        <div style="width: 32px; height: 32px; background: #eee; border-radius: 50%;"></div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>已开启沉浸模式</h2>
+            <p style="margin: 10px 0; color: #57606a;">
+                你现在看到的是 iOS Web App 模式的完整配置。
+            </p>
+            <a href="https://github.com" class="btn">站外测试(会跳出)</a>
+            <a href="#test" class="btn" style="background: #24292f;">站内链接(不跳出)</a>
+        </div>
+
+        <div class="card" style="height: 500px;">
+            <h3>内容区域</h3>
+            <p>向上滑动，观察底部安全区适配...</p>
+        </div>
+    </div>
+
+    <footer>
+        PWA Standalone Mode Powered
+    </footer>
+
+    <script>
+        (function() {
+            // 检查是否处于“独立运行”模式（即从桌面图标打开）
+            if (("standalone" in window.navigator) && window.navigator.standalone) {
+                document.addEventListener("click", function(e) {
+                    let nod = e.target;
+                    // 循环向上寻找 <a> 标签
+                    while (nod && nod.nodeName !== "A") {
+                        nod = nod.parentNode;
+                    }
+
+                    if (nod && "href" in nod && (nod.href.indexOf("http") !== -1) && 
+                       (nod.href.indexOf(window.location.host) !== -1 || nod.href.startsWith("/") || nod.href.startsWith("#"))) {
+                        // 如果是同域名链接或锚点，阻止默认行为并手动跳转，防止跳出 App
+                        e.preventDefault();
+                        window.location.href = nod.href;
+                    }
+                }, false);
+            }
+        })();
+    </script>
+</body>
+</html>
