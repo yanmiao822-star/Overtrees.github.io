@@ -2,42 +2,78 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+
     <meta name="apple-mobile-web-app-capable" content="yes">
-    
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <meta name="apple-mobile-web-app-title" content="此刻">
-    
+
     <link rel="apple-touch-icon" href="icon.png">
-    
     <link rel="manifest" href="manifest.json">
+    
+    <title>管理 - 此刻</title>
 
-    <script>
-        /**
-         * 核心跳转逻辑（立即执行函数）
-         */
-        (function() {
-            // 1. 判断是否处于“独立运行模式”（即用户从桌面点击图标打开）
-            const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
-            
-            // 2. 判断 URL 参数中是否带有 'from=safari' 标记（用于从管理页回跳测试）
-            const isFromSafari = window.location.search.includes('from=safari');
-
-            // 如果符合上述任一条件，则直接跳转到笔记主页面
-            if (isStandalone || isFromSafari) {
-                // 使用 replace 确保用户点击“返回”时不会跳回这个中转页，防止死循环
-                window.location.replace('Mynote.html');
+    <style>
+        :root {
+            /* 浅色模式背景 */
+            --primary-bg: #ffffff;
+            --text-main: #1a1a1a;
+        }
+        
+        @media (prefers-color-scheme: dark) {
+            :root {
+                /* 深色模式背景：必须为纯黑，以配合 black-translucent 状态栏 */
+                --primary-bg: #000000;
+                --text-main: #ffffff;
             }
-            
-            // 如果是在普通浏览器（Safari/Chrome）中打开，则停留在本页（通常用于管理或引导添加桌面）
-        })();
-    </script>
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            margin: 0;
+            /* env(safe-area-inset-top)：核心逻辑。
+               由于状态栏已透明，此处必须手动预留出大刘海的高度，防止内容被遮挡 */
+            padding: env(safe-area-inset-top) 16px 0 16px;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+            transition: background-color 0.3s;
+        }
+
+        /* 导航头部：提供简洁的返回逻辑 */
+        .nav-header {
+            height: 44px; /* iOS 系统标准导航高度 */
+            display: flex;
+            align-items: center;
+            /* 适配深浅色的极细分割线 */
+            border-bottom: 0.5px solid rgba(128, 128, 128, 0.2);
+        }
+
+        .back-link { 
+            text-decoration: none; 
+            color: var(--text-main); 
+            font-size: 15px; 
+            font-weight: 500;
+        }
+
+        .content-area {
+            padding-top: 20px;
+        }
+
+        h2 { font-size: 24px; font-weight: 700; }
+        
+        p { color: #8e8e93; margin-top: 10px; font-size: 14px; }
+    </style>
 </head>
-<body style="background: #ffffff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-    <div style="font-family:-apple-system, sans-serif; color:#888; font-size: 14px;">
-        此刻 · 开启中
+<body>
+
+    <div class="nav-header">
+        <a href="Mynote.html" class="back-link">← 返回笔记</a>
     </div>
+
+    <div class="content-area">
+        <h2>管理后台</h2>
+        <p>在此处配置你的本地存储、数据备份或 API 代理设置。</p>
+    </div>
+
 </body>
 </html>
