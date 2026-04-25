@@ -29,12 +29,11 @@
   <script type="text/babel">
     const { useState, useRef, useEffect, useCallback, useMemo } = React;
 
-    // ---- CORS 代理列表（可将你的 Worker 地址放在第一位） ----
-    const CORS_PROXY_LIST = [
-      'https://api.allorigins.win/raw?url=',
-      'https://api.akko.one/',
-      'https://corsproxy.io/?',
-    ];
+    // ---- 你的 CF Worker 地址 ----
+    const MY_WORKER = 'https://mynote.yanmiao822.workers.dev';
+
+    // ---- 元数据缓存 ----
+    const metaCache = new Map();
 
     // ---------- IndexedDB 工具 ----------
     function openDB() {
@@ -207,7 +206,6 @@
     const URL_RE = /https?:\/\/[^\s"'<>()\u3000-\uffff]{4,}/gi;
     function extractUrls(text) { return [...new Set((text || "").match(URL_RE) || [])]; }
 
-    // classifyUrl（保留了 Claude 版的短链识别与 accentColor 等增强，兼容后续使用）
     function classifyUrl(url) {
       try {
         const u = new URL(url);
@@ -278,35 +276,34 @@
       }
     }
 
-    // 抓取 OG 元数据的函数（带备用代理）
-    async function fetchOGMeta(url) {
-      for (const proxy of CORS_PROXY_LIST) {
-        try {
-          const res = await fetch(proxy + encodeURIComponent(url));
-          if (!res.ok) continue;
-          const html = await res.text();
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(html, 'text/html');
-          const getMeta = (prop) => {
-            const el = doc.querySelector(`meta[property="og:${prop}"]`) || doc.querySelector(`meta[name="${prop}"]`);
-            return el ? el.getAttribute('content') : null;
-          };
-          const title = getMeta('title') || doc.title || '';
-          const image = getMeta('image') || '';
-          const description = getMeta('description') || '';
-          if (title || image) {
-            return { title, image, description };
+    // 获取元数据（仅使用自己的 Worker，带超时与缓存）
+    async function fetchMeta(url) {
+      const key = url.trim();
+      if (metaCache.has(key)) return metaCache.get(key);
+
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 6000);
+        const res = await fetch(`${MY_WORKER}/meta?url=${encodeURIComponent(key)}`, { signal: controller.signal });
+        clearTimeout(timer);
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && (data.title || data.image)) {
+            metaCache.set(key, data);
+            return data;
           }
-          if (doc.title) return { title: doc.title, image: '', description: '' };
-        } catch (e) {
-          // 尝试下一个代理
         }
+      } catch (e) {
+        // Worker 不可用或其他错误，返回 null
       }
+
+      metaCache.set(key, null);
       return null;
     }
 
-    // LinkCard 组件：基于 CORS 动态获取 OG 元数据，回退为小药丸
-    function LinkCard({ url, dark, onRemove, surroundingText }) {
+    // 增强版 LinkCard：根据平台/类型渲染不同胶囊卡片
+    function LinkCard({ url, dark, onRemove }) {
       const info = classifyUrl(url);
       if (!info) return null;
 
@@ -315,11 +312,11 @@
 
       useEffect(() => {
         let cancelled = false;
-        const platformsToEnrich = ['netease', 'qqmusic', 'bilibili', 'youtube', 'douyin', 'xhs', 'zhihu', 'douban', 'weibo', 'wechat'];
+        const platformsToEnrich = ["netease", "qqmusic", "bilibili", "youtube", "douyin", "xhs", "zhihu", "douban", "weibo"];
         if (platformsToEnrich.includes(info.platform)) {
           setLoading(true);
-          fetchOGMeta(url).then(data => {
-            if (!cancelled && data && (data.title || data.image)) {
+          fetchMeta(url).then(data => {
+            if (!cancelled && data) {
               setMeta(data);
             }
             if (!cancelled) setLoading(false);
@@ -331,27 +328,30 @@
       const t = tokens(dark);
       const bg = dark ? info.bgDark : info.bgLight;
 
-      const pillStyle = {
+      // 通用胶囊容器样式
+      const capsuleStyle = {
         display: "flex",
         alignItems: "center",
         gap: 10,
         background: bg,
         borderRadius: 999,
-        padding: meta?.title ? "10px 14px 10px 10px" : "8px 14px 8px 10px",
+        padding: "10px 14px 10px 10px",
         cursor: "pointer",
         position: "relative",
         transition: "opacity 0.15s, box-shadow 0.15s",
-        marginTop: 2,
-        maxWidth: "100%",
+        marginTop: 4,
+        maxWidth: 360,
         boxShadow: dark ? "0 4px 12px rgba(0,0,0,0.4)" : "0 2px 8px rgba(0,0,0,0.06)",
         opacity: loading ? 0.7 : 1,
       };
+
+      // 移除按钮通用样式
       const removeBtnStyle = {
         border: "none",
-        background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+        background: dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)",
         cursor: "pointer",
         color: dark ? "#8b8b8b" : "#bbb",
-        fontSize: 11,
+        fontSize: 10,
         width: 20,
         height: 20,
         borderRadius: "50%",
@@ -363,38 +363,97 @@
         transition: "color 0.12s",
       };
 
-      return (
-        <div style={pillStyle} onClick={() => window.open(url, "_blank", "noopener,noreferrer")} title={url}>
-          <span style={{ fontSize: 18, flexShrink: 0, lineHeight: 1 }}>{info.icon}</span>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            {meta?.title ? (
-              <>
-                <div style={{ fontSize: 12, fontWeight: 600, color: t.text, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", marginBottom: 2 }}>
-                  {meta.title}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: info.color, background: dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)", borderRadius: 999, padding: "1px 7px" }}>{info.label}</span>
-                  <span style={{ fontSize: 10, color: dark ? "#8b8b8b" : "#b5aca2" }}>{info.kind}</span>
-                </div>
-              </>
-            ) : (
-              <>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: info.color, letterSpacing: 0.3 }}>{info.label}</span>
-                  <span style={{ fontSize: 10, color: dark ? "#8b8b8b" : "#b5aca2", background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)", borderRadius: 999, padding: "1px 6px" }}>{info.kind}</span>
-                </div>
-                <div style={{ fontSize: 11, color: dark ? "#8b8b8b" : "#aaa", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-                  {(() => { try { const u = new URL(url); return u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname.slice(0, 28) + (u.pathname.length > 28 ? "…" : "") : ""); } catch { return url.slice(0, 36); } })()}
-                </div>
-              </>
-            )}
+      // 没有 meta 数据时，保持旧版小药丸
+      if (!meta || !meta.title) {
+        return (
+          <div style={capsuleStyle} onClick={() => window.open(url, "_blank", "noopener,noreferrer")} title={url}>
+            <span style={{ fontSize: 18, flexShrink: 0, lineHeight: 1 }}>{info.icon}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 1 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: info.color, letterSpacing: 0.3 }}>{info.label}</span>
+                <span style={{ fontSize: 10, color: dark ? "#8b8b8b" : "#b5aca2", background: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)", borderRadius: 999, padding: "1px 6px" }}>{info.kind}</span>
+              </div>
+              <div style={{ fontSize: 11, color: dark ? "#8b8b8b" : "#aaa", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+                {(() => { try { const u = new URL(url); return u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname.slice(0, 28) + (u.pathname.length > 28 ? "…" : "") : ""); } catch { return url.slice(0, 36); } })()}
+              </div>
+            </div>
+            <button onClick={e => { e.stopPropagation(); onRemove(); }} style={removeBtnStyle}
+              onMouseEnter={e => e.currentTarget.style.color = "#d04040"}
+              onMouseLeave={e => e.currentTarget.style.color = dark ? "#8b8b8b" : "#bbb"}>
+              ✕
+            </button>
           </div>
-          <button
-            onClick={e => { e.stopPropagation(); onRemove(); }}
-            style={removeBtnStyle}
+        );
+      }
+
+      // ---------- 以下为有 meta 数据的丰富卡片 ----------
+      // 解析标题：音乐类拆分歌名和歌手，其余用原 title 和 desc
+      const isMusic = meta.metaType === "music";
+      // 常见格式 "Love On The Run - Broken Bells - 单曲 - 网易云音乐"
+      const titleParts = isMusic ? meta.title.split(" - ") : [];
+      const songName = isMusic && titleParts.length >= 1 ? titleParts[0].trim() : meta.title;
+      const artistName = isMusic && titleParts.length >= 2 ? titleParts[1].trim() : meta.desc;
+
+      // 视频平台、社交平台
+      const videoPlatforms = ["bilibili", "youtube", "douyin"];
+      const socialPlatforms = ["xhs", "weibo", "zhihu", "douban"];
+
+      const handlePlayClick = (e) => {
+        e.stopPropagation();
+        window.open(url, "_blank", "noopener,noreferrer");
+      };
+
+      const coverImg = meta.image ? (
+        <img src={meta.image} alt="" referrerPolicy="no-referrer" style={{
+          width: 36,
+          height: 36,
+          borderRadius: 8,
+          objectFit: "cover",
+          flexShrink: 0,
+        }} />
+      ) : (
+        <span style={{ fontSize: 20, flexShrink: 0 }}>{info.icon}</span>
+      );
+
+      // 公共内容区域
+      const contentBlock = (
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: t.text, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis", marginBottom: 2 }}>
+            {songName}
+          </div>
+          <div style={{ fontSize: 11, color: t.textSub, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
+            {artistName || info.label}
+          </div>
+        </div>
+      );
+
+      // 仅在音乐类卡片显示播放按钮
+      const playBtn = isMusic ? (
+        <div onClick={handlePlayClick} style={{
+          width: 28,
+          height: 28,
+          borderRadius: "50%",
+          background: dark ? "#fff" : "#000",
+          color: dark ? "#000" : "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: 12,
+          flexShrink: 0,
+          cursor: "pointer",
+        }}>
+          ▶
+        </div>
+      ) : null;
+
+      return (
+        <div style={capsuleStyle} onClick={() => window.open(url, "_blank", "noopener,noreferrer")} title={url}>
+          {coverImg}
+          {contentBlock}
+          {playBtn}
+          <button onClick={e => { e.stopPropagation(); onRemove(); }} style={removeBtnStyle}
             onMouseEnter={e => e.currentTarget.style.color = "#d04040"}
-            onMouseLeave={e => e.currentTarget.style.color = dark ? "#8b8b8b" : "#bbb"}
-          >
+            onMouseLeave={e => e.currentTarget.style.color = dark ? "#8b8b8b" : "#bbb"}>
             ✕
           </button>
         </div>
@@ -701,7 +760,6 @@
                 </button>
               ))}
             </div>
-            {/* 列表滚动容器 · iOS 备忘录风格 */}
             <div style={{ flex: 1, overflowY: "auto", padding: isMobile ? "0 14px 24px" : "0 8px 16px", minHeight: 0 }}>
               {list.length === 0 && <p style={{ textAlign: "center", color: t.textMuted, fontSize: 13, marginTop: 48 }}>{L.noMemos}</p>}
               {(() => {
@@ -908,11 +966,9 @@
                         if (block.type === "link") {
                           const linkIdx = activeBlocks.findIndex(b => b.id === block.id);
                           const nextTextBlock = activeBlocks.slice(linkIdx + 1).find(b => b.type === "text");
-                          const prevTextBlock = activeBlocks.slice(0, linkIdx).reverse().find(b => b.type === "text");
-                          const surroundingText = [prevTextBlock?.text, nextTextBlock?.text].filter(Boolean).join(" ");
                           return (
                             <div key={block.id} data-editor-no-focus="true" style={{ display: "flex", flexDirection: "column" }}>
-                              <LinkCard url={block.url} dark={actualDark} onRemove={() => removeLinkBlock(active.id, block.id)} surroundingText={surroundingText} />
+                              <LinkCard url={block.url} dark={actualDark} onRemove={() => removeLinkBlock(active.id, block.id)} />
                               {nextTextBlock && <div style={{ height: 8, cursor: "text" }} onClick={() => { const ta = document.querySelector(`textarea[data-blockid="${nextTextBlock.id}"]`); if (ta) { ta.focus(); const len = ta.value.length; ta.setSelectionRange(len, len); } }} />}
                             </div>
                           );
