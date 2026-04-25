@@ -277,7 +277,7 @@
       }
     }
 
-    // 获取元数据（仅使用 Worker，带超时与缓存）
+    // 获取元数据（使用 Worker，带超时与缓存，适配新字段：title, subtitle, cover, type）
     async function fetchMeta(url) {
       const key = url.trim();
       if (metaCache.has(key)) return metaCache.get(key);
@@ -290,7 +290,7 @@
 
         if (res.ok) {
           const data = await res.json();
-          if (data && (data.title || data.image)) {
+          if (data && (data.title || data.cover)) {
             metaCache.set(key, data);
             return data;
           }
@@ -313,18 +313,16 @@
 
       useEffect(() => {
         let cancelled = false;
-        const platformsToEnrich = ["netease", "qqmusic", "bilibili", "youtube", "douyin", "xhs", "zhihu", "douban", "weibo"];
-        if (platformsToEnrich.includes(info.platform)) {
-          setLoading(true);
-          fetchMeta(url).then(data => {
-            if (!cancelled && data) {
-              setMeta(data);
-            }
-            if (!cancelled) setLoading(false);
-          });
-        }
+        // 对所有链接尝试获取元数据，不再限制平台名单
+        setLoading(true);
+        fetchMeta(url).then(data => {
+          if (!cancelled && data) {
+            setMeta(data);
+          }
+          if (!cancelled) setLoading(false);
+        });
         return () => { cancelled = true; };
-      }, [url, info.platform]);
+      }, [url]);
 
       const t = tokens(dark);
       const bg = dark ? info.bgDark : info.bgLight;
@@ -387,21 +385,20 @@
         );
       }
 
-      // ---------- 丰富卡片 ----------
-      const isMusic = meta.metaType === "music";
-      const titleParts = isMusic ? meta.title.split(" - ") : [];
-      const songName = isMusic && titleParts.length >= 1 ? titleParts[0].trim() : meta.title;
-      const artistName = isMusic && titleParts.length >= 2 ? titleParts[1].trim() : (meta.desc || info.label);
-      const subtitle = isMusic ? artistName : (meta.desc || info.label);
+      // ---------- 丰富卡片：适配新字段 ----------
+      const isMusic = meta.type === "music";
+      const songName = meta.title;
+      const artistName = meta.subtitle || info.label;
 
       const handlePlayClick = (e) => {
         e.stopPropagation();
         window.open(url, "_blank", "noopener,noreferrer");
       };
 
-      const coverImg = meta.image ? (
+      // 封面图优先使用 Worker 图片代理
+      const coverImg = meta.cover ? (
         <img
-          src={`${MY_WORKER}/img?url=${encodeURIComponent(meta.image)}`}
+          src={`${MY_WORKER}/img?url=${encodeURIComponent(meta.cover)}`}
           alt=""
           referrerPolicy="no-referrer"
           style={{
@@ -422,7 +419,7 @@
             {songName}
           </div>
           <div style={{ fontSize: 11, color: t.textSub, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
-            {subtitle}
+            {artistName}
           </div>
         </div>
       );
