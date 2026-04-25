@@ -1,15 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="此刻">
+    
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
 
+    <link rel="apple-touch-startup-image" href="light-splash.png" media="(prefers-color-scheme: light)">
+    <link rel="apple-touch-startup-image" href="dark-splash.png" media="(prefers-color-scheme: dark)">
+
     <script>
-        // 2. 核心逻辑：如果是桌面打开，跳到笔记；如果是浏览器打开，也跳到笔记（或保留在首页）
         (function() {
             const isStandalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
             if (isStandalone || window.location.search.includes('from=safari')) {
@@ -18,9 +23,9 @@
         })();
     </script>
 </head>
-<body>
-    <div style="font-family:sans-serif; text-align:center; margin-top:50px; color:#888;">
-        Loading...
+<body style="background: #ffffff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+    <div style="font-family:-apple-system, sans-serif; text-align:center; color:#888;">
+        <p>此刻 · 开启中</p>
     </div>
 </body>
 </html>
