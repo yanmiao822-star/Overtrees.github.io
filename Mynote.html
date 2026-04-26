@@ -53,7 +53,7 @@
             height: 44px; display: flex; align-items: center; justify-content: flex-end;
             padding: 0 16px; gap: 12px; pointer-events: auto;
         }
-        .action-btn, .editor-btn {
+        .action-btn {
             background: var(--btn-bg);
             color: var(--text-main); padding: 6px 12px; border-radius: 18px;
             font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer;
@@ -100,10 +100,8 @@
         .item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; margin-left: 10px; }
         .item-time { font-size: 12px; color: var(--text-secondary); }
         .empty-tip { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 14px; }
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to   { transform: translateY(0); }
-        }
+
+        /* 附件相关样式 */
         @keyframes shimmer {
             0% { background-position: -200% 0; }
             100% { background-position: 200% 0; }
@@ -113,52 +111,28 @@
             background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
             background-size: 200% 100%; animation: shimmer 1.5s infinite;
         }
-        .block {
-            transition: transform 0.15s ease, opacity 0.15s ease;
-            cursor: default;
-        }
+        .block { transition: transform 0.15s ease, opacity 0.15s ease; cursor: default; }
         .block.dragging { opacity: 0.4; }
         .block:hover { background: rgba(0,0,0,0.02); }
-        .drop-indicator {
-            height: 3px; background: #007aff; margin: 4px 0; border-radius: 2px;
-        }
-        .lazy-img-placeholder {
-            width: 100%; height: 200px; border-radius: 12px;
-            background: var(--card-bg); display: flex; align-items: center; justify-content: center;
-            color: var(--text-secondary); font-size: 14px;
-        }
-        .virtual-scroll {
-            position: relative;
-            width: 100%;
-        }
+        .drop-indicator { height: 3px; background: #007aff; margin: 4px 0; border-radius: 2px; }
+        .virtual-scroll { position: relative; width: 100%; }
         .lazy-img-wrapper {
-            position: relative;
-            width: 100%;
-            maxHeight: 400px;
-            overflow: hidden;
-            border-radius: 12px;
+            position: relative; width: 100%; max-height: 400px;
+            overflow: hidden; border-radius: 12px;
         }
         .lazy-img-thumb {
-            width: 100%;
-            height: auto;
-            display: block;
-            object-fit: cover;
-            border-radius: 12px;
-            max-height: 400px;
+            width: 100%; height: auto; display: block;
+            object-fit: cover; border-radius: 12px; max-height: 400px;
         }
         .lazy-img-full {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; border-radius: 12px; opacity: 0; transition: opacity 0.3s ease;
         }
-        .lazy-img-full.loaded {
-            opacity: 1;
+        .lazy-img-full.loaded { opacity: 1; }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
         }
     </style>
 </head>
@@ -178,6 +152,7 @@
 <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
     const genId = () => Math.random().toString(36).slice(2, 10);
+
     function timeAgo(iso) {
         const diff = Date.now() - new Date(iso).getTime();
         const m = Math.floor(diff / 60000);
@@ -192,7 +167,7 @@
         return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
     }
 
-    /* ---------- IndexedDB ---------- */
+    /* ---------- IndexedDB (Blob 存储) ---------- */
     function openDB() {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open('MemosDB', 1);
@@ -205,10 +180,10 @@
             request.onerror = (e) => reject(e.target.error);
         });
     }
-    async function saveAttachmentToDB(db, obj) {
+    async function saveAttachmentToDB(db, id, file, thumb) {
         return new Promise((resolve, reject) => {
             const tx = db.transaction('attachments', 'readwrite');
-            tx.objectStore('attachments').put(obj);
+            tx.objectStore('attachments').put({ id, file, thumb, name: file.name, type: file.type });
             tx.oncomplete = () => resolve();
             tx.onerror = (e) => reject(e.target.error);
         });
@@ -230,17 +205,35 @@
         });
     }
 
-    /* ---------- 缩略图生成工具 ---------- */
+    /* ---------- 缩略图生成 ---------- */
     function createThumbnail(dataUrl) {
         return new Promise((resolve) => {
             const img = new Image();
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                canvas.width = 50;
-                canvas.height = 50;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, 50, 50);
-                resolve(canvas.toDataURL('image/jpeg', 0.5));
+                const MAX_SIZE = 50;
+                let width = img.width;
+                let height = img.height;
+                if (width > height) {
+                    if (width > MAX_SIZE) {
+                        height *= MAX_SIZE / width;
+                        width = MAX_SIZE;
+                    }
+                } else {
+                    if (height > MAX_SIZE) {
+                        width *= MAX_SIZE / height;
+                        height = MAX_SIZE;
+                    }
+                }
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.onerror = () => {
+                console.error("缩略图生成失败");
+                resolve(null);
             };
             img.src = dataUrl;
         });
@@ -291,6 +284,12 @@
             startXRef.current = null;
         };
 
+        // 从 doc 节点提取预览文本
+        const previewText = (() => {
+            const firstPara = memo.doc?.find(n => n.type === "paragraph");
+            return firstPara?.children?.[0]?.text?.replace(/\n/g, " ") || "暂无内容";
+        })();
+
         return (
             <div className="swipe-wrapper">
                 <div className="swipe-actions">
@@ -310,12 +309,7 @@
                             {memo.pinned && <span className="pin-dot" />}
                             {memo.title || "无标题"}
                         </div>
-                        <div className="item-preview">
-                            {(() => {
-                                const firstPara = memo.doc?.find(n => n.type === "paragraph");
-                                return firstPara?.children?.[0]?.text?.replace(/\n/g, " ") || "暂无内容";
-                            })()}
-                        </div>
+                        <div className="item-preview">{previewText}</div>
                     </div>
                     <div className="item-right">
                         <span className="item-time">{timeAgo(memo.updatedAt)}</span>
@@ -325,53 +319,17 @@
         );
     }
 
-    /* ---------- LazyImage (双阶段加载) ---------- */
-    function LazyImage({ file }) {
-        const [phase, setPhase] = useState("skeleton");
+    /* ---------- ImageBlock ---------- */
+    function ImageBlock({ node }) {
         const [fullLoaded, setFullLoaded] = useState(false);
-        const elRef = useRef(null);
-
-        useEffect(() => {
-            const el = elRef.current;
-            if (!el) return;
-            const observer = new IntersectionObserver(
-                ([entry]) => {
-                    if (entry.isIntersecting) {
-                        setPhase("thumb");
-                        observer.unobserve(el);
-                    }
-                },
-                { rootMargin: "100px" }
-            );
-            observer.observe(el);
-            return () => observer.disconnect();
-        }, []);
-
-        const handleFullLoad = () => {
-            setFullLoaded(true);
-            if (file.thumb && file.thumb.startsWith("blob:")) {
-                URL.revokeObjectURL(file.thumb);
-            }
-        };
-
-        if (phase === "skeleton") {
-            return <div ref={elRef} className="attachment-placeholder" />;
-        }
+        const src = node.url || node.thumb;
+        if (!src) return <div className="attachment-placeholder" />;
 
         return (
             <div className="lazy-img-wrapper">
-                <img
-                    src={file.thumb || file.url}
-                    alt={file.name}
-                    className="lazy-img-thumb"
-                />
-                <img
-                    src={file.url}
-                    alt={file.name}
-                    className={`lazy-img-full ${fullLoaded ? "loaded" : ""}`}
-                    onLoad={handleFullLoad}
-                    loading="lazy"
-                />
+                <img src={node.thumb || node.url} alt={node.name} className="lazy-img-thumb" />
+                <img src={node.url} alt={node.name} className={`lazy-img-full ${fullLoaded ? "loaded" : ""}`}
+                     onLoad={() => setFullLoaded(true)} loading="lazy" />
             </div>
         );
     }
@@ -382,7 +340,6 @@
         const initialDoc = memo.doc || [{ id: genId(), type: "paragraph", children: [{ text: "" }] }];
         const docRef = useRef(initialDoc);
         const [, forceRender] = useState(0);
-        const [files, setFiles] = useState({});
         const [showMenu, setShowMenu] = useState(false);
         const fileInputRef = useRef(null);
         const dbRef = useRef(null);
@@ -391,55 +348,57 @@
         const selectionRef = useRef(null);
         const dragState = useRef({ draggingId: null, overIndex: null });
         const [dragOverIndex, setDragOverIndex] = useState(null);
+        const blobUrlsRef = useRef({});
 
-        // 历史栈
         const history = useRef({ past: [], future: [] });
         const txOps = useRef([]);
         const txTimer = useRef(null);
 
-        // 虚拟列表相关
         const heightMap = useRef({});
         const [visibleRange, setVisibleRange] = useState([0, 50]);
-        const virtRef = useRef(null);
         const VIRT_THRESHOLD = 50;
 
         useEffect(() => { openDB().then(db => { dbRef.current = db; }).catch(console.error); }, []);
 
-        // 恢复已有附件
         useEffect(() => {
-            (async () => {
-                if (!dbRef.current) return;
-                const fileIds = docRef.current.filter(n => n.type === "attachment").map(n => n.fileId);
-                const map = {};
-                for (const fid of fileIds) {
-                    const stored = await loadAttachmentFromDB(dbRef.current, fid).catch(() => null);
-                    if (stored) {
-                        map[fid] = {
-                            name: stored.name,
-                            type: stored.type,
-                            url: stored.url,
-                            size: stored.size,
-                            thumb: stored.thumb || null
-                        };
-                    }
+            const currentDoc = docRef.current;
+            const newBlobs = {};
+            currentDoc.forEach(n => {
+                if (n.type === "attachment" && n.url && n.url.startsWith('blob:')) {
+                    newBlobs[n.fileId] = n.url;
                 }
-                setFiles(map);
-            })();
+            });
+            blobUrlsRef.current = { ...blobUrlsRef.current, ...newBlobs };
+            return () => {
+                Object.values(blobUrlsRef.current).forEach(url => URL.revokeObjectURL(url));
+                blobUrlsRef.current = {};
+            };
         }, []);
 
-        // 自动保存
-        const doSave = useCallback((t, d) => {
-            onSave(memo.id, { title: t.trim() || "无标题", doc: d, updatedAt: new Date().toISOString() });
-        }, [memo.id, onSave]);
-        useEffect(() => {
+        const revokeBlob = useCallback((fileId) => {
+            if (blobUrlsRef.current[fileId]) {
+                URL.revokeObjectURL(blobUrlsRef.current[fileId]);
+                delete blobUrlsRef.current[fileId];
+            }
+        }, []);
+
+        const scheduleSave = useCallback(() => {
             clearTimeout(saveTimer.current);
-            saveTimer.current = setTimeout(() => doSave(title, docRef.current), 600);
-            return () => clearTimeout(saveTimer.current);
-        }, [title]);
+            saveTimer.current = setTimeout(() => {
+                if (dbRef.current) {
+                    onSave(memo.id, { title: title.trim() || "无标题", doc: docRef.current, updatedAt: new Date().toISOString() });
+                }
+            }, 600);
+        }, [memo.id, onSave, title]);
 
-        const handleClose = () => { clearTimeout(saveTimer.current); doSave(title, docRef.current); onClose(); };
+        useEffect(() => { scheduleSave(); }, [title, scheduleSave]);
 
-        /* ---------- 历史栈核心 ---------- */
+        const handleClose = () => {
+            clearTimeout(saveTimer.current);
+            onSave(memo.id, { title: title.trim() || "无标题", doc: docRef.current, updatedAt: new Date().toISOString() });
+            onClose();
+        };
+
         const recordOp = useCallback((patch) => {
             txOps.current.push(patch);
             clearTimeout(txTimer.current);
@@ -447,14 +406,12 @@
                 const combined = txOps.current;
                 txOps.current = [];
                 if (combined.length === 0) return;
-
                 const inverse = combined.map(p => {
                     if (p.op === "update") return { op: "update", index: p.index, prev: p.next, next: p.prev };
                     if (p.op === "insert") return { op: "remove", index: p.index, node: p.node };
                     if (p.op === "remove") return { op: "insert", index: p.index, node: p.node };
                     return p;
                 }).reverse();
-
                 history.current.past.push({ patch: combined, inverse });
                 if (history.current.past.length > 100) history.current.past.shift();
                 history.current.future = [];
@@ -497,7 +454,6 @@
             return () => window.removeEventListener("keydown", handler);
         }, [undo, redo]);
 
-        /* 光标工具 */
         function readSelectionFromDOM(rootEl) {
             const sel = window.getSelection();
             if (!sel || sel.rangeCount === 0) return null;
@@ -528,7 +484,6 @@
             s.addRange(range);
         }
 
-        /* 段落拆分 */
         const splitParagraphAtSelection = useCallback(() => {
             const sel = selectionRef.current;
             if (!sel) return;
@@ -541,22 +496,18 @@
             const newId = genId();
             const oldBlock = { ...block, children: [{ text: before }] };
             const newBlock = { id: newId, type: "paragraph", children: [{ text: after }] };
-
             recordOp({ op: "update", index: sel.blockIndex, prev: block, next: oldBlock });
             recordOp({ op: "insert", index: sel.blockIndex + 1, node: newBlock });
-
             doc[sel.blockIndex] = oldBlock;
             doc.splice(sel.blockIndex + 1, 0, newBlock);
             forceRender(c => c + 1);
             selectionRef.current = { blockIndex: sel.blockIndex + 1, offset: 0 };
         }, [recordOp]);
 
-        /* 插入附件（光标处） */
         const insertAttachmentAtCursor = useCallback(async (file) => {
             const id = genId();
             const doc = docRef.current;
             let insertIdx;
-
             if (selectionRef.current) {
                 if (selectionRef.current.offset > 0) {
                     const block = doc[selectionRef.current.blockIndex];
@@ -566,10 +517,8 @@
                         const after = text.slice(selectionRef.current.offset);
                         const oldBlock = { ...block, children: [{ text: before }] };
                         const newPara = { id: genId(), type: "paragraph", children: [{ text: after }] };
-
                         recordOp({ op: "update", index: selectionRef.current.blockIndex, prev: block, next: oldBlock });
                         recordOp({ op: "insert", index: selectionRef.current.blockIndex + 1, node: newPara });
-
                         doc[selectionRef.current.blockIndex] = oldBlock;
                         doc.splice(selectionRef.current.blockIndex + 1, 0, newPara);
                         insertIdx = selectionRef.current.blockIndex + 1;
@@ -581,62 +530,47 @@
                 insertIdx = doc.length;
             }
 
-            const attachmentNode = { id: genId(), type: "attachment", fileId: id, status: "loading" };
+            const nodeId = genId();
+            const blobUrl = URL.createObjectURL(file);
+            blobUrlsRef.current[id] = blobUrl;
+
+            const attachmentNode = { id: nodeId, type: "attachment", fileId: id, status: "loading", name: file.name, type: file.type, size: file.size, url: blobUrl };
             const newPara = { id: genId(), type: "paragraph", children: [{ text: "" }] };
 
             if (insertIdx !== undefined) {
+                doc.splice(insertIdx, 0, attachmentNode, newPara);
                 recordOp({ op: "insert", index: insertIdx, node: attachmentNode });
                 recordOp({ op: "insert", index: insertIdx + 1, node: newPara });
-                doc.splice(insertIdx, 0, attachmentNode, newPara);
             } else {
-                recordOp({ op: "insert", index: doc.length, node: attachmentNode });
-                recordOp({ op: "insert", index: doc.length + 1, node: newPara });
                 doc.push(attachmentNode, newPara);
+                recordOp({ op: "insert", index: doc.length - 2, node: attachmentNode });
+                recordOp({ op: "insert", index: doc.length - 1, node: newPara });
             }
 
             forceRender(c => c + 1);
             selectionRef.current = { blockIndex: doc.findIndex(n => n.id === newPara.id), offset: 0 };
 
-            const url = URL.createObjectURL(file);
-            setFiles(prev => ({ ...prev, [id]: { name: file.name, type: file.type, url, size: file.size, thumb: null } }));
-
-            const reader = new FileReader();
-            reader.onload = async (ev) => {
+            createThumbnail(URL.createObjectURL(file)).then(async (thumbDataUrl) => {
                 try {
-                    const dataUrl = ev.target.result;
-                    const thumb = await createThumbnail(dataUrl);
-                    await saveAttachmentToDB(dbRef.current, {
-                        id,
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        url: dataUrl,
-                        thumb
-                    });
-                    setFiles(prev => ({
-                        ...prev,
-                        [id]: { ...prev[id], thumb, url: dataUrl }
-                    }));
-                } catch (err) { console.error("附件保存失败", err); }
-            };
-            reader.readAsDataURL(file);
+                    await saveAttachmentToDB(dbRef.current, id, file, thumbDataUrl);
+                    const idx = doc.findIndex(n => n.id === nodeId);
+                    if (idx !== -1) {
+                        doc[idx] = { ...doc[idx], status: "done", thumb: thumbDataUrl };
+                        forceRender(c => c + 1);
+                    }
+                } catch (err) { console.error("附件处理失败", err); }
+            });
         }, [recordOp]);
 
-        const handleAddAttachment = () => {
-            setShowMenu(false);
-            fileInputRef.current?.click();
-        };
+        const handleAddAttachment = () => { setShowMenu(false); fileInputRef.current?.click(); };
 
         const handleFilesSelected = async (e) => {
             const filesArr = Array.from(e.target.files);
             e.target.value = '';
             if (!filesArr.length || !dbRef.current) return;
-            for (const file of filesArr) {
-                await insertAttachmentAtCursor(file);
-            }
+            for (const file of filesArr) await insertAttachmentAtCursor(file);
         };
 
-        // 段落文本更新 (contentEditable) —— 不触发 React 渲染
         const handleParagraphInput = (e, nodeId) => {
             const text = e.currentTarget.textContent;
             const doc = docRef.current;
@@ -644,60 +578,45 @@
             if (index === -1) return;
             const oldBlock = doc[index];
             const newBlock = { ...oldBlock, children: [{ text }] };
-
             recordOp({ op: "update", index, prev: oldBlock, next: newBlock });
             doc[index] = newBlock;
             const sel = readSelectionFromDOM(editorRef.current);
             if (sel) selectionRef.current = sel;
+            scheduleSave();
         };
 
-        // 回车新建段落
         const handleParagraphKeyDown = (e, nodeId) => {
             if (e.key === "Enter") {
                 e.preventDefault();
                 const sel = readSelectionFromDOM(editorRef.current);
-                if (sel) {
-                    selectionRef.current = sel;
-                    splitParagraphAtSelection();
-                }
+                if (sel) { selectionRef.current = sel; splitParagraphAtSelection(); }
             }
         };
 
-        // 块高度测量
         useEffect(() => {
             const blocks = editorRef.current?.querySelectorAll('[data-blockid]');
             if (!blocks) return;
             const observer = new ResizeObserver(entries => {
                 entries.forEach(entry => {
                     const id = entry.target.dataset.blockid;
-                    if (id) {
-                        heightMap.current[id] = entry.target.offsetHeight;
-                    }
+                    if (id) heightMap.current[id] = entry.target.offsetHeight;
                 });
             });
             blocks.forEach(b => observer.observe(b));
             return () => observer.disconnect();
         }, [forceRender]);
 
-        // 虚拟列表滚动计算
         const calcVisibleRange = useCallback(() => {
-            const el = virtRef.current;
+            const el = editorRef.current;
             if (!el) return;
-            const scrollTop = window.scrollY || el.scrollTop;
-            const clientHeight = window.innerHeight;
+            const scrollTop = el.scrollTop;
+            const clientHeight = el.clientHeight;
             const doc = docRef.current;
             const total = doc.length;
-            if (total <= VIRT_THRESHOLD) {
-                setVisibleRange([0, total]);
-                return;
-            }
-
-            let cumulative = 0;
-            let start = 0;
-            let end = total;
+            if (total <= VIRT_THRESHOLD) { setVisibleRange([0, total]); return; }
+            let cumulative = 0, start = 0, end = total;
             for (let i = 0; i < total; i++) {
-                const node = doc[i];
-                const h = heightMap.current[node.id] || 60;
+                const h = heightMap.current[doc[i].id] || 60;
                 cumulative += h;
                 if (cumulative < scrollTop) start = i + 1;
                 if (cumulative < scrollTop + clientHeight + 200) end = i + 1;
@@ -709,49 +628,35 @@
         }, []);
 
         useEffect(() => {
-            const el = virtRef.current;
+            const el = editorRef.current;
             if (!el) return;
             const handler = () => calcVisibleRange();
             el.addEventListener("scroll", handler);
             window.addEventListener("resize", handler);
             calcVisibleRange();
-            return () => {
-                el.removeEventListener("scroll", handler);
-                window.removeEventListener("resize", handler);
-            };
+            return () => { el.removeEventListener("scroll", handler); window.removeEventListener("resize", handler); };
         }, [calcVisibleRange]);
 
-        // 恢复光标（结构变化时）
         useEffect(() => {
             if (editorRef.current && selectionRef.current) {
-                const id = setTimeout(() => {
-                    restoreSelection(editorRef.current, selectionRef.current);
-                    selectionRef.current = null;
-                }, 0);
+                const id = setTimeout(() => { restoreSelection(editorRef.current, selectionRef.current); selectionRef.current = null; }, 0);
                 return () => clearTimeout(id);
             }
         }, [forceRender]);
 
         const removeAttachment = useCallback(async (nodeId, fileId) => {
-            if (files[fileId]?.url?.startsWith('blob:')) URL.revokeObjectURL(files[fileId].url);
-            if (files[fileId]?.thumb?.startsWith('blob:')) URL.revokeObjectURL(files[fileId].thumb);
+            revokeBlob(fileId);
             if (dbRef.current) await deleteAttachmentFromDB(dbRef.current, fileId).catch(() => {});
             const doc = docRef.current;
-            const idx = doc.findIndex(n => n.type === "attachment" && n.fileId === fileId);
+            const idx = doc.findIndex(n => n.id === nodeId);
             if (idx !== -1) {
                 recordOp({ op: "remove", index: idx, node: doc[idx] });
                 doc.splice(idx, 1);
                 forceRender(c => c + 1);
             }
-            setFiles(prev => { const n = { ...prev }; delete n[fileId]; return n; });
-        }, [files, recordOp]);
+        }, [recordOp, revokeBlob]);
 
-        /* 拖拽排序 */
-        const onDragStart = (e, nodeId) => {
-            dragState.current.draggingId = nodeId;
-            e.dataTransfer.effectAllowed = "move";
-            e.currentTarget.classList.add("dragging");
-        };
+        const onDragStart = (e, nodeId) => { dragState.current.draggingId = nodeId; e.dataTransfer.effectAllowed = "move"; e.currentTarget.classList.add("dragging"); };
         const onDragEnd = (e) => {
             e.currentTarget.classList.remove("dragging");
             const { draggingId, overIndex } = dragState.current;
@@ -762,7 +667,6 @@
                     const [item] = doc.splice(fromIdx, 1);
                     const adjustIndex = overIndex > fromIdx ? overIndex - 1 : overIndex;
                     doc.splice(adjustIndex, 0, item);
-
                     recordOp({ op: "remove", index: fromIdx, node: item });
                     recordOp({ op: "insert", index: adjustIndex, node: item });
                     forceRender(c => c + 1);
@@ -772,12 +676,10 @@
             setDragOverIndex(null);
         };
         const onDragOver = (e, index) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = "move";
+            e.preventDefault(); e.dataTransfer.dropEffect = "move";
             const y = e.clientY;
-            const threshold = 80;
-            if (y < threshold) window.scrollBy(0, -10);
-            else if (window.innerHeight - y < threshold) window.scrollBy(0, 10);
+            if (y < 80) window.scrollBy(0, -10);
+            else if (window.innerHeight - y < 80) window.scrollBy(0, 10);
             dragState.current.overIndex = index;
             setDragOverIndex(index);
         };
@@ -791,14 +693,28 @@
 
         const charCount = doc.reduce((acc, n) => n.type === "paragraph" ? acc + (n.children[0]?.text || "").replace(/\n/g, "").length : acc, 0);
 
+        const editorBtnStyle = {
+            background: "var(--btn-bg)",
+            color: "var(--text-main)",
+            padding: "6px 12px",
+            borderRadius: 18,
+            fontSize: 14,
+            fontWeight: 500,
+            border: "0.5px solid var(--border-color)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            cursor: "pointer",
+            fontFamily: "inherit",
+            transform: "translateZ(0)",
+        };
+
         return (
             <div style={{ position: "fixed", inset: 0, zIndex: 3000, background: "transparent", animation: "slideUp 0.28s cubic-bezier(0.32,0.72,0,1)" }}>
-                {/* 顶栏透明悬浮 */}
                 <header style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 2000, paddingTop: "env(safe-area-inset-top)", background: "transparent", pointerEvents: "none" }}>
                     <div style={{ height: 44, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", pointerEvents: "auto" }}>
-                        <button className="editor-btn" onClick={handleClose}>‹ 返回</button>
+                        <button style={editorBtnStyle} onClick={handleClose}>‹ 返回</button>
                         <div style={{ position: "relative" }}>
-                            <button className="editor-btn" onClick={() => setShowMenu(!showMenu)}>…</button>
+                            <button style={editorBtnStyle} onClick={() => setShowMenu(!showMenu)}>…</button>
                             {showMenu && (
                                 <div style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", background: "var(--card-bg)", borderRadius: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.15)", overflow: "hidden", minWidth: 120, zIndex: 100 }}>
                                     <button onClick={handleAddAttachment} style={{ width: "100%", padding: "10px 16px", border: "none", background: "none", color: "var(--text-main)", fontSize: 14, cursor: "pointer", textAlign: "left" }}>📎 添加附件</button>
@@ -808,89 +724,99 @@
                     </div>
                 </header>
 
-                {/* 内容区带背景色和安全区域 */}
-                <div ref={editorRef} style={{
-                    position: "absolute", inset: 0, overflowY: "auto", WebkitOverflowScrolling: "touch",
+                <div style={{
+                    position: "absolute", inset: 0,
                     paddingTop: "calc(env(safe-area-inset-top) + 60px)",
-                    paddingLeft: 20, paddingRight: 20,
-                    paddingBottom: "calc(env(safe-area-inset-bottom) + 40px)",
-                    background: "var(--primary-bg)"
+                    paddingBottom: "calc(env(safe-area-inset-bottom) + 40px)"
                 }}>
-                    <textarea value={title} onChange={e => setTitle(e.target.value)} placeholder="标题" rows={1} style={{ width: "100%", fontSize: 26, fontWeight: 700, color: "var(--text-main)", lineHeight: 1.3, border: "none", outline: "none", resize: "none", background: "transparent", fontFamily: "inherit", letterSpacing: "-0.5px", marginBottom: 10, overflow: "hidden", display: "block" }} />
-                    <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 20 }}>
-                        {timeAgo(memo.updatedAt)} · {charCount} 字
-                    </div>
+                    <div ref={editorRef} style={{
+                        height: "100%", overflowY: "auto", WebkitOverflowScrolling: "touch",
+                        paddingLeft: 20, paddingRight: 20,
+                        background: "var(--primary-bg)",
+                        borderRadius: "12px 12px 0 0"
+                    }}>
+                        <textarea value={title} onChange={e => setTitle(e.target.value)} placeholder="标题" rows={1} style={{ width: "100%", fontSize: 26, fontWeight: 700, color: "var(--text-main)", lineHeight: 1.3, border: "none", outline: "none", resize: "none", background: "transparent", fontFamily: "inherit", letterSpacing: "-0.5px", marginBottom: 10, overflow: "hidden", display: "block" }} />
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 20 }}>{timeAgo(memo.updatedAt)} · {charCount} 字</div>
 
-                    <div className="virtual-scroll" ref={virtRef} style={{ height: useVirtual ? totalHeight : 'auto', position: 'relative' }}>
-                        <div style={{ paddingTop: useVirtual ? offsetTop : 0 }}>
-                            {visibleDoc.map((node, index) => {
-                                const realIndex = useVirtual ? start + index : index;
-                                if (node.type === "paragraph") {
-                                    return (
-                                        <div key={node.id} className="block" draggable
-                                             onDragStart={(e) => onDragStart(e, node.id)}
-                                             onDragEnd={onDragEnd}
-                                             onDragOver={(e) => onDragOver(e, realIndex)}
-                                             style={{ marginBottom: 4 }}
-                                        >
-                                            {dragOverIndex === realIndex && <div className="drop-indicator" />}
-                                            <div
-                                                data-type="paragraph"
-                                                data-blockid={node.id}
-                                                contentEditable
-                                                suppressContentEditableWarning
-                                                onInput={(e) => handleParagraphInput(e, node.id)}
-                                                onKeyDown={(e) => handleParagraphKeyDown(e, node.id)}
-                                                style={{ fontSize: 16, color: "var(--text-main)", lineHeight: 1.75, outline: "none", minHeight: "1em", whiteSpace: "pre-wrap" }}
-                                            >
-                                                {node.children[0]?.text}
+                        <div className="virtual-scroll" style={{ height: useVirtual ? totalHeight : 'auto', position: 'relative' }}>
+                            <div style={{ paddingTop: useVirtual ? offsetTop : 0 }}>
+                                {visibleDoc.map((node, index) => {
+                                    const realIndex = useVirtual ? start + index : index;
+                                    if (node.type === "paragraph") {
+                                        return (
+                                            <div key={node.id} className="block" draggable onDragStart={(e) => onDragStart(e, node.id)} onDragEnd={onDragEnd} onDragOver={(e) => onDragOver(e, realIndex)} style={{ marginBottom: 4 }}>
+                                                {dragOverIndex === realIndex && <div className="drop-indicator" />}
+                                                <div data-type="paragraph" data-blockid={node.id} contentEditable suppressContentEditableWarning onInput={(e) => handleParagraphInput(e, node.id)} onKeyDown={(e) => handleParagraphKeyDown(e, node.id)} style={{ fontSize: 16, color: "var(--text-main)", lineHeight: 1.75, outline: "none", minHeight: "1em", whiteSpace: "pre-wrap" }}>{node.children[0]?.text}</div>
                                             </div>
-                                        </div>
-                                    );
-                                }
-                                if (node.type === "attachment") {
-                                    const file = files[node.fileId];
-                                    const isImage = file?.type?.startsWith("image/");
-                                    return (
-                                        <div key={node.id} className="block" draggable
-                                             onDragStart={(e) => onDragStart(e, node.id)}
-                                             onDragEnd={onDragEnd}
-                                             onDragOver={(e) => onDragOver(e, realIndex)}
-                                             style={{ position: "relative", margin: "8px 0" }}
-                                        >
-                                            {dragOverIndex === realIndex && <div className="drop-indicator" />}
-                                            {(!file || node.status === "loading") && !file?.url ? (
-                                                <div className="attachment-placeholder" />
-                                            ) : isImage ? (
-                                                <LazyImage file={file} />
-                                            ) : (
-                                                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, background: "var(--card-bg)", borderRadius: 12 }}>
-                                                    <span style={{ fontSize: 28 }}>📄</span>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{ fontSize: 14, fontWeight: 500 }}>{file.name}</div>
-                                                        <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{(file.size/1024).toFixed(1)} KB</div>
+                                        );
+                                    }
+                                    if (node.type === "attachment") {
+                                        const isImage = node.url && (node.url.startsWith("blob:") || node.url.startsWith("data:image/") || (node.thumb && node.thumb.startsWith("data:image/")));
+                                        const hasSrc = node.url || node.thumb;
+                                        return (
+                                            <div key={node.id} className="block" draggable onDragStart={(e) => onDragStart(e, node.id)} onDragEnd={onDragEnd} onDragOver={(e) => onDragOver(e, realIndex)} style={{ position: "relative", margin: "8px 0" }}>
+                                                {dragOverIndex === realIndex && <div className="drop-indicator" />}
+                                                {node.status === "loading" && !hasSrc ? (
+                                                    <div className="attachment-placeholder" />
+                                                ) : isImage ? (
+                                                    <ImageBlock node={node} />
+                                                ) : (
+                                                    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, background: "var(--card-bg)", borderRadius: 12 }}>
+                                                        <span style={{ fontSize: 28 }}>📄</span>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ fontSize: 14, fontWeight: 500 }}>{node.name || "文件"}</div>
+                                                            {node.size && <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{(node.size/1024).toFixed(1)} KB</div>}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            )}
-                                            <button onClick={() => removeAttachment(node.id, node.fileId)} style={{
-                                                position: "absolute", top: 8, right: 8, width: 24, height: 24,
-                                                borderRadius: "50%", background: "rgba(0,0,0,0.5)", color: "#fff",
-                                                border: "none", cursor: "pointer", display: "flex", alignItems: "center",
-                                                justifyContent: "center", fontSize: 12
-                                            }}>✕</button>
-                                        </div>
-                                    );
-                                }
-                                return null;
-                            })}
+                                                )}
+                                                <button onClick={() => removeAttachment(node.id, node.fileId)} style={{ position: "absolute", top: 8, right: 8, width: 24, height: 24, borderRadius: "50%", background: "rgba(0,0,0,0.5)", color: "#fff", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>✕</button>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                })}
+                            </div>
                         </div>
+                        <div style={{ height: 40 }} />
                     </div>
-                    <div style={{ height: 40 }} />
                 </div>
-
                 <input ref={fileInputRef} type="file" multiple accept="image/*,application/pdf,text/plain" onChange={handleFilesSelected} style={{ display: "none" }} />
             </div>
         );
+    }
+
+    /* ---------- 预加载附件数据 ---------- */
+    async function preloadMemoAttachments(db, memo) {
+        const doc = [...memo.doc];
+        const fileIds = doc.filter(n => n.type === "attachment" && n.fileId).map(n => n.fileId);
+        const dataMap = {};
+        await Promise.all(fileIds.map(async (fid) => {
+            const stored = await loadAttachmentFromDB(db, fid).catch(() => null);
+            if (stored) {
+                const blobUrl = stored.file ? URL.createObjectURL(stored.file) : null;
+                dataMap[fid] = { ...stored, url: blobUrl };
+            }
+        }));
+        return {
+            ...memo,
+            doc: doc.map(n => {
+                if (n.type === "attachment" && n.fileId && dataMap[n.fileId]) {
+                    const d = dataMap[n.fileId];
+                    return { ...n, url: d.url, thumb: d.thumb, name: d.name, type: d.type, size: d.size };
+                }
+                return n;
+            })
+        };
+    }
+
+    function cleanMemoDocForSave(doc) {
+        return doc.map(n => {
+            if (n.type === "attachment") {
+                const { url, thumb, name, type, size, ...rest } = n;
+                return rest;
+            }
+            return n;
+        });
     }
 
     /* ---------- MemoList ---------- */
@@ -909,13 +835,24 @@
             } catch { return []; }
         });
         const [editingMemo, setEditingMemo] = useState(null);
+        const dbRef = useRef(null);
 
-        useEffect(() => { try { localStorage.setItem("memos_app_v2", JSON.stringify(memos)); } catch(e){} }, [memos]);
+        useEffect(() => { openDB().then(db => { dbRef.current = db; }).catch(console.error); }, []);
 
-        const openEditor = (memo) => {
+        useEffect(() => {
+            const cleanedMemos = memos.map(m => ({ ...m, doc: cleanMemoDocForSave(m.doc) }));
+            try { localStorage.setItem("memos_app_v2", JSON.stringify(cleanedMemos)); } catch(e){}
+        }, [memos]);
+
+        const openEditor = async (memo) => {
             document.querySelector("header").style.visibility = "hidden";
             document.querySelector(".page-title").style.visibility = "hidden";
-            setEditingMemo(memo);
+            if (dbRef.current) {
+                const fullMemo = await preloadMemoAttachments(dbRef.current, memo);
+                setEditingMemo(fullMemo);
+            } else {
+                setEditingMemo(memo);
+            }
         };
         const closeEditor = () => {
             document.querySelector("header").style.visibility = "visible";
