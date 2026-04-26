@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -13,248 +12,194 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <title>此刻</title>
 
-```
-<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
 
-<style>
-    :root {
-        --primary-bg: #ffffff;
-        --text-main: #1a1a1a;
-        --text-secondary: #8e8e93;
-        --card-bg: #f6f8fa;
-        --btn-bg: rgba(240, 240, 242, 0.7);
-        --border-color: rgba(0, 0, 0, 0.05);
-    }
-
-    @media (prefers-color-scheme: dark) {
+    <style>
+        /* --- [1. 基础变量与重置] --- */
         :root {
-            --primary-bg: #000000;
-            --text-main: #ffffff;
-            --text-secondary: #98989d;
-            --card-bg: #1c1c1e;
-            --btn-bg: rgba(44, 44, 46, 0.7);
-            --border-color: rgba(255, 255, 255, 0.1);
+            --primary-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-secondary: #8e8e93;
+            --card-bg: #f6f8fa;
+            --btn-bg: rgba(240, 240, 242, 0.7);
+            --border-color: rgba(0, 0, 0, 0.05);
         }
-    }
 
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        -webkit-tap-highlight-color: transparent;
-    }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary-bg: #000000;
+                --text-main: #ffffff;
+                --text-secondary: #98989d;
+                --card-bg: #1c1c1e;
+                --btn-bg: rgba(44, 44, 46, 0.7);
+                --border-color: rgba(255, 255, 255, 0.1);
+            }
+        }
 
-    html {
-        background-color: var(--primary-bg);
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-        background-color: var(--primary-bg);
-        color: var(--text-main);
-        padding-bottom: env(safe-area-inset-bottom);
-    }
+        html { background-color: var(--primary-bg); }
 
-    header {
-        position: sticky;
-        top: 0;
-        z-index: 2000;
-        padding-top: env(safe-area-inset-top);
-        width: 100%;
-        background: transparent;
-        pointer-events: none;
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
-        will-change: transform;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
 
-    .header-actions {
-        height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding: 0 16px;
-        gap: 12px;
-        pointer-events: auto;
-    }
+        /* --- [2. 首页区样式] --- */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            padding-top: env(safe-area-inset-top);
+            width: 100%;
+            background: transparent;
+            pointer-events: none;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            will-change: transform;
+        }
 
-    .action-btn {
-        background: var(--btn-bg);
-        color: var(--text-main);
-        padding: 6px 12px;
-        border-radius: 18px;
-        font-size: 14px;
-        font-weight: 500;
-        text-decoration: none;
-        cursor: pointer;
-        border: none;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border: 0.5px solid var(--border-color);
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
-    }
+        .header-actions {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 16px;
+            gap: 12px;
+            pointer-events: auto;
+        }
 
-    .page-title {
-        position: relative;
-        z-index: 1000;
-        padding: 4px 20px 10px 20px;
-        font-size: 34px;
-        font-weight: 800;
-        letter-spacing: -1px;
-        pointer-events: none;
-        opacity: 0.9;
-    }
+        .action-btn {
+            background: var(--btn-bg);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 18px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 0.5px solid var(--border-color);
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+        }
 
-    .container {
-        padding: 12px 16px;
-        position: relative;
-        z-index: 1;
-    }
+        .page-title {
+            position: relative;
+            z-index: 1000;
+            padding: 4px 20px 10px 20px;
+            font-size: 34px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            pointer-events: none;
+            opacity: 0.9;
+        }
 
-    /* 列表组容器 */
-    .list-group {
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        overflow: hidden;
-        margin-bottom: 20px;
-    }
+        .container {
+            padding: 12px 16px;
+            position: relative;
+            z-index: 1;
+        }
 
-    /* 每条笔记的外层滑动容器 */
-    .swipe-wrapper {
-        position: relative;
-        overflow: hidden;
-    }
+        .list-group {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
 
-    /* 左滑后露出的操作按钮区 */
-    .swipe-actions {
-        position: absolute;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        display: flex;
-        align-items: stretch;
-        width: 140px;
-    }
+        .swipe-wrapper { position: relative; overflow: hidden; }
 
-    .swipe-action-btn {
-        flex: 1;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 3px;
-        color: #fff;
-        font-size: 10.5px;
-        font-family: inherit;
-        font-weight: 500;
-    }
+        .swipe-actions {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: stretch;
+            width: 140px;
+        }
 
-    .swipe-action-btn span { font-size: 17px; }
+        .swipe-action-btn {
+            flex: 1;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            color: #fff;
+            font-size: 10.5px;
+            font-family: inherit;
+            font-weight: 500;
+        }
 
-    /* 笔记行主体 */
-    .list-item {
-        position: relative;
-        z-index: 1;
-        padding: 14px 16px;
-        border-bottom: 0.5px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: var(--card-bg);
-        cursor: pointer;
-        transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        will-change: transform;
-        user-select: none;
-    }
+        .swipe-action-btn span { font-size: 17px; }
 
-    .list-item:last-child { border-bottom: none; }
+        .list-item {
+            position: relative;
+            z-index: 1;
+            padding: 14px 16px;
+            border-bottom: 0.5px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            cursor: pointer;
+            transition: transform 0.22s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+            user-select: none;
+        }
 
-    .item-left {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        min-width: 0;
-        flex: 1;
-    }
+        .list-item:last-child { border-bottom: none; }
 
-    .item-title {
-        font-size: 15px;
-        font-weight: 500;
-        color: var(--text-main);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
+        .item-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+        .item-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
 
-    .pin-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--text-secondary);
-        flex-shrink: 0;
-        opacity: 0.5;
-    }
+        .pin-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); flex-shrink: 0; opacity: 0.5; }
+        .item-preview { font-size: 12.5px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; margin-left: 10px; }
+        .item-time { font-size: 12px; color: var(--text-secondary); }
 
-    .item-preview {
-        font-size: 12.5px;
-        color: var(--text-secondary);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+        .empty-tip { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 14px; }
 
-    .item-right {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 3px;
-        flex-shrink: 0;
-        margin-left: 10px;
-    }
-
-    .item-time {
-        font-size: 12px;
-        color: var(--text-secondary);
-    }
-
-    .empty-tip {
-        text-align: center;
-        padding: 40px 0;
-        color: var(--text-secondary);
-        font-size: 14px;
-    }
-
-    footer { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 12px; }
-
-    @keyframes slideUp {
-        from { transform: translateY(100%); }
-        to   { transform: translateY(0); }
-    }
-</style>
-```
-
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to   { transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
 
-```
 <header>
     <div class="header-actions">
         <button class="action-btn" id="new-btn">✏️ 新建</button>
         <a href="index.html" class="action-btn" id="admin-btn">管理</a>
     </div>
 </header>
-
 <h1 class="page-title">此刻</h1>
-
 <div class="container">
     <div id="memo-list-root"></div>
 </div>
@@ -262,14 +207,7 @@
 <script type="text/babel">
     const { useState, useEffect, useRef, useCallback } = React;
 
-    // ---- 示例数据（首次启动时写入 localStorage）----
-    const SAMPLE = [
-        { id: "1", title: "本周工作计划", content: "完成季度报告\n准备周五会议材料", pinned: true,  updatedAt: new Date(Date.now() - 3e5).toISOString() },
-        { id: "2", title: "读书笔记",     content: "《思考，快与慢》系统1与系统2", pinned: false, updatedAt: new Date(Date.now() - 86400000).toISOString() },
-        { id: "3", title: "购物清单",     content: "牛奶 × 2 / 面包 / 当季水果",  pinned: false, updatedAt: new Date(Date.now() - 172800000).toISOString() },
-    ];
-
-    // ---- 时间格式化 ----
+    /* --- [工具函数] --- */
     function timeAgo(iso) {
         const diff = Date.now() - new Date(iso).getTime();
         const m = Math.floor(diff / 60000);
@@ -284,7 +222,7 @@
         return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
     }
 
-    // ---- 左滑行组件 ----
+    /* --- [首页区组件：SwipeRow] --- */
     function SwipeRow({ memo, onOpen, onPin, onDelete }) {
         const rowRef = useRef(null);
         const startXRef = useRef(null);
@@ -300,7 +238,7 @@
             if (rowRef.current) rowRef.current.style.transform = `translateX(${x}px)`;
         };
         const snapOpen  = () => { setTranslate(-ACTION_W); openedRef.current = true;  currentXRef.current = -ACTION_W; };
-        const snapClose = () => { setTranslate(0);          openedRef.current = false; currentXRef.current = 0; swipingRef.current = false; };
+        const snapClose = () => { setTranslate(0); openedRef.current = false; currentXRef.current = 0; swipingRef.current = false; };
 
         const onTouchStart = (e) => {
             startXRef.current = e.touches[0].clientX;
@@ -335,40 +273,26 @@
             startXRef.current = null;
         };
 
-        const handleClick = () => {
-            if (openedRef.current) { snapClose(); return; }
-            onOpen();
-        };
-
         return (
             <div className="swipe-wrapper">
-                {/* 操作按钮层 */}
                 <div className="swipe-actions">
-                    <button className="swipe-action-btn"
-                        style={{ background: "#4A90D9" }}
+                    <button className="swipe-action-btn" style={{ background: "#4A90D9" }}
                         onClick={e => { e.stopPropagation(); snapClose(); onPin(memo.id); }}>
                         <span>📌</span>{memo.pinned ? "取消置顶" : "置顶"}
                     </button>
-                    <button className="swipe-action-btn"
-                        style={{ background: "#E0433A" }}
+                    <button className="swipe-action-btn" style={{ background: "#E0433A" }}
                         onClick={e => { e.stopPropagation(); snapClose(); onDelete(memo.id); }}>
                         <span>🗑️</span>删除
                     </button>
                 </div>
-                {/* 笔记行 */}
-                <div ref={rowRef} className="list-item"
-                    onClick={handleClick}
-                    onTouchStart={onTouchStart}
-                    onTouchMove={onTouchMove}
-                    onTouchEnd={onTouchEnd}>
+                <div ref={rowRef} className="list-item" onClick={() => openedRef.current ? snapClose() : onOpen()}
+                    onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
                     <div className="item-left">
                         <div className="item-title">
                             {memo.pinned && <span className="pin-dot" />}
                             {memo.title || "无标题"}
                         </div>
-                        <div className="item-preview">
-                            {memo.content?.replace(/\n/g, " ") || "暂无内容"}
-                        </div>
+                        <div className="item-preview">{memo.content?.replace(/\n/g, " ") || "暂无内容"}</div>
                     </div>
                     <div className="item-right">
                         <span className="item-time">{timeAgo(memo.updatedAt)}</span>
@@ -378,7 +302,7 @@
         );
     }
 
-    // ---- 编辑器组件 ----
+    /* --- [编辑器区组件：Editor] --- */
     function Editor({ memo, onClose, onSave }) {
         const [title, setTitle] = useState(memo.title === "无标题" ? "" : memo.title);
         const [content, setContent] = useState(memo.content || "");
@@ -398,7 +322,6 @@
             saveTimer.current = setTimeout(() => doSave(t, c), 600);
         };
 
-        // 关闭前立即保存
         const handleClose = () => {
             clearTimeout(saveTimer.current);
             doSave(title, content);
@@ -411,83 +334,42 @@
             el.style.height = el.scrollHeight + "px";
         };
 
-        useEffect(() => {
-            if (bodyRef.current) autoResize(bodyRef.current);
-        }, []);
+        useEffect(() => { if (bodyRef.current) autoResize(bodyRef.current); }, []);
 
         const charCount = content.replace(/\n/g, "").length;
 
+        // 编辑器顶部按钮样式（严格还原原版内联样式）
+        const editorBtnStyle = {
+            background: "var(--btn-bg)",
+            color: "var(--text-main)",
+            padding: "6px 12px",
+            borderRadius: 18, 
+            fontSize: 14, 
+            fontWeight: 500,
+            border: "0.5px solid var(--border-color)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            cursor: "pointer", 
+            fontFamily: "inherit",
+            transform: "translateZ(0)",
+        };
+
         return (
-            <div style={{
-                position: "fixed", inset: 0, zIndex: 3000,
-                background: "var(--primary-bg)",
-                animation: "slideUp 0.28s cubic-bezier(0.32,0.72,0,1)",
-            }}>
-                {/* ── 顶部：绝对定位透明浮层，与首页 header 完全一致 ── */}
-                <header style={{
-                    position: "absolute", top: 0, left: 0, right: 0,
-                    zIndex: 2000,
-                    paddingTop: "env(safe-area-inset-top)",
-                    background: "transparent",
-                    pointerEvents: "none",
-                    transform: "translateZ(0)",
-                    WebkitTransform: "translateZ(0)",
-                    willChange: "transform",
-                }}>
-                    <div style={{
-                        height: 44, display: "flex", alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "0 16px", gap: 12,
-                        pointerEvents: "auto",
-                    }}>
-                        <button onClick={handleClose} style={{
-                            background: "var(--btn-bg)",
-                            color: "var(--text-main)",
-                            padding: "6px 12px",
-                            borderRadius: 18, fontSize: 14, fontWeight: 500,
-                            border: "0.5px solid var(--border-color)",
-                            backdropFilter: "blur(8px)",
-                            WebkitBackdropFilter: "blur(8px)",
-                            cursor: "pointer", fontFamily: "inherit",
-                            transform: "translateZ(0)",
-                        }}>‹ 返回</button>
-                        <button style={{
-                            background: "var(--btn-bg)",
-                            color: "var(--text-main)",
-                            padding: "6px 12px",
-                            borderRadius: 18, fontSize: 14, fontWeight: 500,
-                            border: "0.5px solid var(--border-color)",
-                            backdropFilter: "blur(8px)",
-                            WebkitBackdropFilter: "blur(8px)",
-                            cursor: "pointer", fontFamily: "inherit",
-                            transform: "translateZ(0)",
-                        }}>…</button>
+            <div style={{ position: "fixed", inset: 0, zIndex: 3000, background: "var(--primary-bg)", animation: "slideUp 0.28s cubic-bezier(0.32,0.72,0,1)" }}>
+                <header style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 2000, paddingTop: "env(safe-area-inset-top)", background: "transparent", pointerEvents: "none" }}>
+                    <div style={{ height: 44, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 16px", pointerEvents: "auto" }}>
+                        <button onClick={handleClose} style={editorBtnStyle}>‹ 返回</button>
+                        <button style={editorBtnStyle}>…</button>
                     </div>
                 </header>
 
-                {/* ── 内容区：全屏滚动，顶部底部自然穿透 ── */}
-                <div style={{
-                    position: "absolute", inset: 0,
-                    overflowY: "auto",
-                    WebkitOverflowScrolling: "touch",
-                    paddingTop: "calc(env(safe-area-inset-top) + 60px)",
-                    paddingBottom: "calc(env(safe-area-inset-bottom) + 40px)",
-                    paddingLeft: 20,
-                    paddingRight: 20,
-                }}>
+                <div style={{ position: "absolute", inset: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", paddingTop: "calc(env(safe-area-inset-top) + 60px)", paddingBottom: "calc(env(safe-area-inset-bottom) + 40px)", paddingLeft: 20, paddingRight: 20 }}>
                     <textarea
                         value={title}
                         onChange={e => { setTitle(e.target.value); autoSave(e.target.value, content); autoResize(e.target); }}
                         placeholder="标题"
                         rows={1}
-                        style={{
-                            width: "100%", fontSize: 26, fontWeight: 700,
-                            color: "var(--text-main)", lineHeight: 1.3,
-                            border: "none", outline: "none", resize: "none",
-                            background: "transparent", fontFamily: "inherit",
-                            letterSpacing: "-0.5px", marginBottom: 10,
-                            overflow: "hidden", display: "block",
-                        }}
+                        style={{ width: "100%", fontSize: 26, fontWeight: 700, color: "var(--text-main)", lineHeight: 1.3, border: "none", outline: "none", resize: "none", background: "transparent", fontFamily: "inherit", letterSpacing: "-0.5px", marginBottom: 10, overflow: "hidden", display: "block" }}
                     />
                     <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 20 }}>
                         {timeAgo(memo.updatedAt)}{charCount > 0 ? ` · ${charCount} 字` : ""}
@@ -499,29 +381,28 @@
                         placeholder="开始书写…"
                         rows={1}
                         autoFocus
-                        style={{
-                            width: "100%", fontSize: 16,
-                            color: "var(--text-main)", lineHeight: 1.75,
-                            border: "none", outline: "none", resize: "none",
-                            background: "transparent", fontFamily: "inherit",
-                            overflow: "hidden", minHeight: "60vh", display: "block",
-                        }}
+                        style={{ width: "100%", fontSize: 16, color: "var(--text-main)", lineHeight: 1.75, border: "none", outline: "none", resize: "none", background: "transparent", fontFamily: "inherit", overflow: "hidden", minHeight: "60vh", display: "block" }}
                     />
                 </div>
             </div>
         );
     }
 
-    // ---- 主列表组件 ----
+    /* --- [首页区组件：MemoList 主逻辑] --- */
     function MemoList() {
         const [memos, setMemos] = useState(() => {
             try {
                 const saved = localStorage.getItem("memos_app_v2");
-                return saved ? JSON.parse(saved) : SAMPLE;
-            } catch { return SAMPLE; }
+                return saved ? JSON.parse(saved) : [];
+            } catch { return []; }
         });
 
         const [editingMemo, setEditingMemo] = useState(null);
+
+        useEffect(() => {
+            try { localStorage.setItem("memos_app_v2", JSON.stringify(memos)); }
+            catch (e) { console.warn("localStorage 写入失败", e); }
+        }, [memos]);
 
         const openEditor = (memo) => {
             document.querySelector("header").style.visibility = "hidden";
@@ -535,19 +416,10 @@
             setEditingMemo(null);
         };
 
-        // 持久化
-        useEffect(() => {
-            try { localStorage.setItem("memos_app_v2", JSON.stringify(memos)); }
-            catch (e) { console.warn("localStorage 写入失败", e); }
-        }, [memos]);
-
-        // 新建按钮
         useEffect(() => {
             const btn = document.getElementById("new-btn");
-            if (!btn) return;
             const handler = () => {
-                const id = Date.now().toString();
-                const newMemo = { id, title: "无标题", content: "", pinned: false, updatedAt: new Date().toISOString() };
+                const newMemo = { id: Date.now().toString(), title: "无标题", content: "", pinned: false, updatedAt: new Date().toISOString() };
                 setMemos(ms => [newMemo, ...ms]);
                 openEditor(newMemo);
             };
@@ -568,10 +440,7 @@
             setMemos(ms => ms.map(m => m.id === id ? { ...m, ...changes } : m));
         }, []);
 
-        const sorted = [...memos].sort((a, b) =>
-            (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) ||
-            new Date(b.updatedAt) - new Date(a.updatedAt)
-        );
+        const sorted = [...memos].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || new Date(b.updatedAt) - new Date(a.updatedAt));
 
         return (
             <>
@@ -580,24 +449,12 @@
                     : (
                         <div className="list-group">
                             {sorted.map(memo => (
-                                <SwipeRow
-                                    key={memo.id}
-                                    memo={memo}
-                                    onOpen={() => openEditor(memo)}
-                                    onPin={togglePin}
-                                    onDelete={deleteMemo}
-                                />
+                                <SwipeRow key={memo.id} memo={memo} onOpen={() => openEditor(memo)} onPin={togglePin} onDelete={deleteMemo} />
                             ))}
                         </div>
                     )
                 }
-                {editingMemo && (
-                    <Editor
-                        memo={editingMemo}
-                        onClose={closeEditor}
-                        onSave={saveMemo}
-                    />
-                )}
+                {editingMemo && <Editor memo={editingMemo} onClose={closeEditor} onSave={saveMemo} />}
             </>
         );
     }
@@ -606,7 +463,7 @@
 </script>
 
 <script>
-    // PWA standalone 模式内部跳转
+    /* --- [PWA Helper] --- */
     (function() {
         if (("standalone" in window.navigator) && window.navigator.standalone) {
             document.addEventListener("click", function(e) {
@@ -620,7 +477,6 @@
         }
     })();
 </script>
-```
 
 </body>
 </html>
