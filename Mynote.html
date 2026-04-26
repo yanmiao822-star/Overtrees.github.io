@@ -246,6 +246,27 @@
 <body>
 
 ```
+<!-- 顶部渐变遮罩，JS 动态匹配深浅模式背景色 -->
+<div id="top-fade" style="
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: calc(env(safe-area-inset-top) + 56px);
+    pointer-events: none;
+    z-index: 1999;
+"></div>
+<script>
+    (function() {
+        var el = document.getElementById('top-fade');
+        function update() {
+            var dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            var bg = dark ? '#000000' : '#ffffff';
+            el.style.background = 'linear-gradient(to bottom, ' + bg + ' 0%, ' + bg + ' 40%, transparent 100%)';
+        }
+        update();
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', update);
+    })();
+</script>
+
 <header>
     <div class="header-actions">
         <button class="action-btn" id="new-btn">✏️ 新建</button>
