@@ -518,6 +518,18 @@
 
         const [editingMemo, setEditingMemo] = useState(null);
 
+        const openEditor = (memo) => {
+            document.querySelector("header").style.visibility = "hidden";
+            document.querySelector(".page-title").style.visibility = "hidden";
+            setEditingMemo(memo);
+        };
+
+        const closeEditor = () => {
+            document.querySelector("header").style.visibility = "visible";
+            document.querySelector(".page-title").style.visibility = "visible";
+            setEditingMemo(null);
+        };
+
         // 持久化
         useEffect(() => {
             try { localStorage.setItem("memos_app_v2", JSON.stringify(memos)); }
@@ -532,7 +544,7 @@
                 const id = Date.now().toString();
                 const newMemo = { id, title: "无标题", content: "", pinned: false, updatedAt: new Date().toISOString() };
                 setMemos(ms => [newMemo, ...ms]);
-                setEditingMemo(newMemo);
+                openEditor(newMemo);
             };
             btn.addEventListener("click", handler);
             return () => btn.removeEventListener("click", handler);
@@ -544,7 +556,7 @@
 
         const deleteMemo = (id) => {
             setMemos(ms => ms.filter(m => m.id !== id));
-            if (editingMemo?.id === id) setEditingMemo(null);
+            if (editingMemo?.id === id) closeEditor();
         };
 
         const saveMemo = useCallback((id, changes) => {
@@ -566,7 +578,7 @@
                                 <SwipeRow
                                     key={memo.id}
                                     memo={memo}
-                                    onOpen={() => setEditingMemo(memo)}
+                                    onOpen={() => openEditor(memo)}
                                     onPin={togglePin}
                                     onDelete={deleteMemo}
                                 />
@@ -577,7 +589,7 @@
                 {editingMemo && (
                     <Editor
                         memo={editingMemo}
-                        onClose={() => setEditingMemo(null)}
+                        onClose={closeEditor}
                         onSave={saveMemo}
                     />
                 )}
