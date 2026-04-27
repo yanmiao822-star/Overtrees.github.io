@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -12,155 +13,168 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <title>此刻</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
+```
+<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.23.5/babel.min.js"></script>
 
-    <style>
+<style>
+    :root {
+        --primary-bg: #ffffff;
+        --text-main: #1a1a1a;
+        --text-secondary: #8e8e93;
+        --card-bg: #f6f8fa;
+        --btn-bg: rgba(240, 240, 242, 0.7);
+        --border-color: rgba(0, 0, 0, 0.05);
+    }
+    @media (prefers-color-scheme: dark) {
         :root {
-            --primary-bg: #ffffff;
-            --text-main: #1a1a1a;
-            --text-secondary: #8e8e93;
-            --card-bg: #f6f8fa;
-            --btn-bg: rgba(240, 240, 242, 0.7);
-            --border-color: rgba(0, 0, 0, 0.05);
+            --primary-bg: #000000;
+            --text-main: #ffffff;
+            --text-secondary: #98989d;
+            --card-bg: #1c1c1e;
+            --btn-bg: rgba(44, 44, 46, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
         }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --primary-bg: #000000;
-                --text-main: #ffffff;
-                --text-secondary: #98989d;
-                --card-bg: #1c1c1e;
-                --btn-bg: rgba(44, 44, 46, 0.7);
-                --border-color: rgba(255, 255, 255, 0.1);
-            }
-        }
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        html { background-color: var(--primary-bg); }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
-            background-color: var(--primary-bg);
-            color: var(--text-main);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        header {
-            position: sticky; top: 0; z-index: 2000;
-            padding-top: env(safe-area-inset-top);
-            width: 100%; background: transparent; pointer-events: none;
-            transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform;
-        }
-        .header-actions {
-            height: 44px; display: flex; align-items: center; justify-content: flex-end;
-            padding: 0 16px; gap: 12px; pointer-events: auto;
-        }
-        .action-btn, .editor-btn {
-            background: var(--btn-bg);
-            color: var(--text-main); padding: 6px 12px; border-radius: 18px;
-            font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer;
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            border: 0.5px solid var(--border-color); transform: translateZ(0);
-        }
-        .page-title {
-            position: relative; z-index: 1000; padding: 4px 20px 10px 20px;
-            font-size: 34px; font-weight: 800; letter-spacing: -1px; pointer-events: none; opacity: 0.9;
-        }
-        .container { padding: 12px 16px; position: relative; z-index: 1; }
-        .list-group {
-            background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 12px; overflow: hidden; margin-bottom: 20px;
-        }
-        .swipe-wrapper { position: relative; overflow: hidden; }
-        .swipe-actions {
-            position: absolute; right: 0; top: 0; bottom: 0;
-            display: flex; align-items: stretch; width: 140px;
-        }
-        .swipe-action-btn {
-            flex: 1; border: none; cursor: pointer; display: flex;
-            flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-            color: #fff; font-size: 10.5px; font-family: inherit; font-weight: 500;
-        }
-        .swipe-action-btn span { font-size: 17px; }
-        .list-item {
-            position: relative; z-index: 1; padding: 14px 16px;
-            border-bottom: 0.5px solid var(--border-color);
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--card-bg); cursor: pointer;
-            transition: transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);
-            will-change: transform; user-select: none;
-        }
-        .list-item:last-child { border-bottom: none; }
-        .item-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
-        .item-title {
-            font-size: 15px; font-weight: 500; color: var(--text-main);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            display: flex; align-items: center; gap: 5px;
-        }
-        .pin-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); flex-shrink: 0; opacity: 0.5; }
-        .item-preview { font-size: 12.5px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; margin-left: 10px; }
-        .item-time { font-size: 12px; color: var(--text-secondary); }
-        .empty-tip { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 14px; }
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to   { transform: translateY(0); }
-        }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .attachment-placeholder {
-            height: 180px; margin: 8px 0; border-radius: 12px;
-            background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
-            background-size: 200% 100%; animation: shimmer 1.5s infinite;
-        }
-        .block {
-            transition: transform 0.15s ease, opacity 0.15s ease;
-            cursor: default;
-        }
-        .block.dragging { opacity: 0.4; }
-        .block:hover { background: rgba(0,0,0,0.02); }
-        .drop-indicator {
-            height: 3px; background: #007aff; margin: 4px 0; border-radius: 2px;
-        }
-        .lazy-img-placeholder {
-            width: 100%; height: 200px; border-radius: 12px;
-            background: var(--card-bg); display: flex; align-items: center; justify-content: center;
-            color: var(--text-secondary); font-size: 14px;
-        }
-        .virtual-scroll {
-            position: relative;
-            width: 100%;
-        }
-        .lazy-img-wrapper {
-            position: relative;
-            width: 100%;
-            maxHeight: 400px;
-            overflow: hidden;
-            border-radius: 12px;
-        }
-        .lazy-img-thumb {
-            width: 100%;
-            height: auto;
-            display: block;
-            object-fit: cover;
-            border-radius: 12px;
-            max-height: 400px;
-        }
-        .lazy-img-full {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .lazy-img-full.loaded {
-            opacity: 1;
-        }
-    </style>
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { background-color: var(--primary-bg); }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
+        background-color: var(--primary-bg);
+        color: var(--text-main);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    header {
+        position: sticky; top: 0; z-index: 2000;
+        padding-top: env(safe-area-inset-top);
+        width: 100%; background: transparent; pointer-events: none;
+        transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform;
+    }
+    .header-actions {
+        height: 44px; display: flex; align-items: center; justify-content: flex-end;
+        padding: 0 16px; gap: 12px; pointer-events: auto;
+    }
+    .action-btn, .editor-btn {
+        background: var(--btn-bg);
+        color: var(--text-main); padding: 6px 12px; border-radius: 18px;
+        font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer;
+        backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        border: 0.5px solid var(--border-color); transform: translateZ(0);
+    }
+    .page-title {
+        position: relative; z-index: 1000; padding: 4px 20px 10px 20px;
+        font-size: 34px; font-weight: 800; letter-spacing: -1px; pointer-events: none; opacity: 0.9;
+    }
+    .container { padding: 12px 16px; position: relative; z-index: 1; }
+    .list-group {
+        background: var(--card-bg); border: 1px solid var(--border-color);
+        border-radius: 12px; overflow: hidden; margin-bottom: 20px;
+    }
+    .swipe-wrapper { position: relative; overflow: hidden; }
+    .swipe-actions {
+        position: absolute; right: 0; top: 0; bottom: 0;
+        display: flex; align-items: stretch; width: 140px;
+    }
+    .swipe-action-btn {
+        flex: 1; border: none; cursor: pointer; display: flex;
+        flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+        color: #fff; font-size: 10.5px; font-family: inherit; font-weight: 500;
+    }
+    .swipe-action-btn span { font-size: 17px; }
+    .list-item {
+        position: relative; z-index: 1; padding: 14px 16px;
+        border-bottom: 0.5px solid var(--border-color);
+        display: flex; justify-content: space-between; align-items: center;
+        background: var(--card-bg); cursor: pointer;
+        transition: transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);
+        will-change: transform; user-select: none;
+    }
+    .list-item:last-child { border-bottom: none; }
+    .item-left { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+    .item-title {
+        font-size: 15px; font-weight: 500; color: var(--text-main);
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .pin-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); flex-shrink: 0; opacity: 0.5; }
+    .item-preview { font-size: 12.5px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; flex-shrink: 0; margin-left: 10px; }
+    .item-time { font-size: 12px; color: var(--text-secondary); }
+    .empty-tip { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 14px; }
+    @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+    }
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    .attachment-placeholder {
+        height: 180px; margin: 8px 0; border-radius: 12px;
+        background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+        background-size: 200% 100%; animation: shimmer 1.5s infinite;
+    }
+    .block {
+        transition: transform 0.15s ease, opacity 0.15s ease;
+        cursor: default;
+    }
+    .block.dragging { opacity: 0.4; }
+    .block:hover { background: rgba(0,0,0,0.02); }
+    .drop-indicator {
+        height: 3px; background: #007aff; margin: 4px 0; border-radius: 2px;
+    }
+    @keyframes fakeBlink {
+        0%, 49% { opacity: 1; }
+        50%, 100% { opacity: 0; }
+    }
+    .fake-cursor {
+        position: absolute; top: 6px; bottom: 6px; right: 4px;
+        width: 2.5px; border-radius: 1px; background: #007aff;
+        animation: fakeBlink 1.05s step-start infinite;
+        pointer-events: none; z-index: 10;
+    }
+    .lazy-img-placeholder {
+        width: 100%; height: 200px; border-radius: 12px;
+        background: var(--card-bg); display: flex; align-items: center; justify-content: center;
+        color: var(--text-secondary); font-size: 14px;
+    }
+    .virtual-scroll {
+        position: relative;
+        width: 100%;
+    }
+    .lazy-img-wrapper {
+        position: relative;
+        width: 100%;
+        maxHeight: 400px;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+    .lazy-img-thumb {
+        width: 100%;
+        height: auto;
+        display: block;
+        object-fit: cover;
+        border-radius: 12px;
+        max-height: 400px;
+    }
+    .lazy-img-full {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    .lazy-img-full.loaded {
+        opacity: 1;
+    }
+</style>
+```
+
 </head>
 <body>
 
@@ -394,6 +408,7 @@
         const selectionRef = useRef(null);
         const dragState = useRef({ draggingId: null, overIndex: null });
         const [dragOverIndex, setDragOverIndex] = useState(null);
+        const [fakeCursorId, setFakeCursorId] = useState(null);
 
         // 历史栈
         const history = useRef({ past: [], future: [] });
@@ -406,27 +421,29 @@
         const virtRef = useRef(null);
         const VIRT_THRESHOLD = 50;
 
-        useEffect(() => { openDB().then(db => { dbRef.current = db; }).catch(console.error); }, []);
-
-        // 恢复已有附件
+        // 打开 DB 并恢复已有附件（合并为一个 effect，避免竞态）
         useEffect(() => {
             (async () => {
-                if (!dbRef.current) return;
-                const fileIds = docRef.current.filter(n => n.type === "attachment").map(n => n.fileId);
-                const map = {};
-                for (const fid of fileIds) {
-                    const stored = await loadAttachmentFromDB(dbRef.current, fid).catch(() => null);
-                    if (stored) {
-                        map[fid] = {
-                            name: stored.name,
-                            type: stored.type,
-                            url: stored.url,
-                            size: stored.size,
-                            thumb: stored.thumb || null
-                        };
+                try {
+                    const db = await openDB();
+                    dbRef.current = db;
+                    const fileIds = docRef.current.filter(n => n.type === "attachment").map(n => n.fileId);
+                    if (fileIds.length === 0) return;
+                    const map = {};
+                    for (const fid of fileIds) {
+                        const stored = await loadAttachmentFromDB(db, fid).catch(() => null);
+                        if (stored) {
+                            map[fid] = {
+                                name: stored.name,
+                                type: stored.type,
+                                url: stored.url,
+                                size: stored.size,
+                                thumb: stored.thumb || null
+                            };
+                        }
                     }
-                }
-                setFiles(map);
+                    if (Object.keys(map).length > 0) setFiles(map);
+                } catch(e) { console.error(e); }
             })();
         }, []);
 
@@ -607,8 +624,8 @@
             reader.onload = async (ev) => {
                 try {
                     const dataUrl = ev.target.result;
-                    // 生成缩略图
-                    const thumb = await createThumbnail(dataUrl);
+                    const isImg = file.type.startsWith("image/");
+                    const thumb = isImg ? await createThumbnail(dataUrl) : null;
                     await saveAttachmentToDB(dbRef.current, {
                         id,
                         name: file.name,
@@ -617,7 +634,6 @@
                         url: dataUrl,
                         thumb
                     });
-                    // 更新缓存中的缩略图
                     setFiles(prev => ({
                         ...prev,
                         [id]: { ...prev[id], thumb, url: dataUrl }
@@ -656,14 +672,29 @@
             if (sel) selectionRef.current = sel;
         };
 
-        // 回车新建段落
+        // 回车新建段落 / Backspace 删除前置附件
         const handleParagraphKeyDown = (e, nodeId) => {
             if (e.key === "Enter") {
                 e.preventDefault();
+                setFakeCursorId(null);
                 const sel = readSelectionFromDOM(editorRef.current);
                 if (sel) {
                     selectionRef.current = sel;
                     splitParagraphAtSelection();
+                }
+                return;
+            }
+            if (e.key === "Backspace") {
+                const sel = window.getSelection();
+                const atStart = sel && sel.rangeCount > 0 && sel.getRangeAt(0).startOffset === 0 && sel.getRangeAt(0).collapsed;
+                if (!atStart) { setFakeCursorId(null); return; }
+                const doc = docRef.current;
+                const idx = doc.findIndex(n => n.id === nodeId);
+                if (idx > 0 && doc[idx - 1].type === "attachment") {
+                    e.preventDefault();
+                    setFakeCursorId(null);
+                    const attachNode = doc[idx - 1];
+                    removeAttachment(attachNode.id, attachNode.fileId);
                 }
             }
         };
@@ -838,6 +869,7 @@
                                                 suppressContentEditableWarning
                                                 onInput={(e) => handleParagraphInput(e, node.id)}
                                                 onKeyDown={(e) => handleParagraphKeyDown(e, node.id)}
+                                                onFocus={() => setFakeCursorId(null)}
                                                 style={{ fontSize: 16, color: "var(--text-main)", lineHeight: 1.75, outline: "none", minHeight: "1em", whiteSpace: "pre-wrap" }}
                                             >
                                                 {node.children[0]?.text}
@@ -848,33 +880,54 @@
                                 if (node.type === "attachment") {
                                     const file = files[node.fileId];
                                     const isImage = file?.type?.startsWith("image/");
+                                    const handleAttachmentClick = (e) => {
+                                        const rect = e.currentTarget.getBoundingClientRect();
+                                        if (e.clientX < rect.right - 32) return;
+                                        setFakeCursorId(node.id);
+                                        const doc = docRef.current;
+                                        const idx = doc.findIndex(n => n.id === node.id);
+                                        const next = doc[idx + 1];
+                                        if (!next || next.type !== "paragraph") return;
+                                        const paragraphs = editorRef.current?.querySelectorAll('[data-type="paragraph"]');
+                                        if (!paragraphs) return;
+                                        const nextIdx = doc.slice(0, idx + 1).filter(n => n.type === "paragraph").length;
+                                        const targetEl = paragraphs[nextIdx];
+                                        if (!targetEl) return;
+                                        targetEl.focus();
+                                        const range = document.createRange();
+                                        const textNode = targetEl.firstChild || targetEl;
+                                        range.setStart(textNode, 0);
+                                        range.collapse(true);
+                                        const sel = window.getSelection();
+                                        sel.removeAllRanges();
+                                        sel.addRange(range);
+                                    };
                                     return (
                                         <div key={node.id} className="block" draggable
                                              onDragStart={(e) => onDragStart(e, node.id)}
                                              onDragEnd={onDragEnd}
                                              onDragOver={(e) => onDragOver(e, realIndex)}
+                                             onClick={handleAttachmentClick}
                                              style={{ position: "relative", margin: "8px 0" }}
                                         >
                                             {dragOverIndex === realIndex && <div className="drop-indicator" />}
-                                            {(!file || node.status === "loading") && !file?.url ? (
+                                            {!file ? (
                                                 <div className="attachment-placeholder" />
                                             ) : isImage ? (
-                                                <LazyImage file={file} />
+                                                <div style={{ position: "relative" }}>
+                                                    <LazyImage file={file} />
+                                                    {fakeCursorId === node.id && <div className="fake-cursor" />}
+                                                </div>
                                             ) : (
-                                                <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, background: "var(--card-bg)", borderRadius: 12 }}>
+                                                <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 12, padding: 12, background: "var(--card-bg)", borderRadius: 12 }}>
                                                     <span style={{ fontSize: 28 }}>📄</span>
                                                     <div style={{ flex: 1 }}>
                                                         <div style={{ fontSize: 14, fontWeight: 500 }}>{file.name}</div>
                                                         <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{(file.size/1024).toFixed(1)} KB</div>
                                                     </div>
+                                                    {fakeCursorId === node.id && <div className="fake-cursor" />}
                                                 </div>
                                             )}
-                                            <button onClick={() => removeAttachment(node.id, node.fileId)} style={{
-                                                position: "absolute", top: 8, right: 8, width: 24, height: 24,
-                                                borderRadius: "50%", background: "rgba(0,0,0,0.5)", color: "#fff",
-                                                border: "none", cursor: "pointer", display: "flex", alignItems: "center",
-                                                justifyContent: "center", fontSize: 12
-                                            }}>✕</button>
                                         </div>
                                     );
                                 }
@@ -966,5 +1019,6 @@
         }
     })();
 </script>
+
 </body>
 </html>
