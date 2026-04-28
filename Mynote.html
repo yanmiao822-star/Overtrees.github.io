@@ -47,6 +47,7 @@
         /* ========== 顶部全透明控制 ========== */
         header {
             position: sticky; top: 0; z-index: 2000;
+            position: relative;  /* 让 page-title.compact 的 absolute 基于 header */
             padding-top: env(safe-area-inset-top);
             width: 100%;
             background: transparent;
