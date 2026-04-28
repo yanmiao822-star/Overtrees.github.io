@@ -101,7 +101,7 @@
             top: calc(env(safe-area-inset-top) + 7px);
             left: 50%;
             transform: translateX(-50%);
-            z-index: 2500;  /* 提高到 2500，确保悬浮在列表内容上方 */
+            z-index: 2500;
             text-align: center;
             font-size: 17px;
             font-weight: 600;
@@ -117,6 +117,11 @@
             white-space: nowrap;
             line-height: 1.2;
             width: fit-content;
+        }
+        /* 修复 PWA 模式下文字被 backdrop-filter 层覆盖的问题 */
+        .page-title.compact-inner {
+            position: relative;
+            z-index: 1;
         }
         .container { 
             padding: 46px 16px 12px;
@@ -1300,7 +1305,9 @@
                         <div>
                             <header className="main-header">
                                 {isCompact && (
-                                    <div className="page-title compact" key="compact-title-header">此刻</div>
+                                    <div className="page-title compact" key="compact-title-header">
+                                        <span className="page-title compact-inner">此刻</span>
+                                    </div>
                                 )}
                                 <div className="header-actions">
                                 </div>
