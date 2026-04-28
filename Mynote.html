@@ -49,6 +49,7 @@
             position: sticky; top: 0; z-index: 2000;
             padding-top: env(safe-area-inset-top);
             width: 100%;
+            min-height: calc(env(safe-area-inset-top) + 44px);  /* 确保紧凑标题在 header 边界内 */
             background: transparent;
             pointer-events: none;
             transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform;
@@ -97,7 +98,7 @@
             will-change: transform, opacity;
         }
         .page-title.compact {
-            position: absolute;
+            position: fixed;
             top: calc(env(safe-area-inset-top) + 7px);
             left: 50%;
             transform: translateX(-50%);
