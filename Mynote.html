@@ -53,11 +53,6 @@
             pointer-events: none;
             transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform;
         }
-        /* standalone (PWA) 模式下移除 GPU 加速合成，避免紧凑标题文字渲染丢失 */
-        .pwa-mode header,
-        header.pwa-mode {
-            transform: none; -webkit-transform: none; will-change: auto;
-        }
         /* ========== 顶部全透明控制 END ========== */
 
         .header-actions {
@@ -114,14 +109,24 @@
             padding: 6px 16px;
             border-radius: 20px;
             background: var(--btn-bg);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
             border: 0.5px solid var(--border-color);
             opacity: 1;
             pointer-events: none;
             white-space: nowrap;
             line-height: 1.2;
             width: fit-content;
+            color: var(--text-main);  /* 显式设置颜色，避免继承异常 */
+        }
+        /* iOS PWA 独立模式下 backdrop-filter 与文字渲染冲突，用伪元素实现毛玻璃背景 */
+        .page-title.compact::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            border-radius: 20px;
+            background: var(--btn-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
         }
         .container { 
             padding: 46px 16px 12px;
@@ -1379,16 +1384,7 @@
 
     <script>
         (function() {
-            const isStandalone = ("standalone" in window.navigator) && window.navigator.standalone;
-            if (isStandalone) {
-                // PWA 模式：移除 GPU 合成避免紧凑标题文字渲染丢失
-                document.documentElement.classList.add('pwa-mode');
-                document.addEventListener("DOMContentLoaded", function() {
-                    var header = document.querySelector('header');
-                    if (header) header.classList.add('pwa-mode');
-                });
-            }
-            if (isStandalone) {
+            if (("standalone" in window.navigator) && window.navigator.standalone) {
                 document.addEventListener("click", function(e) {
                     let nod = e.target;
                     while (nod && nod.nodeName !== "A") nod = nod.parentNode;
