@@ -63,7 +63,6 @@
         width: 100%;
         background: transparent;
         pointer-events: none;
-        isolation: isolate;
     }
     /* ========== 顶部全透明控制 END ========== */
 
@@ -132,13 +131,12 @@
     }
     .container { 
         padding: 46px 16px 12px;
-        position: relative; z-index: 1; 
     }
     .list-group {
         background: var(--card-bg); border: 1px solid var(--border-color);
         border-radius: 12px; overflow: hidden; margin-bottom: 20px;
     }
-    .swipe-wrapper { position: relative; overflow: hidden; transform: translateZ(0); -webkit-transform: translateZ(0); }
+    .swipe-wrapper { position: relative; overflow: hidden; }
     .swipe-actions {
         position: absolute; right: 0; top: 0; bottom: 0;
         display: flex; align-items: stretch; width: 140px;
