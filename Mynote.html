@@ -44,28 +44,17 @@
 
     /* ========== 顶部全透明控制 ========== */
     @supports (padding: env(safe-area-inset-top)) {
-        .statusbar-blur {
+        body::before {
+            content: '';
             position: fixed;
-            left: 0; right: 0;
-            top: -80px;
-            height: 80px;
-            overflow: hidden;
+            top: 0; left: 0; right: 0;
+            height: env(safe-area-inset-top);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            -webkit-mask: linear-gradient(to bottom, black 50%, rgba(0,0,0,0.7) 75%, rgba(0,0,0,0) 100%);
+            mask: linear-gradient(to bottom, black 50%, rgba(0,0,0,0.7) 75%, rgba(0,0,0,0) 100%);
             z-index: 9999;
             pointer-events: none;
-        }
-        .statusbar-blur::before {
-            content: '';
-            position: absolute;
-            left: 0; right: 0; top: 0;
-            height: 150%;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            background-color: rgba(255, 255, 255, 0.5);
-        }
-        @media (prefers-color-scheme: dark) {
-            .statusbar-blur::before {
-                background-color: rgba(0, 0, 0, 0.5);
-            }
         }
     }
     header {
@@ -301,7 +290,6 @@
 
 </head>
 <body>
-    <div class="statusbar-blur"></div>
     <div id="memo-list-root"></div>
 
 ```
