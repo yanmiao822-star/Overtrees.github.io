@@ -47,8 +47,8 @@
         .statusbar-blur {
             position: fixed;
             left: 0; right: 0;
-            top: calc(-1 * env(safe-area-inset-top));
-            height: env(safe-area-inset-top);
+            top: -80px;
+            height: 80px;
             overflow: hidden;
             z-index: 9999;
             pointer-events: none;
@@ -74,7 +74,7 @@
         width: 100%;
         background: transparent;
         pointer-events: none;
-        transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform;
+        isolation: isolate;
     }
     /* ========== 顶部全透明控制 END ========== */
 
