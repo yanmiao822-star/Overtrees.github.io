@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1C1C1E" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="此刻">
     <link rel="apple-touch-icon" href="icon.png">
@@ -47,8 +48,6 @@
     }
 
     /* ========== 顶部全透明控制 ========== */
-    :root { --statusbar-glass: rgba(242,242,247,0.82); }
-    @media (prefers-color-scheme: dark) { :root { --statusbar-glass: rgba(28,28,30,0.82); } }
     header {
         position: sticky; top: 0; z-index: 2000;
         padding-top: env(safe-area-inset-top);
@@ -58,16 +57,6 @@
         transform: translateZ(0); -webkit-transform: translateZ(0); will-change: transform;
     }
     /* ========== 顶部全透明控制 END ========== */
-    header::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0;
-        height: env(safe-area-inset-top);
-        background: var(--statusbar-glass);
-        backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-        z-index: 1;
-        pointer-events: none;
-    }
 
     .header-actions {
         height: 44px; display: flex; align-items: center; justify-content: flex-end;
@@ -1379,11 +1368,21 @@
         const rafRef = useRef(null);
         useEffect(() => {
             const titleEl = document.querySelector('.page-title');
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const metaTheme = document.querySelector('meta[name="theme-color"]:not([media])') ||
+                document.querySelector(`meta[name="theme-color"][media="(prefers-color-scheme: ${isDark ? 'dark' : 'light'})"]`);
+            const bgColor = isDark ? '#1C1C1E' : '#F2F2F7';
+            const glassColor = isDark ? 'rgba(28,28,30,0.72)' : 'rgba(242,242,247,0.72)';
+
             const handleScroll = () => {
                 if (rafRef.current) return;
                 rafRef.current = requestAnimationFrame(() => {
                     rafRef.current = null;
-                    setScrollY(Math.max(0, window.scrollY));
+                    const sy = Math.max(0, window.scrollY);
+                    setScrollY(sy);
+                    if (metaTheme) {
+                        metaTheme.content = sy > TITLE_THRESHOLD ? glassColor : bgColor;
+                    }
                     if (titleEl) titleEl.classList.add('scrolling');
                     clearTimeout(scrollTimerRef.current);
                     scrollTimerRef.current = setTimeout(() => {
@@ -1396,6 +1395,7 @@
                 window.removeEventListener('scroll', handleScroll);
                 clearTimeout(scrollTimerRef.current);
                 if (rafRef.current) cancelAnimationFrame(rafRef.current);
+                if (metaTheme) metaTheme.content = bgColor;
             };
         }, []);
 
