@@ -1222,7 +1222,6 @@
                         localStorage.setItem('memos_app_v2', JSON.stringify(backup.memos));
                         if (backup.attachments) {
                             for (const [id, att] of Object.entries(backup.attachments)) {
-                                // ★ 修复：加入 thumb 字段
                                 await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
                             }
                         }
@@ -1263,7 +1262,7 @@
                 setStatus('已断开 Google 账号');
             }, [googleToken]);
 
-            // ★ 使用可恢复上传 (Resumable Upload)
+            // ★ 使用可恢复上传 (Resumable Upload) + 修复 parents 字段
             const handleCloudBackup = useCallback(async () => {
                 if (!googleToken) return setStatus('❌ 请先连接 Google 账号');
                 setStatus('正在上传到云端...');
@@ -1280,13 +1279,21 @@
 
                     const jsonStr = JSON.stringify(backup);
                     const blob = new Blob([jsonStr], { type: 'application/json' });
-                    const metadata = { name: BACKUP_FILE_NAME, mimeType: 'application/json', parents: ['appDataFolder'] };
 
                     // 查找已有文件
                     const listResp = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${BACKUP_FILE_NAME}' and trashed=false&spaces=appDataFolder&fields=files(id)`, { headers: { Authorization: `Bearer ${googleToken}` } });
                     const listData = await listResp.json();
                     let fileId = null;
                     if (listData.files && listData.files.length > 0) fileId = listData.files[0].id;
+
+                    // 构建 metadata（仅在创建新文件时包含 parents）
+                    const metadata = {
+                        name: BACKUP_FILE_NAME,
+                        mimeType: 'application/json',
+                    };
+                    if (!fileId) {
+                        metadata.parents = ['appDataFolder'];
+                    }
 
                     const initMethod = fileId ? 'PATCH' : 'POST';
                     const initUrl = fileId
@@ -1346,7 +1353,6 @@
                     localStorage.setItem('memos_app_v2', JSON.stringify(backup.memos));
                     if (backup.attachments) {
                         for (const [id, att] of Object.entries(backup.attachments)) {
-                            // ★ 修复：加入 thumb 字段
                             await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
                         }
                     }
