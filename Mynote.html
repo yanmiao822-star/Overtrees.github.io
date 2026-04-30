@@ -44,7 +44,7 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* ========== 顶部全透明渐变遮罩 ========== */
+        /* ========== 顶部全透明控制 ========== */
         @supports (padding: env(safe-area-inset-top)) {
             body::before {
                 content: '';
@@ -78,7 +78,7 @@
             background: transparent;
             pointer-events: none;
         }
-        /* ========== 顶部全透明渐变遮罩 END ========== */
+        /* ========== 顶部全透明控制 END ========== */
 
         .header-actions {
             height: 44px; display: flex; align-items: center; justify-content: flex-end;
@@ -298,6 +298,16 @@
             top: calc(env(safe-area-inset-top) + 7px);
         }
         /* 备份管理页面卡片 */
+        .backup-section-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 4px;
+            margin-bottom: 8px;
+            margin-top: 8px;
+        }
         .backup-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -448,14 +458,6 @@
                 const tx = db.transaction('avatars', 'readonly');
                 const req = tx.objectStore('avatars').get(memoId);
                 req.onsuccess = () => resolve(req.result ? req.result.dataUrl : null);
-                req.onerror = (e) => reject(e.target.error);
-            });
-        }
-        async function getAllAvatarsFromDB(db) {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction('avatars', 'readonly');
-                const req = tx.objectStore('avatars').getAll();
-                req.onsuccess = () => resolve(req.result || []);
                 req.onerror = (e) => reject(e.target.error);
             });
         }
@@ -1189,78 +1191,96 @@
         const BackupView = ({ onClose }) => {
             const [googleToken, setGoogleToken] = useState(localStorage.getItem('google_token') || null);
             const [status, setStatus] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            const statusTimerRef = useRef(null);
+
+            const showStatus = useCallback((msg) => {
+                setStatus(msg);
+                clearTimeout(statusTimerRef.current);
+                statusTimerRef.current = setTimeout(() => setStatus(''), 4000);
+            }, []);
+
+            useEffect(() => () => clearTimeout(statusTimerRef.current), []);
+
+            const buildBackupPayload = useCallback(async (onProgress) => {
+                const memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
+                const cleanMemos = memos.map(m => ({ ...m, doc: m.doc ? m.doc.map(n => { if (n.thumbDataUrl) { const { thumbDataUrl, ...rest } = n; return rest; } return n; }) : m.doc }));
+                const backup = { version: 1, exportedAt: new Date().toISOString(), memos: cleanMemos, attachments: {} };
+                const db = await getDB();
+                const allKeys = await new Promise(res => { const tx = db.transaction('attachments', 'readonly'); const req = tx.objectStore('attachments').getAllKeys(); req.onsuccess = () => res(req.result); });
+                const total = allKeys.length;
+                for (let i = 0; i < total; i++) {
+                    if (onProgress) onProgress(i + 1, total);
+                    const record = await loadAttachmentFromDB(db, allKeys[i]);
+                    if (record) backup.attachments[allKeys[i]] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url };
+                }
+                return backup;
+            }, []);
 
             const handleExportLocal = useCallback(async () => {
+                if (isLoading) return;
+                setIsLoading(true);
                 try {
-                    const memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
-                    const cleanMemos = memos.map(m => ({ ...m, doc: m.doc ? m.doc.map(n => { if (n.thumbDataUrl) { const { thumbDataUrl, ...rest } = n; return rest; } return n; }) : m.doc }));
-                    const backup = { version: 1, exportedAt: new Date().toISOString(), memos: cleanMemos, attachments: {}, avatars: {} };
-                    const db = await getDB();
-                    const allKeys = await new Promise(res => { const tx = db.transaction('attachments', 'readonly'); const req = tx.objectStore('attachments').getAllKeys(); req.onsuccess = () => res(req.result); });
-                    for (const key of allKeys) {
-                        const record = await loadAttachmentFromDB(db, key);
-                        if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url, thumb: record.thumb || null };
-                    }
-                    const allAvatars = await getAllAvatarsFromDB(db);
-                    for (const av of allAvatars) {
-                        if (av && av.id && av.dataUrl) {
-                            backup.avatars[av.id] = av.dataUrl;
-                        }
-                    }
-                    const jsonStr = JSON.stringify(backup);
-                    const blob = new Blob([jsonStr], { type: 'application/json' });
+                    const backup = await buildBackupPayload((i, total) => showStatus(`正在打包附件 ${i}/${total}...`));
+                    const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
                     a.download = `此刻备份_${new Date().toISOString().slice(0, 10)}.json`;
                     a.click();
                     URL.revokeObjectURL(url);
-                    setStatus('✅ 本地备份已下载');
-                } catch (e) { setStatus('❌ 导出失败: ' + e.message); }
-            }, []);
+                    showStatus('✅ 本地备份已下载');
+                } catch (e) { showStatus('❌ 导出失败: ' + e.message); }
+                finally { setIsLoading(false); }
+            }, [isLoading, showStatus, buildBackupPayload]);
 
             const handleImportLocal = useCallback(async () => {
+                if (isLoading) return;
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.accept = '.json';
                 input.onchange = async (e) => {
                     const file = e.target.files[0];
                     if (!file) return;
+                    setIsLoading(true);
                     try {
                         const text = await file.text();
                         const backup = JSON.parse(text);
                         if (!backup.memos || !Array.isArray(backup.memos)) throw new Error('无效的备份文件');
-                        const oldMemos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
+                        if (!window.confirm(`确认恢复备份？当前所有数据将被覆盖，此操作不可撤销。`)) return;
                         const db = await getDB();
+                        const newMemosStr = JSON.stringify(backup.memos);
+                        if (backup.attachments) {
+                            for (const [id, att] of Object.entries(backup.attachments)) {
+                                await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl });
+                            }
+                        }
+                        const oldMemos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
                         for (const m of oldMemos) {
                             if (m.doc) for (const n of m.doc) if (n.type === 'attachment') await deleteAttachmentFromDB(db, n.fileId).catch(() => {});
                         }
-                        localStorage.setItem('memos_app_v2', JSON.stringify(backup.memos));
-                        if (backup.attachments) {
-                            for (const [id, att] of Object.entries(backup.attachments)) {
-                                await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
-                            }
-                        }
-                        if (backup.avatars) {
-                            for (const [memoId, dataUrl] of Object.entries(backup.avatars)) {
-                                await saveAvatarToDB(db, memoId, dataUrl).catch(() => {});
-                            }
-                        }
-                        setStatus('✅ 恢复成功！正在刷新页面...');
-                        // ★ 等待 IndexedDB 事务落盘后再刷新，兼容 iOS PWA
-                        requestAnimationFrame(() => {
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 300);
-                        });
-                    } catch (e) { setStatus('❌ 导入失败: ' + e.message); }
+                        localStorage.setItem('memos_app_v2', newMemosStr);
+                        showStatus('✅ 恢复成功！正在刷新页面...');
+                        setTimeout(() => window.location.reload(), 800);
+                    } catch (e) { showStatus('❌ 导入失败: ' + e.message); }
+                    finally { setIsLoading(false); }
                 };
                 input.click();
+            }, [isLoading, showStatus]);
+
+            const checkTokenExpiry = useCallback((resp) => {
+                if (resp.status === 401) {
+                    setGoogleToken(null);
+                    localStorage.removeItem('google_token');
+                    setStatus('❌ Google 授权已过期，请重新连接账号');
+                    return true;
+                }
+                return false;
             }, []);
 
             const handleGoogleAuth = useCallback(() => {
                 if (typeof google === 'undefined' || !google.accounts || !google.accounts.oauth2) {
-                    setStatus('❌ Google API 未加载，请刷新页面后重试');
+                    showStatus('❌ Google API 未加载，请刷新页面后重试');
                     return;
                 }
                 const client = google.accounts.oauth2.initTokenClient({
@@ -1270,14 +1290,17 @@
                         if (tokenResponse && tokenResponse.access_token) {
                             setGoogleToken(tokenResponse.access_token);
                             localStorage.setItem('google_token', tokenResponse.access_token);
-                            setStatus('✅ Google 账号已连接');
+                            showStatus('✅ Google 账号已连接');
                         } else {
-                            setStatus('❌ 授权失败，请重试');
+                            showStatus('❌ 授权失败，请重试');
                         }
                     },
+                    error_callback: (err) => {
+                        showStatus('❌ 授权被取消或失败');
+                    },
                 });
-                client.requestAccessToken();
-            }, []);
+                client.requestAccessToken({ prompt: 'consent' });
+            }, [showStatus]);
 
             const handleGoogleLogout = useCallback(() => {
                 if (googleToken && typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
@@ -1285,118 +1308,74 @@
                 }
                 setGoogleToken(null);
                 localStorage.removeItem('google_token');
-                setStatus('已断开 Google 账号');
-            }, [googleToken]);
+                showStatus('已断开 Google 账号');
+            }, [googleToken, showStatus]);
 
             const handleCloudBackup = useCallback(async () => {
-                if (!googleToken) return setStatus('❌ 请先连接 Google 账号');
-                setStatus('正在上传到云端...');
+                if (!googleToken) return showStatus('❌ 请先连接 Google 账号');
+                if (isLoading) return;
+                setIsLoading(true);
                 try {
-                    const memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
-                    const cleanMemos = memos.map(m => ({ ...m, doc: m.doc ? m.doc.map(n => { if (n.thumbDataUrl) { const { thumbDataUrl, ...rest } = n; return rest; } return n; }) : m.doc }));
-                    const backup = { version: 1, exportedAt: new Date().toISOString(), memos: cleanMemos, attachments: {}, avatars: {} };
-                    const db = await getDB();
-                    const allKeys = await new Promise(res => { const tx = db.transaction('attachments', 'readonly'); const req = tx.objectStore('attachments').getAllKeys(); req.onsuccess = () => res(req.result); });
-                    for (const key of allKeys) {
-                        const record = await loadAttachmentFromDB(db, key);
-                        if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url, thumb: record.thumb || null };
-                    }
-                    const allAvatars = await getAllAvatarsFromDB(db);
-                    for (const av of allAvatars) {
-                        if (av && av.id && av.dataUrl) {
-                            backup.avatars[av.id] = av.dataUrl;
-                        }
-                    }
-
-                    const jsonStr = JSON.stringify(backup);
-                    const blob = new Blob([jsonStr], { type: 'application/json' });
-
+                    const backup = await buildBackupPayload((i, total) => showStatus(`正在打包附件 ${i}/${total}...`));
+                    showStatus('正在上传到云端...');
+                    const blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
+                    const metadata = { name: BACKUP_FILE_NAME, mimeType: 'application/json', parents: ['appDataFolder'] };
+                    const form = new FormData();
+                    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                    form.append('file', blob);
                     const listResp = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${BACKUP_FILE_NAME}' and trashed=false&spaces=appDataFolder&fields=files(id)`, { headers: { Authorization: `Bearer ${googleToken}` } });
+                    if (checkTokenExpiry(listResp)) return;
                     const listData = await listResp.json();
                     let fileId = null;
                     if (listData.files && listData.files.length > 0) fileId = listData.files[0].id;
-
-                    const metadata = {
-                        name: BACKUP_FILE_NAME,
-                        mimeType: 'application/json',
-                    };
-                    if (!fileId) {
-                        metadata.parents = ['appDataFolder'];
-                    }
-
-                    const initMethod = fileId ? 'PATCH' : 'POST';
-                    const initUrl = fileId
-                        ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=resumable`
-                        : `https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable`;
-
-                    const initResp = await fetch(initUrl, {
-                        method: initMethod,
-                        headers: {
-                            'Authorization': `Bearer ${googleToken}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(metadata)
-                    });
-
-                    if (!initResp.ok) {
-                        const errData = await initResp.json().catch(() => ({}));
-                        throw new Error(errData.error?.message || `建立上传会话失败 HTTP ${initResp.status}`);
-                    }
-
-                    const uploadUrl = initResp.headers.get('Location');
-                    if (!uploadUrl) throw new Error('无法获取上传会话链接');
-
-                    const uploadResp = await fetch(uploadUrl, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': blob.type },
-                        body: blob
-                    });
-
+                    const url = fileId
+                        ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+                        : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`;
+                    const method = fileId ? 'PATCH' : 'POST';
+                    const uploadResp = await fetch(url, { method, headers: { Authorization: `Bearer ${googleToken}` }, body: form });
+                    if (checkTokenExpiry(uploadResp)) return;
                     if (!uploadResp.ok) {
                         const errData = await uploadResp.json().catch(() => ({}));
-                        throw new Error(errData.error?.message || `上传失败 HTTP ${uploadResp.status}`);
+                        throw new Error(errData.error?.message || `HTTP ${uploadResp.status}`);
                     }
-
-                    setStatus('✅ 云端备份完成');
-                } catch (e) { setStatus('❌ 云端备份失败: ' + e.message); }
-            }, [googleToken]);
+                    showStatus('✅ 云端备份完成');
+                } catch (e) { showStatus('❌ 云端备份失败: ' + e.message); }
+                finally { setIsLoading(false); }
+            }, [googleToken, checkTokenExpiry, isLoading, showStatus, buildBackupPayload]);
 
             const handleCloudRestore = useCallback(async () => {
-                if (!googleToken) return setStatus('❌ 请先连接 Google 账号');
-                setStatus('正在从云端下载...');
+                if (!googleToken) return showStatus('❌ 请先连接 Google 账号');
+                if (isLoading) return;
+                if (!window.confirm('确认从云端恢复？当前所有数据将被覆盖，此操作不可撤销。')) return;
+                setIsLoading(true);
+                showStatus('正在从云端下载...');
                 try {
                     const listResp = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${BACKUP_FILE_NAME}' and trashed=false&spaces=appDataFolder&fields=files(id)`, { headers: { Authorization: `Bearer ${googleToken}` } });
+                    if (checkTokenExpiry(listResp)) return;
                     const listData = await listResp.json();
-                    if (!listData.files || listData.files.length === 0) return setStatus('❌ 云端无备份文件');
+                    if (!listData.files || listData.files.length === 0) return showStatus('❌ 云端无备份文件');
                     const fileId = listData.files[0].id;
                     const dlResp = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, { headers: { Authorization: `Bearer ${googleToken}` } });
+                    if (checkTokenExpiry(dlResp)) return;
                     const backup = await dlResp.json();
                     if (!backup.memos) throw new Error('无效的备份文件');
-                    const oldMemos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
                     const db = await getDB();
+                    const newMemosStr = JSON.stringify(backup.memos);
+                    if (backup.attachments) {
+                        for (const [id, att] of Object.entries(backup.attachments)) {
+                            await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl });
+                        }
+                    }
+                    const oldMemos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
                     for (const m of oldMemos) {
                         if (m.doc) for (const n of m.doc) if (n.type === 'attachment') await deleteAttachmentFromDB(db, n.fileId).catch(() => {});
                     }
-                    localStorage.setItem('memos_app_v2', JSON.stringify(backup.memos));
-                    if (backup.attachments) {
-                        for (const [id, att] of Object.entries(backup.attachments)) {
-                            await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
-                        }
-                    }
-                    if (backup.avatars) {
-                        for (const [memoId, dataUrl] of Object.entries(backup.avatars)) {
-                            await saveAvatarToDB(db, memoId, dataUrl).catch(() => {});
-                        }
-                    }
-                    setStatus('✅ 云端恢复成功！正在刷新页面...');
-                    // ★ 等待 IndexedDB 事务落盘后再刷新，兼容 iOS PWA
-                    requestAnimationFrame(() => {
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 300);
-                    });
-                } catch (e) { setStatus('❌ 云端恢复失败: ' + e.message); }
-            }, [googleToken]);
+                    localStorage.setItem('memos_app_v2', newMemosStr);
+                    showStatus('✅ 云端恢复成功！正在刷新页面...');
+                    setTimeout(() => window.location.reload(), 800);
+                } catch (e) { showStatus('❌ 云端恢复失败: ' + e.message); }
+                finally { setIsLoading(false); }
+            }, [googleToken, checkTokenExpiry, isLoading, showStatus]);
 
             return (
                 <div style={{ background: "var(--primary-bg)", minHeight: "100vh" }}>
@@ -1408,35 +1387,37 @@
                     <div className="page-title compact" style={{ visibility: "visible", opacity: 1, pointerEvents: "none" }}>设置</div>
                     <header style={{ background: "transparent", pointerEvents: "none" }}><div style={{ height: 44 }}></div></header>
                     <div style={{ padding: "30px 20px 0", paddingBottom: "calc(env(safe-area-inset-bottom) + 40px)" }}>
-                        <h2 style={{ fontSize: 24, fontWeight: 700, marginBottom: 20 }}>数据备份与恢复</h2>
                         {status && <div className="backup-status">{status}</div>}
+
+                        <div className="backup-section-title">备份与恢复</div>
 
                         <div className="backup-card">
                             <h3>📦 本地备份</h3>
                             <p>导出备份文件到设备本地，可手动分享或保存。</p>
-                            <button className="backup-btn" onClick={handleExportLocal}>导出备份</button>
-                            <button className="backup-btn" onClick={handleImportLocal}>导入备份</button>
+                            <button className="backup-btn" onClick={handleExportLocal} disabled={isLoading} style={{ opacity: isLoading ? 0.5 : 1 }}>导出备份</button>
+                            <button className="backup-btn" onClick={handleImportLocal} disabled={isLoading} style={{ opacity: isLoading ? 0.5 : 1 }}>导入备份</button>
                         </div>
 
                         <div className="backup-card">
                             <h3>☁️ Google Drive 云备份</h3>
                             <p>{googleToken ? '✅ 已连接 Google 账号' : '连接 Google 账号以实现云端备份与恢复。'}</p>
                             {!googleToken ? (
-                                <button className="backup-btn" onClick={handleGoogleAuth}>连接 Google 账号</button>
+                                <button className="backup-btn" onClick={handleGoogleAuth} disabled={isLoading} style={{ opacity: isLoading ? 0.5 : 1 }}>连接 Google 账号</button>
                             ) : (
-                                <button className="backup-btn" onClick={handleGoogleLogout}>断开账号</button>
+                                <button className="backup-btn" onClick={handleGoogleLogout} disabled={isLoading} style={{ opacity: isLoading ? 0.5 : 1 }}>断开账号</button>
                             )}
                             {googleToken && (
                                 <>
-                                    <button className="backup-btn" onClick={handleCloudBackup}>上传到云端</button>
-                                    <button className="backup-btn" onClick={handleCloudRestore}>从云端恢复</button>
+                                    <button className="backup-btn" onClick={handleCloudBackup} disabled={isLoading} style={{ opacity: isLoading ? 0.5 : 1 }}>{isLoading ? '处理中...' : '上传到云端'}</button>
+                                    <button className="backup-btn" onClick={handleCloudRestore} disabled={isLoading} style={{ opacity: isLoading ? 0.5 : 1 }}>{isLoading ? '处理中...' : '从云端恢复'}</button>
                                 </>
                             )}
                         </div>
 
+                        <div className="backup-section-title" style={{ marginTop: 16 }}>关于</div>
+
                         <div className="backup-card">
                             <h3>🦖 关于此刻</h3>
-                            <p style={{ fontStyle: "italic" }}>此刻，值得被记住。</p>
                             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                     <span style={{ fontSize: 14, color: "var(--text-secondary)" }}>版本</span>
@@ -1447,6 +1428,15 @@
                                     <a href="mailto:yanmiao822@gmail.com" style={{ fontSize: 14, color: "#007AFF", textDecoration: "none" }}>yanmiao822@gmail.com</a>
                                 </div>
                             </div>
+                            <p style={{
+                                fontStyle: "italic",
+                                fontSize: 12,
+                                color: "var(--text-secondary)",
+                                textAlign: "center",
+                                marginTop: 12,
+                                marginBottom: 4,
+                                opacity: 0.8
+                            }}>此刻，值得被记住。</p>
                         </div>
                     </div>
                 </div>
