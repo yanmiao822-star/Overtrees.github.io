@@ -7,6 +7,8 @@
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
     <title>此刻</title>
 
     <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
@@ -42,7 +44,7 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* ========== 顶部全透明控制 ========== */
+        /* ========== 顶部全透明渐变遮罩 ========== */
         @supports (padding: env(safe-area-inset-top)) {
             body::before {
                 content: '';
@@ -76,7 +78,7 @@
             background: transparent;
             pointer-events: none;
         }
-        /* ========== 顶部全透明控制 END ========== */
+        /* ========== 顶部全透明渐变遮罩 END ========== */
 
         .header-actions {
             height: 44px; display: flex; align-items: center; justify-content: flex-end;
@@ -449,7 +451,6 @@
                 req.onerror = (e) => reject(e.target.error);
             });
         }
-        // 新增：获取所有头像
         async function getAllAvatarsFromDB(db) {
             return new Promise((resolve, reject) => {
                 const tx = db.transaction('avatars', 'readonly');
@@ -1200,7 +1201,6 @@
                         const record = await loadAttachmentFromDB(db, key);
                         if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url, thumb: record.thumb || null };
                     }
-                    // ★ 备份头像数据
                     const allAvatars = await getAllAvatarsFromDB(db);
                     for (const av of allAvatars) {
                         if (av && av.id && av.dataUrl) {
@@ -1241,14 +1241,18 @@
                                 await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
                             }
                         }
-                        // ★ 恢复头像数据
                         if (backup.avatars) {
                             for (const [memoId, dataUrl] of Object.entries(backup.avatars)) {
                                 await saveAvatarToDB(db, memoId, dataUrl).catch(() => {});
                             }
                         }
                         setStatus('✅ 恢复成功！正在刷新页面...');
-                        setTimeout(() => window.location.reload(), 800);
+                        // ★ 等待 IndexedDB 事务落盘后再刷新，兼容 iOS PWA
+                        requestAnimationFrame(() => {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 300);
+                        });
                     } catch (e) { setStatus('❌ 导入失败: ' + e.message); }
                 };
                 input.click();
@@ -1284,7 +1288,6 @@
                 setStatus('已断开 Google 账号');
             }, [googleToken]);
 
-            // ★ 使用可恢复上传 (Resumable Upload) + 修复 parents 字段 + 含头像
             const handleCloudBackup = useCallback(async () => {
                 if (!googleToken) return setStatus('❌ 请先连接 Google 账号');
                 setStatus('正在上传到云端...');
@@ -1298,7 +1301,6 @@
                         const record = await loadAttachmentFromDB(db, key);
                         if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url, thumb: record.thumb || null };
                     }
-                    // ★ 备份头像数据
                     const allAvatars = await getAllAvatarsFromDB(db);
                     for (const av of allAvatars) {
                         if (av && av.id && av.dataUrl) {
@@ -1309,13 +1311,11 @@
                     const jsonStr = JSON.stringify(backup);
                     const blob = new Blob([jsonStr], { type: 'application/json' });
 
-                    // 查找已有文件
                     const listResp = await fetch(`https://www.googleapis.com/drive/v3/files?q=name='${BACKUP_FILE_NAME}' and trashed=false&spaces=appDataFolder&fields=files(id)`, { headers: { Authorization: `Bearer ${googleToken}` } });
                     const listData = await listResp.json();
                     let fileId = null;
                     if (listData.files && listData.files.length > 0) fileId = listData.files[0].id;
 
-                    // 构建 metadata（仅在创建新文件时包含 parents）
                     const metadata = {
                         name: BACKUP_FILE_NAME,
                         mimeType: 'application/json',
@@ -1329,7 +1329,6 @@
                         ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=resumable`
                         : `https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable`;
 
-                    // 第一步：建立上传会话
                     const initResp = await fetch(initUrl, {
                         method: initMethod,
                         headers: {
@@ -1347,7 +1346,6 @@
                     const uploadUrl = initResp.headers.get('Location');
                     if (!uploadUrl) throw new Error('无法获取上传会话链接');
 
-                    // 第二步：直接 PUT 文件内容
                     const uploadResp = await fetch(uploadUrl, {
                         method: 'PUT',
                         headers: { 'Content-Type': blob.type },
@@ -1385,14 +1383,18 @@
                             await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
                         }
                     }
-                    // ★ 恢复头像数据
                     if (backup.avatars) {
                         for (const [memoId, dataUrl] of Object.entries(backup.avatars)) {
                             await saveAvatarToDB(db, memoId, dataUrl).catch(() => {});
                         }
                     }
                     setStatus('✅ 云端恢复成功！正在刷新页面...');
-                    setTimeout(() => window.location.reload(), 800);
+                    // ★ 等待 IndexedDB 事务落盘后再刷新，兼容 iOS PWA
+                    requestAnimationFrame(() => {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 300);
+                    });
                 } catch (e) { setStatus('❌ 云端恢复失败: ' + e.message); }
             }, [googleToken]);
 
