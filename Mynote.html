@@ -1189,7 +1189,7 @@
                     const allKeys = await new Promise(res => { const tx = db.transaction('attachments', 'readonly'); const req = tx.objectStore('attachments').getAllKeys(); req.onsuccess = () => res(req.result); });
                     for (const key of allKeys) {
                         const record = await loadAttachmentFromDB(db, key);
-                        if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url };
+                        if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url, thumb: record.thumb || null };
                     }
                     const jsonStr = JSON.stringify(backup);
                     const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -1222,7 +1222,8 @@
                         localStorage.setItem('memos_app_v2', JSON.stringify(backup.memos));
                         if (backup.attachments) {
                             for (const [id, att] of Object.entries(backup.attachments)) {
-                                await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl });
+                                // ★ 修复：加入 thumb 字段
+                                await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
                             }
                         }
                         setStatus('✅ 恢复成功！正在刷新页面...');
@@ -1262,7 +1263,7 @@
                 setStatus('已断开 Google 账号');
             }, [googleToken]);
 
-            // ★ 方案一：使用可恢复上传 (Resumable Upload) ★
+            // ★ 使用可恢复上传 (Resumable Upload)
             const handleCloudBackup = useCallback(async () => {
                 if (!googleToken) return setStatus('❌ 请先连接 Google 账号');
                 setStatus('正在上传到云端...');
@@ -1274,7 +1275,7 @@
                     const allKeys = await new Promise(res => { const tx = db.transaction('attachments', 'readonly'); const req = tx.objectStore('attachments').getAllKeys(); req.onsuccess = () => res(req.result); });
                     for (const key of allKeys) {
                         const record = await loadAttachmentFromDB(db, key);
-                        if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url };
+                        if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url, thumb: record.thumb || null };
                     }
 
                     const jsonStr = JSON.stringify(backup);
@@ -1345,7 +1346,8 @@
                     localStorage.setItem('memos_app_v2', JSON.stringify(backup.memos));
                     if (backup.attachments) {
                         for (const [id, att] of Object.entries(backup.attachments)) {
-                            await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl });
+                            // ★ 修复：加入 thumb 字段
+                            await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
                         }
                     }
                     setStatus('✅ 云端恢复成功！正在刷新页面...');
