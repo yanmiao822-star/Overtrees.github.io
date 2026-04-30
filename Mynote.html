@@ -449,6 +449,15 @@
                 req.onerror = (e) => reject(e.target.error);
             });
         }
+        // 新增：获取所有头像
+        async function getAllAvatarsFromDB(db) {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('avatars', 'readonly');
+                const req = tx.objectStore('avatars').getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = (e) => reject(e.target.error);
+            });
+        }
 
         function createThumbnail(dataUrl) {
             return new Promise((resolve) => {
@@ -1184,12 +1193,19 @@
                 try {
                     const memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
                     const cleanMemos = memos.map(m => ({ ...m, doc: m.doc ? m.doc.map(n => { if (n.thumbDataUrl) { const { thumbDataUrl, ...rest } = n; return rest; } return n; }) : m.doc }));
-                    const backup = { version: 1, exportedAt: new Date().toISOString(), memos: cleanMemos, attachments: {} };
+                    const backup = { version: 1, exportedAt: new Date().toISOString(), memos: cleanMemos, attachments: {}, avatars: {} };
                     const db = await getDB();
                     const allKeys = await new Promise(res => { const tx = db.transaction('attachments', 'readonly'); const req = tx.objectStore('attachments').getAllKeys(); req.onsuccess = () => res(req.result); });
                     for (const key of allKeys) {
                         const record = await loadAttachmentFromDB(db, key);
                         if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url, thumb: record.thumb || null };
+                    }
+                    // ★ 备份头像数据
+                    const allAvatars = await getAllAvatarsFromDB(db);
+                    for (const av of allAvatars) {
+                        if (av && av.id && av.dataUrl) {
+                            backup.avatars[av.id] = av.dataUrl;
+                        }
                     }
                     const jsonStr = JSON.stringify(backup);
                     const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -1223,6 +1239,12 @@
                         if (backup.attachments) {
                             for (const [id, att] of Object.entries(backup.attachments)) {
                                 await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
+                            }
+                        }
+                        // ★ 恢复头像数据
+                        if (backup.avatars) {
+                            for (const [memoId, dataUrl] of Object.entries(backup.avatars)) {
+                                await saveAvatarToDB(db, memoId, dataUrl).catch(() => {});
                             }
                         }
                         setStatus('✅ 恢复成功！正在刷新页面...');
@@ -1262,19 +1284,26 @@
                 setStatus('已断开 Google 账号');
             }, [googleToken]);
 
-            // ★ 使用可恢复上传 (Resumable Upload) + 修复 parents 字段
+            // ★ 使用可恢复上传 (Resumable Upload) + 修复 parents 字段 + 含头像
             const handleCloudBackup = useCallback(async () => {
                 if (!googleToken) return setStatus('❌ 请先连接 Google 账号');
                 setStatus('正在上传到云端...');
                 try {
                     const memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
                     const cleanMemos = memos.map(m => ({ ...m, doc: m.doc ? m.doc.map(n => { if (n.thumbDataUrl) { const { thumbDataUrl, ...rest } = n; return rest; } return n; }) : m.doc }));
-                    const backup = { version: 1, exportedAt: new Date().toISOString(), memos: cleanMemos, attachments: {} };
+                    const backup = { version: 1, exportedAt: new Date().toISOString(), memos: cleanMemos, attachments: {}, avatars: {} };
                     const db = await getDB();
                     const allKeys = await new Promise(res => { const tx = db.transaction('attachments', 'readonly'); const req = tx.objectStore('attachments').getAllKeys(); req.onsuccess = () => res(req.result); });
                     for (const key of allKeys) {
                         const record = await loadAttachmentFromDB(db, key);
                         if (record) backup.attachments[key] = { name: record.name, type: record.type, size: record.size, dataUrl: record.url, thumb: record.thumb || null };
+                    }
+                    // ★ 备份头像数据
+                    const allAvatars = await getAllAvatarsFromDB(db);
+                    for (const av of allAvatars) {
+                        if (av && av.id && av.dataUrl) {
+                            backup.avatars[av.id] = av.dataUrl;
+                        }
                     }
 
                     const jsonStr = JSON.stringify(backup);
@@ -1354,6 +1383,12 @@
                     if (backup.attachments) {
                         for (const [id, att] of Object.entries(backup.attachments)) {
                             await saveAttachmentToDB(db, { id, name: att.name, type: att.type, size: att.size, url: att.dataUrl, thumb: att.thumb || null });
+                        }
+                    }
+                    // ★ 恢复头像数据
+                    if (backup.avatars) {
+                        for (const [memoId, dataUrl] of Object.entries(backup.avatars)) {
+                            await saveAvatarToDB(db, memoId, dataUrl).catch(() => {});
                         }
                     }
                     setStatus('✅ 云端恢复成功！正在刷新页面...');
