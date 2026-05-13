@@ -573,39 +573,48 @@
     }
     .backup-action-bar {
         display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        gap: 8px;
+        flex-wrap: nowrap;
         padding: 14px 18px 18px;
         border-top: 0.5px solid var(--border-color);
+    }
+    .backup-action-bar .backup-btn {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 0 10px;
+        white-space: nowrap;
+        font-size: 13px;
     }
     .backup-btn {
         background: var(--btn-bg);
         color: var(--text-main);
         border: 0.5px solid var(--border-color);
-        border-radius: 16px;
+        border-radius: 999px;
         height: 44px;
-        padding: 0 16px;
+        padding: 0 18px;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 650;
         cursor: pointer;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         margin-right: 0;
         margin-bottom: 0;
         font-family: inherit;
     }
     .backup-btn.primary {
-        background: #007AFF;
+        background: rgba(0,122,255,0.86);
         color: #fff;
-        border-color: transparent;
+        border-color: rgba(255,255,255,0.24);
     }
     .backup-btn.secondary {
-        background: rgba(127,127,127,0.10);
+        background: var(--btn-bg);
         color: var(--text-main);
     }
     .backup-btn.danger {
-        background: rgba(255,69,58,0.12);
+        background: rgba(255,69,58,0.14);
         color: #E0433A;
+        border-color: rgba(255,69,58,0.18);
     }
     .backup-toast {
         position: fixed;
