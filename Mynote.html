@@ -782,6 +782,8 @@
     .editor-body .lkc-cover { width: 100%; aspect-ratio: 2.4/1; overflow: hidden; background: var(--border-color); }
     .editor-body .lkc-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
     @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    @keyframes toastSlideUp { from { opacity: 0; transform: translateY(24px) scale(0.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes toastSpin { to { transform: rotate(360deg); } }
     .editor-body .lkc-skeleton-cover { width: 100%; aspect-ratio: 2.4/1; background: linear-gradient(90deg, var(--card-bg) 25%, var(--border-color) 50%, var(--card-bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
     .editor-body .lkc-skeleton-line { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--card-bg) 25%, var(--border-color) 50%, var(--card-bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 6px; }
     .editor-body .md-preview { margin: 0.2em 0; cursor: pointer; border-radius: 6px; padding: 2px 4px; transition: background 0.15s; user-select: none; -webkit-user-select: none; }
@@ -3898,7 +3900,19 @@ BlockSystem.register('link-card', {
             return (d.getMonth()+1) + '/' + d.getDate() + ' ' + timeStr;
         }, [history]);
 
-        const showStatus = useCallback(() => {}, []);
+        const showStatus = useCallback((msg) => {
+            if (msg) {
+                var type = msg.startsWith('✅') ? 'success' : msg.startsWith('❌') ? 'error' : 'progress';
+                setStatusMsg(msg);
+                setStatusType(type);
+                if (type !== 'progress') {
+                    clearTimeout(window._statusTimer);
+                    window._statusTimer = setTimeout(function() { setStatusMsg(''); setStatusType('idle'); }, 4000);
+                }
+            }
+        }, []);
+        const [statusMsg, setStatusMsg] = useState('');
+        const [statusType, setStatusType] = useState('idle');
         const buildBackupPayload = useCallback(async () => {
             const memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
             const cleanMemos = memos.map(m => ({ ...m, doc: m.doc ? m.doc.map(n => { if (n.thumbDataUrl) { const { thumbDataUrl, ...rest } = n; return rest; } return n; }) : m.doc }));
@@ -4305,6 +4319,16 @@ BlockSystem.register('link-card', {
                         </>
                     )}
                 </div>
+                {statusMsg && (function() {
+                    var t = statusType || 'progress';
+                    var txt = statusMsg.replace(/^[✅❌]\s*/, '');
+                    var borderColor = t === 'success' ? 'rgba(52,199,89,0.24)' : t === 'error' ? 'rgba(224,67,58,0.24)' : 'rgba(0,122,255,0.22)';
+                    var icon = t === 'success' ? '✅' : t === 'error' ? '❌' : '↑';
+                    return React.createElement('div', { style: { position: 'fixed', left: 16, right: 16, bottom: 'calc(env(safe-area-inset-bottom) + 16px)', zIndex: 5000, background: 'var(--btn-bg)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', border: '0.5px solid ' + borderColor, borderRadius: 28, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.10)', overflow: 'hidden', opacity: 1, transform: 'translateY(0) scale(1)', transition: 'opacity 180ms ease, transform 220ms cubic-bezier(0.34,1.56,0.64,1)', willChange: 'opacity, transform' } },
+                        React.createElement('span', { style: { flexShrink: 0, fontSize: 16 } }, t === 'progress' ? React.createElement('span', { style: { width: 16, height: 16, border: '2px solid rgba(0,122,255,0.2)', borderTopColor: '#007aff', borderRadius: '50%', display: 'inline-block', animation: 'toastSpin 0.7s linear infinite', verticalAlign: 'middle' } }) : icon),
+                        React.createElement('span', { style: { flex: 1, minWidth: 0, fontSize: 14, fontWeight: 500, color: 'var(--text-main)', lineHeight: 1.35 } }, txt)
+                    );
+                })()}
             </div>
         );
     };
