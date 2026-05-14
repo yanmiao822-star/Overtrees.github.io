@@ -12,6 +12,15 @@
     <link rel="manifest" href="manifest.json">
     <title>此刻</title>
 
+<script>
+    // 字号：在任何渲染前应用，避免闪烁
+    (function() {
+        var size = localStorage.getItem('sj_fontsize') || 'medium';
+        var map = { small: '14px', medium: '16px', large: '19px' };
+        document.documentElement.style.fontSize = map[size] || '16px';
+    })();
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
@@ -48,7 +57,7 @@
         }
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html { background-color: var(--primary-bg); }
+    html { background-color: var(--primary-bg); -webkit-text-size-adjust: auto; text-size-adjust: auto; }
     body {
         font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", sans-serif;
         background-color: var(--primary-bg);
@@ -109,14 +118,14 @@
     .action-btn {
         padding: 6px 12px;
         border-radius: 18px;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: 500;
     }
     .editor-btn {
         padding: 0;
         height: 46px;
         border-radius: 23px;
-        font-size: 15px;
+        font-size: 0.9375rem;
         font-weight: 600;
     }
     .editor-btn.more-btn {
@@ -124,7 +133,7 @@
     }
     .page-title {
         position: relative; z-index: 1000; padding: 4px 20px 10px 20px;
-        font-size: 34px; font-weight: 800; letter-spacing: -1px; pointer-events: none; opacity: 0.9;
+        font-size: 2.125rem; font-weight: 800; letter-spacing: -1px; pointer-events: none; opacity: 0.9;
         transition: none;
         text-align: left;
     }
@@ -138,7 +147,7 @@
         transform: translateX(-50%);
         z-index: 2500;
         text-align: center;
-        font-size: 17px;
+        font-size: 1.0625rem;
         font-weight: 600;
         letter-spacing: -0.3px;
         padding: 6px 16px;
@@ -154,7 +163,7 @@
         width: fit-content;
     }
     .container { 
-        padding: 46px 16px 20px;
+        padding: 46px 16px calc(20px + env(safe-area-inset-bottom));
     }
     .list-group {
         background: var(--card-bg);
@@ -177,7 +186,7 @@
         width: 68px; height: 44px; border-radius: 22px;
         backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         border: 0.5px solid rgba(255,255,255,0.22);
-        font-size: 11px; font-family: inherit; font-weight: 600; color: #fff;
+        font-size: 0.6875rem; font-family: inherit; font-weight: 600; color: #fff;
         transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s ease;
         will-change: transform, opacity;
     }
@@ -193,7 +202,7 @@
     .list-item:last-child { border-bottom: none; }
     .item-left { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
     .item-title {
-        font-size: 16px; font-weight: 650; color: var(--text-main);
+        font-size: 1rem; font-weight: 650; color: var(--text-main);
         display: flex; align-items: center; gap: 5px;
         min-width: 0; width: 100%;
     }
@@ -207,7 +216,7 @@
         font-weight: 600;
     }
     .pin-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); flex-shrink: 0; opacity: 0.5; }
-    .item-meta { font-size: 12px; color: var(--text-secondary); }
+    .item-meta { font-size: 0.75rem; color: var(--text-secondary); }
     .item-thumb {
         width: 48px; height: 48px; border-radius: 12px; object-fit: cover;
         flex-shrink: 0; background: var(--border-color);
@@ -217,19 +226,19 @@
         .item-thumb { corner-shape: round; }
     }
     .item-right { display: none; }
-    .item-time { font-size: 12px; color: var(--text-secondary); }
+    .item-time { font-size: 0.75rem; color: var(--text-secondary); }
     .img-card { border-bottom: 0.5px solid var(--border-color); }
     .img-card:last-child { border-bottom: none; }
     .img-cover { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: var(--border-color); -webkit-touch-callout: none; border-radius: 32px 32px 0 0; }
-    .img-cover-fb { width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-size: 36px; background: var(--btn-bg); color: var(--text-secondary); border-radius: 32px 32px 0 0; }
+    .img-cover-fb { width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; background: var(--btn-bg); color: var(--text-secondary); border-radius: 32px 32px 0 0; }
     .img-body { padding: 10px 16px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .img-text { flex: 1; min-width: 0; }
-    .img-text .t { font-size: 15px; font-weight: 650; margin-bottom: 2px; }
-    .img-text .m { font-size: 12px; color: var(--text-secondary); }
+    .img-text .t { font-size: 0.9375rem; font-weight: 650; margin-bottom: 2px; }
+    .img-text .m { font-size: 0.75rem; color: var(--text-secondary); }
     .expand-btn {
         display: inline-flex; align-items: center; gap: 4px;
         background: var(--btn-bg); padding: 4px 10px; border-radius: 14px;
-        font-size: 11px; color: var(--text-secondary); flex-shrink: 0; white-space: nowrap; cursor: pointer;
+        font-size: 0.6875rem; color: var(--text-secondary); flex-shrink: 0; white-space: nowrap; cursor: pointer;
         backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         border: 0.5px solid var(--border-color);
     }
@@ -237,7 +246,7 @@
     .markdown-render {
         color: var(--text-main);
         line-height: 1.75;
-        font-size: 16px;
+        font-size: 1rem;
         word-break: break-word;
         padding: 4px 0;
     }
@@ -304,7 +313,7 @@
         width: 100%;
         border-collapse: collapse;
         margin: 0.6em 0;
-        font-size: 14px;
+        font-size: 0.875rem;
         overflow: hidden;
         border-radius: 8px;
     }
@@ -328,10 +337,10 @@
     }
     .markdown-render ul.contains-task-list { list-style: none; margin-left: 0; }
     .markdown-render .task-list-item input[type="checkbox"] { margin: 0 6px 0 -4px; transform: scale(1.1); }
-    .empty-tip { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 15px; }
+    .empty-tip { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 0.9375rem; }
     .section-header {
         padding: 24px 4px 6px;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: 600;
         color: var(--text-secondary);
         letter-spacing: 0.3px;
@@ -379,7 +388,7 @@
     .lazy-img-placeholder {
         width: 100%; height: 200px; border-radius: 12px;
         background: var(--card-bg); display: flex; align-items: center; justify-content: center;
-        color: var(--text-secondary); font-size: 15px;
+        color: var(--text-secondary); font-size: 0.9375rem;
     }
     .virtual-scroll {
         position: relative;
@@ -464,12 +473,12 @@
         margin-bottom: 14px;
     }
     .backup-hero-title {
-        font-size: 18px;
+        font-size: 1.125rem;
         font-weight: 700;
         margin-bottom: 5px;
     }
     .backup-hero-desc {
-        font-size: 13px;
+        font-size: 0.8125rem;
         line-height: 1.5;
         color: var(--text-secondary);
     }
@@ -477,7 +486,7 @@
     .backup-state {
         padding: 7px 10px;
         border-radius: 999px;
-        font-size: 12px;
+        font-size: 0.75rem;
         font-weight: 700;
         white-space: nowrap;
     }
@@ -503,17 +512,17 @@
         padding: 12px;
     }
     .backup-stat-label {
-        font-size: 12px;
+        font-size: 0.75rem;
         color: var(--text-secondary);
         margin-bottom: 6px;
     }
     .backup-stat-value {
-        font-size: 17px;
+        font-size: 1.0625rem;
         font-weight: 700;
         letter-spacing: -0.3px;
     }
     .backup-section-title {
-        font-size: 13px;
+        font-size: 0.8125rem;
         font-weight: 500;
         color: var(--text-secondary);
         text-transform: uppercase;
@@ -548,12 +557,12 @@
         flex: 1;
     }
     .backup-row-title {
-        font-size: 16px;
+        font-size: 1rem;
         font-weight: 650;
         margin-bottom: 4px;
     }
     .backup-row-desc {
-        font-size: 13px;
+        font-size: 0.8125rem;
         line-height: 1.45;
         color: var(--text-secondary);
     }
@@ -562,12 +571,12 @@
         align-items: center;
         gap: 8px;
         flex-shrink: 0;
-        font-size: 13px;
+        font-size: 0.8125rem;
         font-weight: 600;
         color: var(--text-secondary);
     }
     .backup-row-arrow {
-        font-size: 18px;
+        font-size: 1.125rem;
         opacity: 0.45;
         line-height: 1;
     }
@@ -583,7 +592,7 @@
         min-width: 0;
         padding: 0 10px;
         white-space: nowrap;
-        font-size: 13px;
+        font-size: 0.8125rem;
     }
     .backup-btn {
         background: var(--btn-bg);
@@ -592,7 +601,7 @@
         border-radius: 999px;
         height: 44px;
         padding: 0 18px;
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: 650;
         cursor: pointer;
         backdrop-filter: blur(14px);
@@ -615,56 +624,6 @@
         background: rgba(255,69,58,0.14);
         color: #E0433A;
         border-color: rgba(255,69,58,0.18);
-    }
-    .backup-toast {
-        position: fixed;
-        left: 16px; right: 16px;
-        bottom: calc(env(safe-area-inset-bottom) + 16px);
-        z-index: 5000;
-        background: var(--btn-bg);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 0.5px solid var(--border-color);
-        border-radius: 20px;
-        padding: 13px 16px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.10);
-        animation: toastSlideUp 0.42s cubic-bezier(0.34,1.56,0.64,1) both;
-    }
-    .backup-toast.success { border-color: rgba(52,199,89,0.24); }
-    .backup-toast.error { border-color: rgba(224,67,58,0.24); }
-    .backup-toast.progress { border-color: rgba(0,122,255,0.22); }
-    .backup-toast-text {
-        flex: 1;
-        min-width: 0;
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-main);
-        line-height: 1.35;
-    }
-    .backup-toast-spinner {
-        width: 16px; height: 16px; flex-shrink: 0;
-        border: 2px solid rgba(127,127,127,0.18);
-        border-radius: 50%;
-        animation: toastSpin 0.7s linear infinite;
-    }
-    .backup-toast.success .backup-toast-spinner {
-        border-top-color: #34c759;
-    }
-    .backup-toast.error .backup-toast-spinner {
-        border-top-color: #E0433A;
-    }
-    .backup-toast.progress .backup-toast-spinner {
-        border-top-color: #007aff;
-    }
-    @keyframes toastSlideUp {
-        from { opacity: 0; transform: translateY(24px) scale(0.94); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    @keyframes toastSpin {
-        to { transform: rotate(360deg); }
     }
 
     /* ========== 链接卡片 ========== */
@@ -711,7 +670,7 @@
         padding-top: 6px;
     }
     .link-card-title {
-        font-size: 14px;
+        font-size: 0.875rem;
         font-weight: 600;
         color: var(--text-main);
         line-height: 1.4;
@@ -721,7 +680,7 @@
         overflow: hidden;
     }
     .link-card-subtitle {
-        font-size: 12px;
+        font-size: 0.75rem;
         color: var(--text-secondary);
         line-height: 1.3;
         display: -webkit-box;
@@ -733,7 +692,7 @@
         display: flex;
         align-items: center;
         gap: 5px;
-        font-size: 11px;
+        font-size: 0.6875rem;
         color: var(--text-secondary);
         margin-top: 2px;
     }
@@ -783,7 +742,7 @@
         -webkit-tap-highlight-color: transparent;
     }
     .link-card-type-icon {
-        font-size: 20px;
+        font-size: 1.25rem;
         flex-shrink: 0;
     }
     .no-cover-fallback {
@@ -793,7 +752,8 @@
     }
     /* ===== Single contentEditable editor styles ===== */
     [contenteditable]:focus { outline: none; }
-    .editor-body { min-height: 200px; line-height: 1.75; font-size: 16px; padding: 4px 0; word-break: break-word; }
+    .editor-body { min-height: 200px; line-height: 1.75; font-size: 1rem; padding: 4px 0; word-break: break-word; position: relative; }
+    .editor-body.show-placeholder::before { content: '输入文字，/ 使用命令'; position: absolute; top: 6px; left: 0; color: var(--text-secondary); opacity: 0.35; pointer-events: none; font-size: 1rem; user-select: none; }
     .editor-body p, .editor-body h1, .editor-body h2, .editor-body h3, .editor-body h4, .editor-body blockquote { margin: 0.2em 0; }
     .editor-body h1 { font-size: 1.45em; font-weight: 800; letter-spacing: -0.02em; }
     .editor-body h2 { font-size: 1.25em; font-weight: 800; letter-spacing: -0.02em; }
@@ -806,19 +766,19 @@
     .editor-body .atomic { user-select: none; -webkit-user-select: none; cursor: default; }
     .editor-body .atomic.attachment { margin: 8px 0; border-radius: 32px; overflow: hidden; }
     .editor-body .atomic.attachment img { max-width: 100%; border-radius: 32px; display: block; }
-    .editor-body .atomic-placeholder { padding: 24px; text-align: center; background: var(--card-bg); border-radius: 32px; color: var(--text-secondary); font-size: 15px; border: 0.5px solid var(--border-color); }
+    .editor-body .atomic-placeholder { padding: 24px; text-align: center; background: var(--card-bg); border-radius: 32px; color: var(--text-secondary); font-size: 0.9375rem; border: 0.5px solid var(--border-color); }
     .editor-body .link-card-block, .editor-body .link-card-err, .editor-body .link-card-link-card-loading { margin: 8px 0; border-radius: 32px; overflow: hidden; background: var(--card-bg); border: 0.5px solid var(--border-color); cursor: pointer; }
     .editor-body .lkc-cover { width: 100%; aspect-ratio: 2.4/1; overflow: hidden; }
     .editor-body .lkc-cover img { width: 100%; height: 100%; object-fit: cover; }
     .editor-body .lkc-body { padding: 10px 14px 12px; }
     .editor-body .lkc-body.has-cover { padding-top: 6px; }
-    .editor-body .lkc-title { font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .editor-body .lkc-subtitle { font-size: 12px; color: var(--text-secondary); line-height: 1.3; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .editor-body .lkc-source { font-size: 11px; color: var(--text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+    .editor-body .lkc-title { font-size: 0.875rem; font-weight: 600; line-height: 1.4; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .editor-body .lkc-subtitle { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.3; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .editor-body .lkc-source { font-size: 0.6875rem; color: var(--text-secondary); margin-top: 4px; display: flex; align-items: center; gap: 5px; }
     .editor-body .lkc-source-icon { flex-shrink: 0; }
     .editor-body .lkc-source-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-secondary); opacity: 0.4; flex-shrink: 0; }
     .editor-body .lkc-source-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .editor-body .lke-inner { padding: 12px 14px; font-size: 13px; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
+    .editor-body .lke-inner { padding: 12px 14px; font-size: 0.8125rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
     .editor-body .lkc-cover { width: 100%; aspect-ratio: 2.4/1; overflow: hidden; background: var(--border-color); }
     .editor-body .lkc-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
     @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
@@ -828,6 +788,8 @@
     .editor-body .md-preview:hover { background: rgba(0,122,255,0.05); }
     .editor-body .md-preview > *:first-child { margin-top: 0; }
     .editor-body .md-preview > *:last-child { margin-bottom: 0; }
+    .slash-row { transition: transform 0.08s ease, background 0.08s ease !important; }
+    .slash-row:active { transform: scale(0.97) !important; background: rgba(127,127,127,0.06) !important; border-radius: 999px !important; }
 
 </style>
 
@@ -2125,11 +2087,31 @@ BlockSystem.register('link-card', {
         }, [showMenu, closeEditorMenu]);
         /* ---------- 斜杠命令 ---------- */
         const [showSlash, setShowSlash] = useState(false);
+        const [slashClosing, setSlashClosing] = useState(false);
+        const [slashEntered, setSlashEntered] = useState(false);
+        const closeSlashPanel = useCallback(function() {
+            setSlashClosing(true);
+            setTimeout(function() {
+                setShowSlash(false);
+                setSlashClosing(false);
+                setSlashEntered(false);
+                setSlashQuery('');
+                setSlashTargetBlockId(null);
+                slashTargetBlockRef.current = null;
+            }, 150);
+        }, []);
         const [slashQuery, setSlashQuery] = useState('');
         const [slashSelectedIndex, setSlashSelectedIndex] = useState(0);
         const [slashAnchor, setSlashAnchor] = useState({ left: 40, top: 140, width: 260 });
         const [slashTargetBlockId, setSlashTargetBlockId] = useState(null);
         const slashTargetBlockRef = useRef(null);
+        useEffect(function() {
+            if (showSlash) {
+                requestAnimationFrame(function() { setSlashEntered(true); });
+            } else {
+                setSlashEntered(false);
+            }
+        }, [showSlash]);
         const [slashRecent, setSlashRecent] = useState(() => {
             try {
                 const raw = localStorage.getItem('memos_slash_recent_v1');
@@ -2141,18 +2123,43 @@ BlockSystem.register('link-card', {
         const slashRepositionRafRef = useRef(null);
         const slashApplyingRef = useRef(false);
         const slashCommandDefs = useMemo(() => ([
-            { id: 'heading', icon: '#', title: '标题', subtitle: '转换为一级标题', keywords: 'h heading 标题', type: 'heading', level: 1 },
-            { id: 'paragraph', icon: '¶', title: '文本', subtitle: '普通段落', keywords: 'p paragraph 文本', type: 'paragraph' },
-            { id: 'quote', icon: '❝', title: '引用', subtitle: '引用块', keywords: 'q quote 引用', type: 'quote' },
-            { id: 'todo', icon: '☐', title: '待办', subtitle: '任务清单', keywords: 't todo 待办', type: 'todo' },
-            { id: 'divider', icon: '—', title: '分割线', subtitle: '插入分隔符', keywords: 'd divider 分割线', type: 'divider' },
-            { id: 'musicCard', icon: '🎵', title: '音乐卡片', subtitle: '插入音乐链接卡片', keywords: 'm music 音乐', type: 'musicCard' },
-            { id: 'image', icon: '🖼', title: '图片', subtitle: '插入图片占位', keywords: 'i image 图片', type: 'image' },
-            { id: 'gallery', icon: '🖼🖼', title: '画廊', subtitle: '插入多图画廊', keywords: 'g gallery 画廊', type: 'gallery' },
+            { id: 'heading', icon: 'heading', title: '标题 1', subtitle: '一级标题', keywords: 'h1 heading 标题 一级', type: 'heading', level: 1, group: 'basic', pinyin: 'bt1', shortcut: '# ' },
+            { id: 'heading2', icon: 'heading2', title: '标题 2', subtitle: '二级标题', keywords: 'h2 heading2 标题 二级', type: 'heading', level: 2, group: 'basic', pinyin: 'bt2', shortcut: '## ' },
+            { id: 'heading3', icon: 'heading3', title: '标题 3', subtitle: '三级标题', keywords: 'h3 heading3 标题 三级', type: 'heading', level: 3, group: 'basic', pinyin: 'bt3', shortcut: '### ' },
+            { id: 'paragraph', icon: 'paragraph', title: '文本', subtitle: '普通段落', keywords: 'p paragraph 文本', type: 'paragraph', group: 'basic', pinyin: 'wb', shortcut: '' },
+            { id: 'quote', icon: 'quote', title: '引用', subtitle: '引用块', keywords: 'q quote 引用', type: 'quote', group: 'basic', pinyin: 'yy', shortcut: '> ' },
+            { id: 'todo', icon: 'todo', title: '待办', subtitle: '任务清单', keywords: 't todo 待办', type: 'todo', group: 'basic', pinyin: 'db', shortcut: '[ ] ' },
+            { id: 'divider', icon: 'divider', title: '分割线', subtitle: '插入分隔符', keywords: 'd divider 分割线', type: 'divider', group: 'basic', pinyin: 'fgx', shortcut: '---' },
+            { id: 'bold', icon: 'bold', title: '加粗', subtitle: '包裹选中文字为 **粗体**', keywords: 'b bold 加粗 粗体', type: 'inline_bold', group: 'basic', pinyin: 'jc', shortcut: '** **' },
+            { id: 'italic', icon: 'italic', title: '斜体', subtitle: '包裹选中文字为 *斜体*', keywords: 'i italic 斜体 倾斜', type: 'inline_italic', group: 'basic', pinyin: 'xt', shortcut: '* *' },
+            { id: 'link', icon: 'link', title: '链接', subtitle: '选中文字转超链接', keywords: 'l link 链接 超链接', type: 'inline_link', group: 'basic', pinyin: 'lj', shortcut: '[](url)' },
+            { id: 'code', icon: 'code', title: '代码', subtitle: '内联代码包裹', keywords: 'c code 代码 内联', type: 'inline_code', group: 'basic', pinyin: 'dm', shortcut: '` `' },
+            { id: 'strikethrough', icon: 'strikethrough', title: '删除线', subtitle: '~~删除线~~', keywords: 's strike strikethrough 删除线', type: 'inline_strike', group: 'basic', pinyin: 'scx', shortcut: '~~ ~~' },
+            { id: 'musicCard', icon: 'music', title: '音乐卡片', subtitle: '插入音乐链接卡片', keywords: 'm music 音乐', type: 'musicCard', group: 'media', pinyin: 'yykp' },
+            { id: 'image', icon: 'image', title: '图片', subtitle: '插入图片占位', keywords: 'i image 图片', type: 'image', group: 'media', pinyin: 'tp' },
+            { id: 'gallery', icon: 'gallery', title: '画廊', subtitle: '插入多图画廊', keywords: 'g gallery 画廊', type: 'gallery', group: 'media', pinyin: 'hl' },
         ]), []);
+        const SVG_ICONS = {
+            heading: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="3" x2="5" y2="17"/><line x1="15" y1="3" x2="15" y2="17"/><line x1="5" y1="10" x2="15" y2="10"/><rect x="3" y="17" width="14" height="2" rx="1" fill="currentColor" stroke="none"/></svg>',
+            heading2: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="4" x2="5" y2="16"/><line x1="15" y1="4" x2="15" y2="16"/><line x1="5" y1="10" x2="15" y2="10"/><line x1="4" y1="17" x2="16" y2="17" stroke-width="1.5" stroke-linecap="round"/></svg>',
+            heading3: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="5" x2="6" y2="15"/><line x1="14" y1="5" x2="14" y2="15"/><line x1="6" y1="10" x2="14" y2="10"/></svg>',
+            paragraph: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="10" y1="5" x2="16" y2="5"/><line x1="4" y1="9" x2="16" y2="9"/><line x1="4" y1="13" x2="16" y2="13"/><line x1="4" y1="17" x2="10" y2="17"/></svg>',
+            quote: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13c0-2 1.5-4 4-5"/><path d="M14 13c0-2 1.5-4 4-5"/></svg>',
+            todo: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="12" height="12" rx="2"/><path d="M7 12l2 2 4-5"/></svg>',
+            divider: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="10" x2="17" y2="10"/></svg>',
+            bold: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h5a3 3 0 010 6H7m5 0a3 3 0 010 6H7V4"/></svg>',
+            italic: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="9" y1="4" x2="15" y2="4"/><line x1="7" y1="16" x2="13" y2="16"/><line x1="13" y1="4" x2="9" y2="16"/></svg>',
+            link: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 116-6l1 1"/><path d="M11 9a4 4 0 11-6 6l-1-1"/></svg>',
+            code: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 7, 3 10, 7 13"/><polyline points="13 7, 17 10, 13 13"/></svg>',
+            strikethrough: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 6.5c0-1-1-2-3-2s-3 .8-3 2c0 .8.4 1.3 1.5 1.7"/><path d="M7 13.5c0 1 1 2 3 2s3-.8 3-2"/><line x1="5" y1="10" x2="15" y2="10"/></svg>',
+            music: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="14" r="2"/><circle cx="14" cy="13" r="2"/><path d="M9 14V5l7-1v8"/></svg>',
+            image: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="12" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M3 15l4-5 3 3 3-4 4 6"/></svg>',
+            gallery: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="12" rx="1.5"/><rect x="5" y="3" width="14" height="12" rx="1.5" opacity="0.3"/></svg>',
+        };
 
         const [showColorPicker, setShowColorPicker] = useState(false);
         const [bgColor, setBgColor] = useState(null);
+        const [hasTyped, setHasTyped] = useState(false);
         const fileInputRef = useRef(null);
         const dbRef = useRef(null);
         const saveTimer = useRef(null);
@@ -2161,26 +2168,44 @@ BlockSystem.register('link-card', {
         const inputTimerRef = useRef(null);
 
         const slashCommands = useMemo(() => {
+            const GROUP_LABELS = { basic: '基础块', media: '媒体块' };
+            const GROUP_ORDER = ['basic', 'media'];
             var q = (slashQuery || '').trim().toLowerCase();
             var all = slashCommandDefs.slice();
             if (q) {
+                var searchStr = function(cmd) { return (cmd.title + ' ' + cmd.subtitle + ' ' + cmd.keywords + ' ' + cmd.type + (cmd.pinyin || '')).toLowerCase(); };
                 return all
-                    .filter(cmd => (`${cmd.title} ${cmd.subtitle} ${cmd.keywords} ${cmd.type}`).toLowerCase().includes(q))
+                    .filter(cmd => searchStr(cmd).includes(q))
                     .sort((a, b) => {
-                        var aStarts = (`${a.title} ${a.keywords}`).toLowerCase().startsWith(q) ? 0 : 1;
-                        var bStarts = (`${b.title} ${b.keywords}`).toLowerCase().startsWith(q) ? 0 : 1;
+                        var aStarts = (a.title + ' ' + (a.keywords || '')).toLowerCase().startsWith(q) || (a.pinyin || '').startsWith(q) ? 0 : 1;
+                        var bStarts = (b.title + ' ' + (b.keywords || '')).toLowerCase().startsWith(q) || (b.pinyin || '').startsWith(q) ? 0 : 1;
                         if (aStarts !== bStarts) return aStarts - bStarts;
                         return a.title.localeCompare(b.title, 'zh-Hans-CN');
                     });
             }
+            var result = [];
             if (slashRecent.length > 0) {
                 var order = new Map();
                 slashRecent.forEach((id, i) => order.set(id, i));
-                var recent = all.filter(cmd => order.has(cmd.id)).sort((a, b) => order.get(a.id) - order.get(b.id)).map(cmd => ({ ...cmd, recent: true }));
+                var recent = all.filter(cmd => order.has(cmd.id)).sort((a, b) => order.get(a.id) - order.get(b.id)).map(cmd => ({ ...cmd, recent: true, sectionLabel: '最近使用' }));
                 var rest = all.filter(cmd => !order.has(cmd.id));
-                return [...recent, ...rest];
+                var seenRecent = recent.length > 0;
+                for (var g of GROUP_ORDER) {
+                    var groupItems = rest.filter(cmd => cmd.group === g);
+                    groupItems.forEach(function(c) { c.sectionLabel = GROUP_LABELS[g]; });
+                    var addRecent = seenRecent && result.length === 0 && recent.length > 0;
+                    if (addRecent) result.push(...recent);
+                    result.push(...groupItems);
+                }
+                if (result.length === 0) result = all;
+            } else {
+                for (var g of GROUP_ORDER) {
+                    var groupItems2 = all.filter(cmd => cmd.group === g);
+                    groupItems2.forEach(function(c) { c.sectionLabel = GROUP_LABELS[g]; });
+                    result.push(...groupItems2);
+                }
             }
-            return all;
+            return result;
         }, [slashQuery, slashRecent, slashCommandDefs]);
 
         const updateSlashStateFromSelection = useCallback(function() {
@@ -2257,7 +2282,16 @@ BlockSystem.register('link-card', {
             var viewportTop = viewport ? viewport.offsetTop : 0;
             var viewportWidth = viewport ? viewport.width : window.innerWidth;
             var viewportHeight = viewport ? viewport.height : window.innerHeight;
-            var panelWidth = Math.min(320, Math.max(220, viewportWidth - 24));
+            var maxContentW = 240;
+            for (var _i = 0; _i < slashCommandDefs.length; _i++) {
+                var _c = slashCommandDefs[_i];
+                var titleW = (_c.title || '').length * 16;
+                var shortW = (_c.shortcut || '').length * 8;
+                var rowW = 24 + 10 + titleW + (shortW > 0 ? 8 + shortW : 0) + 22;
+                var withGroupPad = _c.group ? rowW + 20 : rowW;
+                if (withGroupPad > maxContentW) maxContentW = withGroupPad;
+            }
+            var panelWidth = Math.min(360, Math.max(220, maxContentW + 12, viewportWidth - 24));
             var left = Math.max(viewportLeft + 12, Math.min(viewportLeft + viewportWidth - panelWidth - 12, anchorRect.left - 8));
             var panelHeight = 260;
             var top = anchorRect.bottom + 10;
@@ -2297,8 +2331,37 @@ BlockSystem.register('link-card', {
                 if (slashQueryLen === 0 && match.length === 1) return '';
                 return match.length === slashQueryLen + 1 ? '' : match.slice(slashQueryLen + 1);
             }).replace(/^\s+/, '');
-            var level = cmd.level || 1;
             var type = cmd.type;
+            /* ---- 内联格式命令：包裹选中文字 ---- */
+            if (type.startsWith('inline_')) {
+                var sel = window.getSelection();
+                var selectedText = '';
+                if (sel && sel.rangeCount > 0) { selectedText = sel.toString().trim(); }
+                var inlineText = selectedText || cleanedText || '文字';
+                var INLINE_MAP = { inline_bold: ['**', '**'], inline_italic: ['*', '*'], inline_link: ['[', '](url)'], inline_code: ['`', '`'], inline_strike: ['~~', '~~'] };
+                var pair = INLINE_MAP[type] || ['', ''];
+                var wrappedText = pair[0] + inlineText + pair[1];
+                if (selectedText && sel && sel.rangeCount) {
+                    var range = sel.getRangeAt(0);
+                    range.deleteContents();
+                    range.insertNode(document.createTextNode(wrappedText));
+                    try { range.setStartAfter(range.endContainer); sel.removeAllRanges(); sel.addRange(range); } catch(_) {}
+                } else {
+                    doc.splice(idx, 1, { id: blkId, type: 'paragraph', children: [{ text: wrappedText }] });
+                    setEditorDocRef(docRef.current);
+                    blockEl.outerHTML = renderDocToEditorHTML([{ id: blkId, type: 'paragraph', children: [{ text: wrappedText }] }], files);
+                    var focusTarget = editorBodyRef.current && editorBodyRef.current.querySelector('[data-blockid="' + blkId + '"]');
+                    if (focusTarget) { focusEditableWithCaret(focusTarget, wrappedText.length); }
+                }
+                setEditorDocRef(docRef.current);
+                docRef.current = parseEditorDOM(editorBodyRef.current);
+                setShowSlash(false); setSlashQuery(''); setSlashTargetBlockId(null); slashTargetBlockRef.current = null; setSlashSelectedIndex(0);
+                setSlashRecent(function(prev) { var n = [cmd.id].concat(prev.filter(function(id) { return id !== cmd.id; })); return n.slice(0, 6); });
+                triggerAutoSave();
+                setTimeout(function() { slashApplyingRef.current = false; }, 80);
+                return;
+            }
+            var level = cmd.level || 1;
             var newBlock = {
                 id: blkId,
                 type: type,
@@ -2363,8 +2426,7 @@ BlockSystem.register('link-card', {
             };
             const onPointerDown = (e) => {
                 if (slashRef.current && slashRef.current.contains(e.target)) return;
-                setShowSlash(false);
-                slashTargetBlockRef.current = null;
+                closeSlashPanel();
             };
             const onScroll = () => requestReposition();
             const onResize = () => requestReposition();
@@ -2844,12 +2906,55 @@ BlockSystem.register('link-card', {
 
         /* ===== DOM input handlers ===== */
         const handleEditorInput = useCallback(function() {
+            if (!hasTyped) setHasTyped(true);
             clearTimeout(inputTimerRef.current);
             inputTimerRef.current = setTimeout(function() {
                 var el = editorBodyRef.current;
                 if (!el) return;
                 setEditorDocRef(docRef.current);
                 docRef.current = parseEditorDOM(el);
+                /* ---- 智能前缀触发 ---- */
+                var PATTERNS = [
+                    { re: /^### (.+)/, type: 'heading', level: 3, strip: 4 },
+                    { re: /^## (.+)/, type: 'heading', level: 2, strip: 3 },
+                    { re: /^# (.+)/, type: 'heading', level: 1, strip: 2 },
+                    { re: /^> (.+)/, type: 'quote', strip: 2 },
+                    { re: /^\[ \] (.+)/, type: 'todo', attrs: { checked: false }, strip: 4 },
+                    { re: /^\[\] (.+)/, type: 'todo', attrs: { checked: false }, strip: 3 },
+                    { re: /^---$/, type: 'divider', exact: true },
+                ];
+                var doc = docRef.current;
+                var changed = false;
+                for (var pi = 0; pi < doc.length; pi++) {
+                    var block = doc[pi];
+                    if (block.type !== 'paragraph') continue;
+                    var raw = (block.children && block.children[0] && block.children[0].text) || '';
+                    if (!raw) continue;
+                    for (var pi2 = 0; pi2 < PATTERNS.length; pi2++) {
+                        var pat = PATTERNS[pi2];
+                        if (pat.exact) {
+                            if (raw === '---') {
+                                doc.splice(pi, 1, { id: block.id, type: 'divider' });
+                                changed = true; break;
+                            }
+                            continue;
+                        }
+                        var m = raw.match(pat.re);
+                        if (m) {
+                            var cleanText = m[1].trim();
+                            var newBlock = { id: block.id, type: pat.type, children: [{ text: cleanText }] };
+                            if (pat.level) newBlock.attrs = { level: pat.level };
+                            if (pat.attrs) newBlock.attrs = Object.assign({}, newBlock.attrs, pat.attrs);
+                            doc.splice(pi, 1, newBlock);
+                            changed = true; break;
+                        }
+                    }
+                    if (changed) break;
+                }
+                if (changed) {
+                    setEditorDocRef(doc);
+                    el.innerHTML = renderDocToEditorHTML(doc, {});
+                }
                 updateSlashStateFromSelection();
                 triggerAutoSave();
             }, 80);
@@ -2876,9 +2981,7 @@ BlockSystem.register('link-card', {
                 }
                 if (e.key === 'Escape') {
                     e.preventDefault();
-                    setShowSlash(false);
-                    setSlashQuery('');
-                    setSlashTargetBlockId(null);
+                    closeSlashPanel();
                     return;
                 }
             }
@@ -3489,8 +3592,8 @@ BlockSystem.register('link-card', {
                             <div style={{ padding: 7 }}>
                                 <button onClick={handleAddAttachment} style={{ width: "100%", minHeight: 50, border: "none", background: "transparent", borderRadius: 17, display: "flex", alignItems: "center", gap: 11, padding: "8px 10px", color: "var(--text-main)", fontSize: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "left" }}>
                                     <span style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flex: "none", color: "#007aff" }} aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8.2 11.8l4.9-4.9a3 3 0 1 1 4.2 4.2l-6.5 6.5a5 5 0 1 1-7.1-7.1l7.1-7.1" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M8.2 11.8l4.9-4.9a3 3 0 1 1 4.2 4.2l-6.5 6.5a5 5 0 1 1-7.1-7.1l7.1-7.1" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </span>
                                     <span style={{ minWidth: 0, flex: 1 }}>
@@ -3501,8 +3604,8 @@ BlockSystem.register('link-card', {
                                 </button>
                                 <button onClick={() => { closeEditorMenu(); setTimeout(() => setShowColorPicker(true), 220); }} style={{ width: "100%", minHeight: 50, border: "none", background: "transparent", borderRadius: 17, display: "flex", alignItems: "center", gap: 11, padding: "8px 10px", color: "var(--text-main)", fontSize: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "left", marginTop: 4 }}>
                                     <span style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flex: "none", color: "#af52de" }} aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5c0-1.1-.9-2-2-2h-1.6a1.8 1.8 0 0 1-1.8-1.8V6.5A3 3 0 0 0 12 3.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5c0-1.1-.9-2-2-2h-1.6a1.8 1.8 0 0 1-1.8-1.8V6.5A3 3 0 0 0 12 3.5Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
                                             <circle cx="8" cy="10" r="1.1" fill="currentColor" />
                                             <circle cx="11" cy="7.7" r="1.1" fill="currentColor" />
                                             <circle cx="15.2" cy="9" r="1.1" fill="currentColor" />
@@ -3515,11 +3618,11 @@ BlockSystem.register('link-card', {
                                     <span style={{ fontSize: 19, color: "#c0c0c6", paddingLeft: 4 }}>›</span>
                                 </button>
                             </div>
-                            <div style={{ borderTop: "0.5px solid rgba(0,0,0,0.075)", padding: 7 }}>
+                            <div style={{ borderTop: "0.5px solid var(--border-color)", padding: 7 }}>
                                 <button onClick={() => { closeEditorMenu(); if (bgColor) { setBgColor(null); onSave(memo.id, { ...memo, bgColor: undefined }); } }} style={{ width: "100%", minHeight: 50, border: "none", background: "transparent", borderRadius: 17, display: "flex", alignItems: "center", gap: 11, padding: "8px 10px", color: "#E0433A", fontSize: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "left" }}>
                                     <span style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flex: "none", color: "#ff3b30" }} aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M4.5 7.5h15M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5M8.5 7.5l.4 10a1.5 1.5 0 0 0 1.5 1.4h3.2a1.5 1.5 0 0 0 1.5-1.4l.4-10M10.2 11v4.5M13.8 11v4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4.5 7.5h15M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5M8.5 7.5l.4 10a1.5 1.5 0 0 0 1.5 1.4h3.2a1.5 1.5 0 0 0 1.5-1.4l.4-10M10.2 11v4.5M13.8 11v4.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </span>
                                     <span style={{ minWidth: 0, flex: 1 }}>
@@ -3534,7 +3637,7 @@ BlockSystem.register('link-card', {
                 )}
                 <div ref={editorWrapperRef} style={{ paddingLeft: 16, paddingRight: 16, paddingTop: "calc(env(safe-area-inset-top) + 7px + 66px + 4px + 66px + 12px)", paddingBottom: "calc(env(safe-area-inset-bottom) + 32px)" }}>
                     {/* Single contentEditable container — 浏览器原生接管键盘/光标/IME */}
-                    <div ref={editorBodyRef} className="editor-body" contentEditable suppressContentEditableWarning
+                    <div ref={editorBodyRef} className={"editor-body" + (!hasTyped && docRef.current && docRef.current.length === 1 && docRef.current[0].type === 'paragraph' && !(docRef.current[0].children?.[0]?.text) ? ' show-placeholder' : '')} contentEditable suppressContentEditableWarning
                         onInput={handleEditorInput}
                         onKeyDown={handleEditorKeyDown}
                         onPaste={handleEditorPaste}
@@ -3557,44 +3660,91 @@ BlockSystem.register('link-card', {
                         backdropFilter: 'blur(12px)',
                         WebkitBackdropFilter: 'blur(12px)',
                         border: '0.5px solid var(--border-color)',
-                        borderRadius: 16,
+                        borderRadius: 32,
                         boxShadow: '0 10px 28px rgba(0,0,0,0.14)',
-                        padding: 8,
-                        maxHeight: 260,
-                        overflowY: 'auto'
+                        padding: '10px 10px',
+                        maxHeight: 280,
+                        overflowY: 'auto',
+                        opacity: slashClosing ? 0 : (slashEntered ? 1 : 0),
+                        transform: slashClosing ? 'scale(0.88) translateY(-6px)' : (slashEntered ? 'scale(1) translateY(0)' : 'scale(0.88) translateY(-6px)'),
+                        transition: 'opacity 0.12s ease, transform 0.16s cubic-bezier(0.34,1.56,0.64,1)',
+                        transformOrigin: 'top left'
                     }}>
                         {slashCommands.length === 0 && (
-                            <div style={{ padding: '10px 12px', color: 'var(--text-secondary)', fontSize: 13 }}>未找到匹配命令</div>
+                            <div style={{ padding: '24px 12px 20px', color: 'var(--text-secondary)', fontSize: 13, textAlign: 'center' }}>
+                                <svg width="28" height="28" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style={{ display: 'block', margin: '0 auto 8px', opacity: 0.4 }}><circle cx="8.5" cy="8.5" r="5.5"/><line x1="12.5" y1="12.5" x2="17" y2="17"/></svg>
+                                未找到匹配命令
+                                <div style={{ fontSize: 11, marginTop: 8, lineHeight: 1.6, opacity: 0.5 }}>试试拼音首字母：<br/><span style={{ background: 'rgba(127,127,127,0.06)', padding: '1px 5px', borderRadius: 4, fontFamily: 'monospace', fontSize: 10 }}>bt</span> 标题 · <span style={{ background: 'rgba(127,127,127,0.06)', padding: '1px 5px', borderRadius: 4, fontFamily: 'monospace', fontSize: 10 }}>tp</span> 图片 · <span style={{ background: 'rgba(127,127,127,0.06)', padding: '1px 5px', borderRadius: 4, fontFamily: 'monospace', fontSize: 10 }}>yykp</span> 音乐</div></div>
                         )}
-                        {slashCommands.map((cmd, i) => (
-                            <div
-                                key={cmd.id}
-                                onPointerDown={e => e.preventDefault()}
-                                onClick={() => applySlashCommand(cmd)}
-                                onMouseEnter={() => setSlashSelectedIndex(i)}
-                                style={{
-                                    padding: '9px 11px',
-                                    borderRadius: 12,
+                        {function() {
+                            var q = (slashQuery || '').trim().toLowerCase();
+                            var hasQuery = q.length > 0;
+                            function hl(text) {
+                                if (!hasQuery || !text) return text;
+                                var idx = text.toLowerCase().indexOf(q);
+                                if (idx === -1) return text;
+                                var before = text.slice(0, idx);
+                                var match = text.slice(idx, idx + q.length);
+                                var after = text.slice(idx + q.length);
+                                return React.createElement(React.Fragment, null, before, React.createElement('mark', { style: { background: 'rgba(0,122,255,0.18)', color: 'var(--text-main)', borderRadius: 3, padding: '0 2px', fontWeight: 600 } }, match), after);
+                            }
+                            var prevLabel = null;
+                            var flatIdx = -1;
+                            return slashCommands.map(function(cmd) {
+                                var showHeader = cmd.sectionLabel && cmd.sectionLabel !== prevLabel;
+                                var isFirstSec = prevLabel === null;
+                                prevLabel = cmd.sectionLabel;
+                                flatIdx++;
+                                var baseStyle = {
+                                    padding: '10px 12px',
+                                    borderRadius: 16,
                                     cursor: 'pointer',
                                     fontSize: 14,
                                     color: 'var(--text-main)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: 10,
-                                    background: i === slashSelectedIndex ? 'rgba(0,122,255,0.14)' : 'transparent',
-                                    border: i === slashSelectedIndex ? '1px solid rgba(0,122,255,0.26)' : '1px solid transparent'
-                                }}
-                            >
-                                <div style={{ width: 24, textAlign: 'center', fontSize: 15, flex: '0 0 24px' }}>{cmd.icon}</div>
-                                <div style={{ minWidth: 0, flex: 1 }}>
-                                    <div style={{ fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
-                                        <span>{cmd.title}</span>
-                                        {cmd.recent && <span style={{ fontSize: 10, color: '#007aff', background: 'rgba(0,122,255,0.12)', padding: '1px 6px', borderRadius: 999 }}>最近</span>}
-                                    </div>
-                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 1 }}>{cmd.subtitle}</div>
-                                </div>
-                            </div>
-                        ))}
+                                    justifyContent: 'space-between',
+                                    gap: 8,
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    background: 'transparent',
+                                    marginBottom: 2
+                                };
+                                return React.createElement(React.Fragment, { key: cmd.id },
+                                    showHeader && React.createElement('div', {
+                                        style: {
+                                            padding: '6px 10px 4px',
+                                            fontSize: 11,
+                                            fontWeight: 700,
+                                            letterSpacing: '0.4px',
+                                            textTransform: 'uppercase',
+                                            color: 'var(--text-secondary)',
+                                            opacity: 0.7,
+                                            marginTop: isFirstSec ? 0 : 8,
+                                            borderTop: isFirstSec ? 'none' : '0.5px solid var(--border-color)'
+                                        }
+                                    }, cmd.sectionLabel),
+                                    React.createElement('div', {
+                                        className: 'slash-row',
+                                        onPointerDown: function(e) { e.preventDefault(); },
+                                        onClick: function() { applySlashCommand(cmd); },
+                                        onMouseEnter: function() { setSlashSelectedIndex(flatIdx); },
+                                        style: baseStyle
+                                    },
+
+                                        React.createElement('div', { style: { width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(127,127,127,0.10)', fontSize: 14, flex: '0 0 28px', position: 'relative', zIndex: 1 }, dangerouslySetInnerHTML: { __html: SVG_ICONS[cmd.icon] || '' } }),
+                                        React.createElement('div', { style: { minWidth: 0, flex: 1, position: 'relative', zIndex: 1 } },
+                                            React.createElement('div', { style: { fontWeight: 600, fontSize: 14, display: 'flex', alignItems: 'center', gap: 6 } },
+                                                React.createElement('span', null, hl(cmd.title)),
+                                                cmd.recent && React.createElement('span', { style: { fontSize: 10, color: 'var(--text-secondary)', background: 'rgba(127,127,127,0.08)', padding: '1px 6px', borderRadius: 999, opacity: 0.55 } }, '最近')
+                                            ),
+                                            React.createElement('div', { style: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 3 } }, hl(cmd.subtitle))
+                                        ),
+                                        cmd.shortcut && React.createElement('div', { style: { fontSize: 10, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, monospace', color: 'var(--text-secondary)', opacity: 0.5, flexShrink: 0, padding: '2px 6px', borderRadius: 6, background: 'rgba(127,127,127,0.06)', position: 'relative', zIndex: 1 } }, cmd.shortcut)
+                                    )
+                                );
+                            });
+                        }()}
                     </div>
                 )}
                 {showColorPicker && <BgSheet
@@ -3646,8 +3796,8 @@ BlockSystem.register('link-card', {
                     }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
                             <div style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", color: "#af52de", flex: "none" }} aria-hidden="true">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5c0-1.1-.9-2-2-2h-1.6a1.8 1.8 0 0 1-1.8-1.8V6.5A3 3 0 0 0 12 3.5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5c0-1.1-.9-2-2-2h-1.6a1.8 1.8 0 0 1-1.8-1.8V6.5A3 3 0 0 0 12 3.5Z" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
                                     <circle cx="8" cy="10" r="1.1" fill="currentColor" />
                                     <circle cx="11" cy="7.7" r="1.1" fill="currentColor" />
                                     <circle cx="15.2" cy="9" r="1.1" fill="currentColor" />
@@ -3672,8 +3822,8 @@ BlockSystem.register('link-card', {
                                         transition: 'transform 160ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 160ms ease, border 160ms ease'
                                     }}>
                                         {selected && (
-                                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))' }}>
-                                                <path d="M5.5 12.3 10 16.7 18.8 7.8" stroke="#007aff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+                                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))' }}>
+                                                <path d="M5.5 12.3 10 16.7 18.8 7.8" stroke="#007aff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                             </svg>
                                         )}
                                     </button>
@@ -3682,11 +3832,11 @@ BlockSystem.register('link-card', {
                         </div>
 
                         {currentColor && (
-                            <div style={{ borderTop: "0.5px solid rgba(0,0,0,0.075)", paddingTop: 7, marginTop: 2 }}>
+                            <div style={{ borderTop: "0.5px solid var(--border-color)", paddingTop: 7, marginTop: 2 }}>
                                 <button onClick={() => closeWithAnim(() => onRemove && onRemove())} style={{ width: "100%", minHeight: 46, border: "none", background: "transparent", borderRadius: 16, display: "flex", alignItems: "center", gap: 11, padding: "8px 10px", color: "#ff3b30", fontSize: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "left" }}>
                                     <span style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flex: "none" }} aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M4.5 7.5h15M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5M8.5 7.5l.4 10a1.5 1.5 0 0 0 1.5 1.4h3.2a1.5 1.5 0 0 0 1.5-1.4l.4-10M10.2 11v4.5M13.8 11v4.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+                                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M4.5 7.5h15M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5M8.5 7.5l.4 10a1.5 1.5 0 0 0 1.5 1.4h3.2a1.5 1.5 0 0 0 1.5-1.4l.4-10M10.2 11v4.5M13.8 11v4.5" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                         </svg>
                                     </span>
                                     <span style={{ fontSize: 15, fontWeight: 650, letterSpacing: "-0.1px" }}>移除背景</span>
@@ -3701,9 +3851,10 @@ BlockSystem.register('link-card', {
 
     /* ---------- 备份视图 ---------- */
     const BackupView = ({ onClose }) => {
+        const handleClose = useCallback(function() {
+            onClose();
+        }, [onClose]);
         const [googleToken, setGoogleToken] = useState(localStorage.getItem('google_token') || null);
-        const [status, setStatus] = useState('');
-        const [statusMeta, setStatusMeta] = useState({ type: 'idle', progress: null, key: 0 });
         const [showRestoreSheet, setShowRestoreSheet] = useState(false);
         const [showImportConfirm, setShowImportConfirm] = useState(false);
         const [showExportConfirm, setShowExportConfirm] = useState(false);
@@ -3711,28 +3862,43 @@ BlockSystem.register('link-card', {
         const [backupLoading, setBackupLoading] = useState(false);
         const [restoreLoading, setRestoreLoading] = useState(false);
         const isLoading = backupLoading || restoreLoading;
-        const statusTimerRef = useRef(null);
-
-        const showStatus = useCallback((msg) => {
-            const text = String(msg || '');
-            const type = text.startsWith('✅') ? 'success' : text.startsWith('❌') ? 'error' : 'progress';
-            const match = text.match(/(\d+)\/(\d+)/);
-            const progress = match && Number(match[2]) > 0
-                ? Math.max(0, Math.min(100, Math.round(Number(match[1]) / Number(match[2]) * 100)))
-                : null;
-            setStatus(text);
-            setStatusMeta({ type, progress, key: Date.now() + Math.random() });
-            clearTimeout(statusTimerRef.current);
-            if (type !== 'progress') {
-                statusTimerRef.current = setTimeout(() => {
-                    setStatus('');
-                    setStatusMeta({ type: 'idle', progress: null, key: 0 });
-                }, 4000);
-            }
+        const HISTORY_KEY = 'memos_backup_history';
+        const [history, setHistory] = useState(() => {
+            try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); } catch { return []; }
+        });
+        const addHistoryEntry = useCallback((type, status2, msg, detail) => {
+            setHistory(prev => {
+                var entry = { type: type, status: status2, message: msg, detail: detail || '', timestamp: new Date().toISOString() };
+                var next = [entry, ...prev].slice(0, 20);
+                try { localStorage.setItem(HISTORY_KEY, JSON.stringify(next)); } catch (_) {}
+                return next;
+            });
         }, []);
+        const [attachCount, setAttachCount] = useState(null);
+        useEffect(function() {
+            getDB().then(function(db) {
+                var tx = db.transaction('attachments', 'readonly');
+                var req = tx.objectStore('attachments').count();
+                req.onsuccess = function() { setAttachCount(req.result); };
+            }).catch(function() {});
+        }, []);
+        var lastBackupTime = useMemo(function() {
+            var uploads = history.filter(function(e) { return e.type === 'upload' && e.status === 'success'; });
+            if (uploads.length === 0) return '暂无';
+            var ts = uploads[0].timestamp;
+            if (!ts) return '未知';
+            var d = new Date(ts);
+            var now = new Date();
+            var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            var yesterday = new Date(today.getTime() - 86400000);
+            var h = d.getHours(); var m = String(d.getMinutes()).padStart(2, '0');
+            var timeStr = (function() { try { return !new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).formatToParts(new Date(2024,0,1,13)).some(function(p) { return p.type === 'dayPeriod'; }) ? String(h).padStart(2,'0') + ':' + m : (h < 12 ? '上午' : '下午') + ' ' + (h % 12 || 12) + ':' + m; } catch(_) { return h + ':' + m; } })();
+            if (d >= today) return '今天 ' + timeStr;
+            if (d >= yesterday) return '昨天 ' + timeStr;
+            return (d.getMonth()+1) + '/' + d.getDate() + ' ' + timeStr;
+        }, [history]);
 
-        useEffect(() => () => clearTimeout(statusTimerRef.current), []);
-
+        const showStatus = useCallback(() => {}, []);
         const buildBackupPayload = useCallback(async () => {
             const memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
             const cleanMemos = memos.map(m => ({ ...m, doc: m.doc ? m.doc.map(n => { if (n.thumbDataUrl) { const { thumbDataUrl, ...rest } = n; return rest; } return n; }) : m.doc }));
@@ -3757,17 +3923,36 @@ BlockSystem.register('link-card', {
                 const db = await getDB();
                 await packAttachmentsToZip(db, zipData, (i, total) => showStatus(`正在打包附件 ${i + 1}/${total}...`));
                 const zipped = fflate.zipSync(zipData, { level: 6 });
+                const fileName = `此刻备份_${new Date().toISOString().slice(0, 10)}.zip`;
                 const blob = new Blob([zipped], { type: 'application/zip' });
+                /* ---- 优先使用系统 Share Sheet (iOS 原生分享) ---- */
+                if (navigator.share && navigator.canShare) {
+                    try {
+                        const file = new File([zipped], fileName, { type: 'application/zip' });
+                        if (navigator.canShare({ files: [file] })) {
+                            await navigator.share({ files: [file], title: '此刻备份' });
+                            showStatus('✅ 备份已分享');
+                            addHistoryEntry('export', 'success', '文件已分享', fileName);
+                            setBackupLoading(false);
+                            return;
+                        }
+                    } catch (shareErr) {
+                        if (shareErr.name === 'AbortError') { setBackupLoading(false); return; }
+                        // fallback to download
+                    }
+                }
+                /* ---- 回退：浏览器下载 ---- */
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `此刻备份_${new Date().toISOString().slice(0, 10)}.zip`;
+                a.download = fileName;
                 a.click();
                 URL.revokeObjectURL(url);
                 showStatus('✅ 本地备份已下载 (.zip)');
-            } catch (e) { showStatus('❌ 导出失败: ' + e.message); }
+                addHistoryEntry('export', 'success', '备份已下载', fileName);
+            } catch (e) { showStatus('❌ 导出失败: ' + e.message); addHistoryEntry('export', 'fail', '导出失败', e.message); }
             finally { setBackupLoading(false); }
-        }, [backupLoading, showStatus, buildBackupPayload]);
+        }, [backupLoading, showStatus, buildBackupPayload, addHistoryEntry]);
 
         const handleConfirmImportRestore = useCallback(async () => {
             if (!pendingImportFile) return;
@@ -3792,10 +3977,11 @@ BlockSystem.register('link-card', {
                 await restoreAvatars(backup.avatars, db);
                 localStorage.setItem('memos_app_v2', newMemosStr);
                 showStatus('✅ 恢复成功！正在刷新页面...');
+                addHistoryEntry('restore', 'success', '从本地文件恢复', file.name);
                 setTimeout(() => window.location.reload(), 800);
-            } catch (e) { showStatus('❌ 导入失败: ' + e.message); }
+            } catch (e) { showStatus('❌ 导入失败: ' + e.message); addHistoryEntry('restore', 'fail', '导入失败', e.message); }
             finally { setRestoreLoading(false); }
-        }, [pendingImportFile, restoreLoading, showStatus]);
+        }, [pendingImportFile, restoreLoading, showStatus, addHistoryEntry]);
 
         const handleImportLocal = useCallback(async () => {
             if (restoreLoading) return;
@@ -3819,7 +4005,7 @@ BlockSystem.register('link-card', {
         }, [restoreLoading]);
 
         const checkTokenExpiry = useCallback((resp) => {
-            if (resp.status === 401) { setGoogleToken(null); localStorage.removeItem('google_token'); setStatus('❌ Google 授权已过期，请重新连接账号'); return true; }
+            if (resp.status === 401) { setGoogleToken(null); localStorage.removeItem('google_token'); return true; }
             return false;
         }, []);
 
@@ -3833,12 +4019,13 @@ BlockSystem.register('link-card', {
                         setGoogleToken(tokenResponse.access_token);
                         localStorage.setItem('google_token', tokenResponse.access_token);
                         showStatus('✅ Google 账号已连接');
-                    } else showStatus('❌ 授权失败，请重试');
+                        addHistoryEntry('connect', 'success', 'Google 账号已连接', '');
+                    } else { showStatus('❌ 授权失败，请重试'); addHistoryEntry('connect', 'fail', 'Google 授权失败', ''); }
                 },
-                error_callback: () => showStatus('❌ 授权被取消或失败'),
+                error_callback: () => { showStatus('❌ 授权被取消或失败'); addHistoryEntry('connect', 'fail', 'Google 授权被取消', ''); },
             });
             client.requestAccessToken({ prompt: 'consent' });
-        }, [showStatus]);
+        }, [showStatus, addHistoryEntry]);
 
         const handleGoogleLogout = useCallback(() => {
             if (googleToken && typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) google.accounts.oauth2.revoke(googleToken, () => {});
@@ -3878,9 +4065,10 @@ BlockSystem.register('link-card', {
                 if (checkTokenExpiry(uploadResp)) return;
                 if (!uploadResp.ok) { const errData = await uploadResp.json().catch(() => ({})); throw new Error(errData.error?.message || `HTTP ${uploadResp.status}`); }
                 showStatus('✅ 云端备份完成');
-            } catch (e) { showStatus('❌ 云端备份失败: ' + e.message); }
+                addHistoryEntry('upload', 'success', '云端备份成功', (backup.memos||[]).length + ' 条笔记');
+            } catch (e) { showStatus('❌ 云端备份失败: ' + e.message); addHistoryEntry('upload', 'fail', '云端备份失败', e.message); }
             finally { setBackupLoading(false); }
-        }, [googleToken, checkTokenExpiry, backupLoading, showStatus, buildBackupPayload]);
+        }, [googleToken, checkTokenExpiry, backupLoading, showStatus, buildBackupPayload, addHistoryEntry]);
 
         const handleCloudMerge = useCallback(async () => {
             if (!googleToken) return showStatus('❌ 请先连接 Google 账号');
@@ -3956,31 +4144,35 @@ BlockSystem.register('link-card', {
                 await restoreAvatars(backupAvatars || backup.avatars, db);
                 localStorage.setItem('memos_app_v2', newMemosStr);
                 showStatus('✅ 云端恢复成功！正在刷新页面...');
+                addHistoryEntry('restore', 'success', '从云端恢复', (backup.memos||[]).length + ' 条笔记');
                 setTimeout(() => window.location.reload(), 800);
-            } catch (e) { showStatus('❌ 云端恢复失败: ' + e.message); }
+            } catch (e) { showStatus('❌ 云端恢复失败: ' + e.message); addHistoryEntry('restore', 'fail', '云端恢复失败', e.message); }
             finally { setRestoreLoading(false); }
-        }, [googleToken, checkTokenExpiry, restoreLoading, showStatus]);
+        }, [googleToken, checkTokenExpiry, restoreLoading, showStatus, addHistoryEntry]);
 
         return (
             <div style={{ background: "var(--primary-bg)", minHeight: "100vh" }}>
-                <button className="editor-fab left" onClick={onClose}>
+                <button className="editor-fab left" onClick={handleClose}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="15 18 9 12 15 6" />
                     </svg>
                 </button>
-                <div className="page-title compact" style={{ visibility: "visible", opacity: 1, pointerEvents: "none" }}>设置</div>
+                <div className="page-title compact" style={{ visibility: "visible", opacity: 1, pointerEvents: "none" }}>备份与恢复</div>
                 <div style={{ padding: "126px 20px 0", paddingBottom: "calc(env(safe-area-inset-bottom) + 40px)" }}>
+                    <div style={{ animation: 'slideInFromRight 0.32s cubic-bezier(0.25,0.46,0.45,0.94) both' }}>
                     <div className="backup-hero">
-                        <div className="backup-hero-top">
+                        <div className="backup-hero-top" style={{ marginBottom: 10 }}>
                             <div>
                                 <div className="backup-hero-title">备份状态总览</div>
                             </div>
                             <div className={googleToken ? "backup-hero-badge connected" : "backup-hero-badge disconnected"}>{googleToken ? '已连接' : '未连接'}</div>
                         </div>
-                        <div className="backup-stats">
-                            <div className="backup-stat"><div className="backup-stat-label">Google Drive</div><div className="backup-stat-value">{googleToken ? '正常' : '未连接'}</div></div>
-                            <div className="backup-stat"><div className="backup-stat-label">最近备份</div><div className="backup-stat-value">今天</div></div>
-                            <div className="backup-stat"><div className="backup-stat-label">笔记数量</div><div className="backup-stat-value">{JSON.parse(localStorage.getItem('memos_app_v2') || '[]').length}</div></div>
+                        <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                            <span>☁️ Google Drive {googleToken ? '正常' : '未连接'}</span>
+                            <span style={{ opacity: 0.3 }}>·</span>
+                            <span>上次备份 {lastBackupTime}</span>
+                            <span style={{ opacity: 0.3 }}>·</span>
+                            <span>{JSON.parse(localStorage.getItem('memos_app_v2') || '[]').length} 条笔记{attachCount !== null ? ` · ${attachCount} 个附件` : ''}</span>
                         </div>
                     </div>
 
@@ -3988,18 +4180,28 @@ BlockSystem.register('link-card', {
 
                     <div className="backup-card">
                         <div className="backup-row" onClick={() => setShowExportConfirm(true)}>
-                            <div className="backup-row-left">
-                                <div className="backup-row-title">本地备份</div>
-                                <div className="backup-row-desc">导出 zip 到设备本地，可分享或存档。</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,122,255,0.10)', flex: '0 0 28px' }}>
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round"><path d="M12 3v13M9 10l3-3 3 3"/><path d="M5 16v3a2 2 0 002 2h10a2 2 0 002-2v-3"/></svg>
+                                </div>
+                                <div>
+                                    <div className="backup-row-title">导出备份</div>
+                                    <div className="backup-row-desc">分享 zip 到系统文件 App</div>
+                                </div>
                             </div>
-                            <div className="backup-row-right">导出 <span className="backup-row-arrow">›</span></div>
+                            <div className="backup-row-right"><span className="backup-row-arrow">›</span></div>
                         </div>
                         <div className="backup-row no-border" onClick={handleImportLocal}>
-                            <div className="backup-row-left">
-                                <div className="backup-row-title">导入备份</div>
-                                <div className="backup-row-desc">从本地 zip 恢复，适合迁移或回档。</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0, flex: 1 }}>
+                                <div style={{ width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,122,255,0.10)', flex: '0 0 28px' }}>
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="#007aff" stroke-width="2" stroke-linecap="round"><path d="M4 4h12v12H4z"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>
+                                </div>
+                                <div>
+                                    <div className="backup-row-title">导入备份</div>
+                                    <div className="backup-row-desc">从文件 App 选择 zip 恢复</div>
+                                </div>
                             </div>
-                            <div className="backup-row-right">恢复 <span className="backup-row-arrow">›</span></div>
+                            <div className="backup-row-right"><span className="backup-row-arrow">›</span></div>
                         </div>
                     </div>
 
@@ -4009,46 +4211,61 @@ BlockSystem.register('link-card', {
                         <div className="backup-row" style={{ cursor: 'default' }}>
                             <div className="backup-row-left">
                                 <div className="backup-row-title">Google Drive 云备份</div>
-                                <div className="backup-row-desc">连接 Google 账号以实现云端备份与恢复。</div>
+                                <div className="backup-row-desc">开启后，笔记与附件将自动备份到云端。</div>
                             </div>
                             <div className={googleToken ? "backup-state connected" : "backup-state disconnected"}>{googleToken ? '已连接' : '未连接'}</div>
                         </div>
-                        <div className="backup-action-bar">
+                        <div style={{ padding: '10px 14px 14px', borderTop: '0.5px solid var(--border-color)' }}>
                             {!googleToken ? (
-                                <button className="backup-btn primary" onClick={handleGoogleAuth} disabled={isLoading} style={{ opacity: isLoading ? 0.5 : 1 }}>连接 Google 账号</button>
+                                <button className="backup-btn primary" onClick={handleGoogleAuth} disabled={isLoading} style={{ width: '100%', marginRight: 0, height: 44 }}>连接 Google 账号</button>
                             ) : (
-                                <button className="backup-btn secondary" onClick={handleGoogleLogout} disabled={isLoading} style={{ opacity: isLoading ? 0.5 : 1 }}>断开账号</button>
-                            )}
-                            {googleToken && (
                                 <>
-                                    <button className="backup-btn primary" onClick={handleCloudBackup} disabled={backupLoading || restoreLoading} style={{ opacity: backupLoading || restoreLoading ? 0.5 : 1 }}>{backupLoading ? '备份中...' : '上传到云端'}</button>
-                                    <button className="backup-btn secondary" onClick={() => setShowRestoreSheet(true)} disabled={backupLoading || restoreLoading} style={{ opacity: backupLoading || restoreLoading ? 0.5 : 1 }}>从云端恢复</button>
+                                    <button className="backup-btn primary" onClick={handleCloudBackup} disabled={backupLoading || restoreLoading} style={{ width: '100%', marginRight: 0, height: 44, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 3v12M7 12l3 3 3-3"/><path d="M4 16v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+                                        {backupLoading ? '备份中...' : '上传到云端'}
+                                    </button>
+                                    <div style={{ display: 'flex', gap: 8 }}>
+                                        <button className="backup-btn secondary" onClick={handleGoogleLogout} disabled={isLoading} style={{ flex: 1 }}>断开账号</button>
+                                        <button className="backup-btn secondary" onClick={() => setShowRestoreSheet(true)} disabled={backupLoading || restoreLoading} style={{ flex: 1 }}>从云端恢复</button>
+                                    </div>
                                 </>
                             )}
                         </div>
                     </div>
 
-                    <div className="backup-section-title" style={{ marginTop: 16 }}>关于</div>
-
-                    <div className="backup-card">
-                        <div className="backup-row">
-                            <div className="backup-row-left"><div className="backup-row-title">版本</div></div>
-                            <div className="backup-row-right">2.0.0</div>
-                        </div>
-                        <div className="backup-row no-border">
-                            <div className="backup-row-left"><div className="backup-row-title">联系我们</div></div>
-                            <div className="backup-row-right">yanmiao822@gmail.com <span className="backup-row-arrow">›</span></div>
-                        </div>
+                    {history.length > 0 && (
+                        <>
+                            <div className="backup-section-title" style={{ marginTop: 16 }}>最近操作</div>
+                            <div className="backup-card" style={{ padding: '2px 0' }}>
+                                {history.slice(0, 6).map(function(entry, i) {
+                                    var dotColor = entry.status === 'success' ? '#34c759' : (entry.status === 'fail' ? '#ff3b30' : '#007aff');
+                                    var typeLabel = entry.type === 'upload' ? '云端' : (entry.type === 'export' ? '导出' : (entry.type === 'restore' ? '恢复' : '连接'));
+                                    var ts = entry.timestamp ? entry.timestamp.slice(0, 16).replace('T', ' ') : '';
+                                    return React.createElement('div', { key: i, style: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderBottom: i < history.length - 1 && i < 5 ? '0.5px solid var(--border-color)' : 'none' } },
+                                        React.createElement('div', { style: { width: 8, height: 8, borderRadius: '50%', background: dotColor, flexShrink: 0 } }),
+                                        React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+                                            React.createElement('div', { style: { fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 } },
+                                                React.createElement('span', null, entry.message),
+                                                React.createElement('span', { style: { fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: '0.3px', background: 'rgba(127,127,127,0.08)', color: 'var(--text-secondary)' } }, typeLabel)
+                                            ),
+                                            React.createElement('div', { style: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, display: 'flex', alignItems: 'center', gap: 6 } },
+                                                React.createElement('span', null, ts),
+                                                entry.detail && React.createElement(React.Fragment, null, React.createElement('span', { style: { opacity: 0.3 } }, '·'), React.createElement('span', null, entry.detail))
+                                            )
+                                        )
+                                    );
+                                })}
+                            </div>
+                        </>
+                    )}
                     </div>
-
-                    <div style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 12, marginBottom: 4, opacity: 0.8 }}>此刻，值得被记住。</div>
                     {showExportConfirm && (
                         <>
                             <div onClick={() => setShowExportConfirm(false)} style={{ position: 'fixed', inset: 0, zIndex: 4000, background: 'transparent' }} />
                             <div style={{ position: 'fixed', left: 0, right: 0, bottom: 'calc(env(safe-area-inset-bottom) + 14px)', zIndex: 4001, display: 'flex', justifyContent: 'center', padding: '0 14px', pointerEvents: 'none' }}>
                                 <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 600, background: 'var(--btn-bg)', backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)', border: '0.5px solid var(--border-color)', borderRadius: 28, padding: '14px 14px calc(14px + env(safe-area-inset-bottom))', boxShadow: '0 -8px 24px rgba(0,0,0,0.10)', pointerEvents: 'auto' }}>
                                     <div style={{ textAlign: 'center', fontSize: 18, fontWeight: 700, marginBottom: 12, color: 'var(--text-main)' }}>确认导出备份</div>
-                                    <div style={{ fontSize: 13, lineHeight: 1.45, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 12 }}>将导出当前全部笔记、附件与头像为 zip 文件。</div>
+                                    <div style={{ fontSize: 13, lineHeight: 1.45, color: 'var(--text-secondary)', textAlign: 'center', marginBottom: 12 }}>打包全部笔记、附件与头像为 zip，将通过系统分享面板保存或发送。</div>
                                     <button className="backup-btn primary" onClick={() => { setShowExportConfirm(false); handleExportLocal(); }} style={{ width: '100%', marginRight: 0, height: 44, marginBottom: 10 }} disabled={backupLoading}>{backupLoading ? '导出中...' : '确认导出'}</button>
                                     <button className="backup-btn secondary" onClick={() => setShowExportConfirm(false)} style={{ width: '100%', marginRight: 0, height: 44 }}>取消</button>
                                 </div>
@@ -4088,19 +4305,110 @@ BlockSystem.register('link-card', {
                         </>
                     )}
                 </div>
-                {status && (() => {
-                    const toastType = statusMeta.type === 'idle' ? 'progress' : statusMeta.type;
-                    const toastText = status.replace(/^[✅❌]\s*/, '');
-                    return (
-                        <div className={`backup-toast ${toastType}`} key={statusMeta.key || status}>
-                            <span className="backup-toast-text">{toastText}</span>
-                            <span className="backup-toast-spinner" />
-                        </div>
-                    );
-                })()}
             </div>
         );
     };
+    /* ---------- SettingsView ---------- */
+    function SettingsView({ onClose, onOpenBackup }) {
+        const [fontSize, setFontSize] = useState(() => localStorage.getItem('sj_fontsize') || 'medium');
+
+        const applyFontSize = (size) => {
+            const map = { small: '14px', medium: '16px', large: '19px' };
+            document.documentElement.style.fontSize = map[size] || '16px';
+            localStorage.setItem('sj_fontsize', size);
+            setFontSize(size);
+        };
+
+        const sizeOptions = [
+            { key: 'small', label: '小', fs: '0.8125rem' },
+            { key: 'medium', label: '中', fs: '0.9375rem' },
+            { key: 'large', label: '大', fs: '1.0625rem' },
+        ];
+
+        return (
+            <div style={{ background: 'var(--primary-bg)', minHeight: '100vh' }}>
+                {/* 返回按钮 — position:fixed 由 .editor-fab.left CSS 保证 */}
+                <button className="editor-fab left" onClick={onClose}>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+
+                {/* compact 小标题 — 固定显示 */}
+                <div className="page-title compact" style={{ visibility: 'visible', opacity: 1, pointerEvents: 'none' }}>设置</div>
+
+                {/* 带滑入动画的内容区 */}
+                <div style={{ animation: 'slideInFromRight 0.32s cubic-bezier(0.25,0.46,0.45,0.94) both' }}>
+                <div style={{ padding: '126px 20px calc(40px + env(safe-area-inset-bottom))' }}>
+
+                    {/* 外观 */}
+                    <div className="section-header" style={{ paddingTop: 4 }}>外观</div>
+                    <div className="list-group">
+                        <div className="list-item" style={{ cursor: 'default' }}>
+                            <div className="item-left">
+                                <div className="item-title"><span className="item-title-text">文字大小</span></div>
+                                <div className="item-meta">跟随浏览器缩放</div>
+                            </div>
+                            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                                {sizeOptions.map(({ key, label, fs }) => (
+                                    <button key={key} onClick={() => applyFontSize(key)} style={{
+                                        height: 32, minWidth: 40, padding: '0 12px',
+                                        borderRadius: 16,
+                                        border: fontSize === key ? '0.5px solid rgba(0,122,255,0.35)' : '0.5px solid var(--border-color)',
+                                        background: fontSize === key ? 'rgba(0,122,255,0.1)' : 'var(--btn-bg)',
+                                        color: fontSize === key ? '#007aff' : 'var(--text-main)',
+                                        fontSize: fs,
+                                        fontWeight: fontSize === key ? 700 : 500,
+                                        fontFamily: 'inherit',
+                                        cursor: 'pointer',
+                                        backdropFilter: 'blur(8px)',
+                                        WebkitBackdropFilter: 'blur(8px)',
+                                        transition: 'all 0.18s ease',
+                                        lineHeight: 1,
+                                    }}>
+                                        {label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style={{ height: 12 }} />
+
+                    {/* 数据 */}
+                    <div className="section-header" style={{ paddingTop: 4 }}>数据</div>
+                    <div className="list-group">
+                        <div className="list-item" onClick={onOpenBackup}>
+                            <div className="item-left">
+                                <div className="item-title"><span className="item-title-text">备份与恢复</span></div>
+                                <div className="item-meta">Google Drive 云端同步</div>
+                            </div>
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '1.125rem', opacity: 0.45, lineHeight: 1 }}>›</span>
+                        </div>
+                    </div>
+
+                    <div style={{ height: 12 }} />
+
+                    <div className="section-header" style={{ paddingTop: 4 }}>关于</div>
+                    <div className="list-group">
+                        <div className="list-item">
+                            <div className="item-left"><div className="item-title">版本</div></div>
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>2.0.0</span>
+                        </div>
+                        <div className="list-item">
+                            <div className="item-left"><div className="item-title">联系我们</div></div>
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>yanmiao822@gmail.com</span>
+                        </div>
+                    </div>
+
+                    <div style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--text-secondary)', textAlign: 'center', marginTop: 12, marginBottom: 4, opacity: 0.8 }}>此刻，值得被记住。</div>
+
+                </div>
+                </div>
+            </div>
+        );
+    }
+
     /* ---------- MemoList ---------- */
     function MemoList() {
         const [memos, setMemos] = useState(() => {
@@ -4121,7 +4429,7 @@ BlockSystem.register('link-card', {
         const [newEditorAutoFocusId, setNewEditorAutoFocusId] = useState(null);
         const editingMemo = editingMemoId ? memos.find(m => m.id === editingMemoId) || null : null;
         const scrollRestoreRef = useRef(0);
-        const [backupView, setBackupView] = useState(false);
+        const [view, setView] = useState('list'); // 'list' | 'settings' | 'backup'
 
         const [scrollY, setScrollY] = useState(0);
         const TITLE_THRESHOLD = 30;
@@ -4243,8 +4551,11 @@ BlockSystem.register('link-card', {
 
         const isEditorOpen = !!editingMemo;
 
-        if (backupView) {
-            return <BackupView onClose={() => setBackupView(false)} />;
+        if (view === 'backup') {
+            return <BackupView onClose={() => setView('settings')} />;
+        }
+        if (view === 'settings') {
+            return <SettingsView onClose={() => setView('list')} onOpenBackup={() => setView('backup')} />;
         }
 
         return (
@@ -4252,8 +4563,8 @@ BlockSystem.register('link-card', {
                 {!isEditorOpen && (
                     <div>
                         <header className="main-header"><div className="header-actions"></div></header>
-                        <div className="page-title compact" style={{ visibility: isCompact ? 'visible' : 'hidden', opacity: isCompact ? 1 : 0, pointerEvents: 'auto', cursor: 'pointer', width: 'fit-content', margin: '0 auto' }} onClick={() => setBackupView(true)}>此刻</div>
-                        <h1 className="page-title" style={{ transform: `scale(${titleScale}) translateY(${titleTranslateY}px)`, opacity: isCompact ? 0 : titleOpacity, visibility: isCompact ? 'hidden' : 'visible', transformOrigin: 'left center', pointerEvents: 'auto', cursor: 'pointer', display: 'inline-block', width: 'fit-content' }} onClick={() => setBackupView(true)}>此刻</h1>
+                        <div className="page-title compact" style={{ visibility: isCompact ? 'visible' : 'hidden', opacity: isCompact ? 1 : 0, pointerEvents: 'auto', cursor: 'pointer', width: 'fit-content', margin: '0 auto' }} onClick={() => setView('settings')}>此刻</div>
+                        <h1 className="page-title" style={{ transform: `scale(${titleScale}) translateY(${titleTranslateY}px)`, opacity: isCompact ? 0 : titleOpacity, visibility: isCompact ? 'hidden' : 'visible', transformOrigin: 'left center', pointerEvents: 'auto', cursor: 'pointer', display: 'inline-block', width: 'fit-content' }} onClick={() => setView('settings')}>此刻</h1>
                         <div className="container">
                             <div className="list-group">
                                 <SwipeRow memo={{ id: NEW_CARD_ID, title: "新建笔记", doc: newCardDoc, pinned: true, createdAt: "", updatedAt: "", isVirtual: true }} onOpen={() => handleNew()} onPin={() => { }} onDelete={() => { }} />
