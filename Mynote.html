@@ -1402,15 +1402,18 @@
             for (const n of memo.doc) {
                 if (n.type === "paragraph" && n.children && n.children[0]) {
                     const t = (n.children[0].text || "").trim();
-                    if (t) paras.push(t);
+                    if (t) {
+                        paras.push(t);
+                        /* 逐段检测 #标签 */
+                        var mt = t.match(/#[\u4e00-\u9fa5\w-]+/g);
+                        if (mt) { for (var ti = 0; ti < mt.length; ti++) { if (tags.indexOf(mt[ti]) === -1) tags.push(mt[ti]); } }
+                    }
                 }
                 if (n.type === "attachment") attachCount++;
             }
             if (paras.length > 0) {
                 const raw = paras.join(' ');
-                // 提取 #标签
-                const tagMatches = raw.match(/#[\u4e00-\u9fa5\w-]+/g);
-                if (tagMatches) tags = tagMatches.slice(0, 3);
+                tags = tags.slice(0, 3);
                 preview = stripMarkdownForPreview(raw).replace(/#[\u4e00-\u9fa5\w-]+/g, '').trim().slice(0, 80) || "无更多文本";
             }
         }
@@ -1520,8 +1523,19 @@
         }, [memo.id, memo.doc, isNewCard]);
 
         let preview = "无更多文本";
+        let tags = [];
         if (memo.doc) {
-            const paras = memo.doc.filter(n => n.type === "paragraph" && n.children[0] && n.children[0].text).map(n => n.children[0].text);
+            const paras = [];
+            for (const n of memo.doc) {
+                if (n.type === "paragraph" && n.children && n.children[0] && n.children[0].text) {
+                    const t = n.children[0].text.trim();
+                    if (t) {
+                        paras.push(t);
+                        var mt = t.match(/#[\u4e00-\u9fa5\w-]+/g);
+                        if (mt) { for (var ti = 0; ti < mt.length; ti++) { if (tags.indexOf(mt[ti]) === -1) tags.push(mt[ti]); } }
+                    }
+                }
+            }
             if (paras.length > 0) preview = stripMarkdownForPreview(paras.join(' ')).slice(0, 60) || "无更多文本";
         }
 
@@ -1790,10 +1804,24 @@ function parseEditorDOM(containerEl) {
     var children = containerEl.children;
     for (var i = 0; i < children.length; i++) {
         var el = children[i];
-        if (el.nodeType !== 1) continue;
+        if (el.nodeType !== 1) {
+            /* 捕获裸文本节点（附件后打字被浏览器放在 textNode 中） */
+            var txt = (el.textContent || '').trim();
+            if (txt) {
+                var tid = genId();
+                doc.push({ id: tid, type: 'paragraph', children: [{ text: txt }] });
+            }
+            continue;
+        }
         if (el.contentEditable === 'false') {
             var orig = prevMap[el.dataset.blockid];
             if (orig) { doc.push(orig); continue; }
+            /* 不在 prevMap 中的 contentEditable=false 块（例如 auto-render 后的段落），
+               从 DOM textContent 捞取文字兜底 */
+            var fallbackText = (el.textContent || '').trim();
+            if (fallbackText) {
+                doc.push({ id: el.dataset.blockid || genId(), type: 'paragraph', children: [{ text: fallbackText }] });
+            }
             continue;
         }
         var id = el.dataset.blockid || genId();
@@ -2597,6 +2625,12 @@ BlockSystem.register('link-card', {
             clearTimeout(saveTimer.current);
             const pending = Object.values(pendingAttachmentsRef.current);
             if (pending.length > 0) await Promise.allSettled(pending);
+            /* 关闭前重新从 DOM 解析，确保 auto-render 后的文本也被捕获 */
+            var el2 = editorBodyRef.current;
+            if (el2) {
+                setEditorDocRef(docRef.current);
+                docRef.current = parseEditorDOM(el2);
+            }
             doSave(docRef.current);
             setClosing(true);
             setTimeout(() => { onClose(); }, 280);
@@ -2799,6 +2833,15 @@ BlockSystem.register('link-card', {
             temp.innerHTML = html;
             var atomicEl = temp.firstChild;
             insertBeforeEl.before(atomicEl);
+            /* ---- 确保原子块后始终有空段落 ---- */
+            var nextSib = atomicEl.nextElementSibling;
+            if (!nextSib || nextSib.contentEditable === 'false') {
+                var trailP = document.createElement('p');
+                trailP.dataset.blockid = genId();
+                trailP.innerHTML = '<br>';
+                atomicEl.after(trailP);
+                insertBeforeEl = trailP;
+            }
             var newRange = document.createRange();
             newRange.setStart(insertBeforeEl, 0);
             newRange.collapse(true);
@@ -3000,15 +3043,27 @@ BlockSystem.register('link-card', {
                 var text = blockEl.textContent || '';
                 if (sel.focusOffset === 0 && text === '') {
                     e.preventDefault();
+                    var prevEl = blockEl.previousElementSibling;
                     blockEl.remove();
-                    var targetEl = blockEl.previousElementSibling;
-                    if (targetEl) {
+                    /* 如果前一个兄弟是 contentEditable=false（附件/链接卡片），也一并删除 */
+                    if (prevEl && prevEl.contentEditable === 'false') {
+                        prevEl.remove();
+                        var prevPrev = prevEl.previousElementSibling;
+                        if (prevPrev) {
+                            var range = document.createRange();
+                            range.selectNodeContents(prevPrev);
+                            range.collapse(false);
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                            if (prevPrev.contentEditable !== 'false') prevPrev.focus();
+                        }
+                    } else if (prevEl) {
                         var range = document.createRange();
-                        range.selectNodeContents(targetEl);
+                        range.selectNodeContents(prevEl);
                         range.collapse(false);
                         sel.removeAllRanges();
                         sel.addRange(range);
-                        if (targetEl.contentEditable !== 'false') targetEl.focus();
+                        if (prevEl.contentEditable !== 'false') prevEl.focus();
                     }
                     setEditorDocRef(docRef.current);
                     docRef.current = parseEditorDOM(editorBodyRef.current);
