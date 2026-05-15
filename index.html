@@ -134,7 +134,7 @@
         </svg>
 
         <div class="countdown-text" id="countdown">6 秒后自动进入</div>
-        <button class="enter-btn" onclick="window.location.replace('Mynote.html')">立即进入</button>
+        <button class="enter-btn" onclick="window.location.replace('Moments.html')">立即进入</button>
     </div>
 
     <script>
@@ -144,7 +144,7 @@
             seconds--;
             if (seconds <= 0) {
                 clearInterval(timer);
-                window.location.replace('Mynote.html');
+                window.location.replace('Moments.html');
             } else {
                 el.textContent = seconds + ' 秒后自动进入';
             }
