@@ -207,9 +207,10 @@
         min-width: 0; width: 100%;
     }
     .item-title-text {
-        flex: 1; min-width: 0;
+        flex: 0 0 auto; min-width: 0;
         white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         display: block;
+        max-width: 60%;
     }
     .item-title.new-card-title {
         color: var(--text-secondary);
@@ -252,7 +253,56 @@
     }
     .markdown-render > *:first-child { margin-top: 0; }
     .markdown-render > *:last-child { margin-bottom: 0; }
-    .markdown-render h1,
+    /* ===== Table — 大圆角卡片 ===== */
+    .markdown-render table { width: auto; min-width: 160px; border-collapse: separate; border-spacing: 0; margin: 0.8em auto; font-size: 14px; border-radius: 20px; overflow: hidden; background: var(--card-bg); border: 0.5px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .markdown-render thead tr th:first-child { border-top-left-radius: 20px; }
+    .markdown-render thead tr th:last-child { border-top-right-radius: 20px; }
+    .markdown-render tbody tr:last-child td:first-child { border-bottom-left-radius: 20px; }
+    .markdown-render tbody tr:last-child td:last-child { border-bottom-right-radius: 20px; }
+    .markdown-render th { text-align: left; font-weight: 600; padding: 10px 14px; font-size: 12px; color: var(--text-secondary); border-bottom: 0.5px solid var(--border-color); background: transparent; vertical-align: middle; }
+    .markdown-render td { padding: 11px 14px; border-bottom: 0.5px solid var(--border-color); vertical-align: middle; }
+    .markdown-render tbody tr:last-child td { border-bottom: none; }
+    .markdown-render tbody tr:active { background: rgba(0,122,255,0.04); }
+    /* ===== Task list — iOS 圆圈勾选框 ===== */
+    .markdown-render ul.task-list { list-style: none; padding-left: 0; }
+    .markdown-render ul:not(.task-list) { padding-left: 1em; margin: 0.4em 0; }
+    .markdown-render ol { padding-left: 1.2em; margin: 0.4em 0; }
+    .markdown-render li { padding: 2px 0; }
+    .editor-body ul:not(.task-list) { padding-left: 1em; margin: 0.4em 0; }
+    .editor-body ol { padding-left: 1.2em; margin: 0.4em 0; }
+    .editor-body li { padding: 2px 0; }
+    .markdown-render .task-list-item { display: flex; align-items: center; gap: 10px; padding: 3px 0; }
+    .markdown-render .task-list-item input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; border: 1.8px solid rgba(142,142,147,0.6); flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+    .markdown-render .task-list-item input[type="checkbox"]:checked { background: #007aff; border-color: #007aff; }
+    .markdown-render .task-list-item input[type="checkbox"]:checked::after { content: ''; position: absolute; left: 6px; top: 3px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+    .markdown-render li.task-list-item-checked { color: var(--text-secondary); text-decoration: line-through; }
+    .markdown-render li.task-list-item-checked input[type="checkbox"] { text-decoration: none; }
+    /* ===== Callout 提示块 ===== */
+    .markdown-render .callout { border-radius: 999px; padding: 12px 18px; margin: 0.6em 0; font-size: 14px; line-height: 1.6; overflow: hidden; }
+    .markdown-render .callout-note { background: rgba(0,122,255,0.08); }
+    .markdown-render .callout-warning { background: rgba(255,149,0,0.1); }
+    .markdown-render .callout-tip { background: rgba(52,199,89,0.1); }
+    .markdown-render .callout-important { background: rgba(175,82,222,0.09); }
+    .markdown-render .callout-caution { background: rgba(255,69,58,0.09); }
+    .markdown-render .callout-header { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+    .markdown-render .callout-icon { flex-shrink: 0; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+    .markdown-render .callout-title { font-size: 15px; font-weight: 700; color: var(--text-main); letter-spacing: -0.1px; }
+    .markdown-render .callout-body { font-size: 14px; color: var(--text-main); opacity: 0.85; line-height: 1.65; }
+    .markdown-render .callout code { background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+    .markdown-render pre { background: var(--card-bg); border: 0.5px solid var(--border-color); border-radius: 999px; padding: 14px 18px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin: 0.6em 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .markdown-render pre code { background: none; padding: 0; font-size: inherit; border-radius: 0; }
+    .editor-body .img-text-card { border-radius: 22px; overflow: hidden; margin: 8px 0; background: var(--card-bg,#fff); border: 0.5px solid var(--border-color,rgba(0,0,0,0.06)); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .editor-body .img-text-card .itc-img-wrap { width: 100%; line-height: 0; max-height: 468px; overflow: hidden; }
+    .editor-body .img-text-card .itc-img-wrap img { width: 100%; height: auto; display: block; }
+    .editor-body .img-text-card .itc-text { padding: 12px 14px; font-size: 14px; line-height: 1.7; color: var(--text-main,#1a1a1a); min-height: 44px; outline: none; max-width: 100%; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
+    .editor-body .img-text-card .itc-text:empty::before { content: '点击输入文字'; color: #c7c7cc; }
+    .editor-body .img-text-row { display: flex; gap: 10px; border-radius: 22px; overflow: hidden; margin: 8px 0; background: var(--card-bg,#fff); border: 0.5px solid var(--border-color,rgba(0,0,0,0.06)); min-height: 181px; max-height: 196px; }
+    .editor-body .img-text-row .itr-img { flex: 0 0 50%; min-width: 0; background: rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: center; }
+    .editor-body .img-text-row .itr-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .editor-body .img-text-row .itr-placeholder { font-size: 24px; opacity: 0.3; }
+    .editor-body .img-text-row .itr-text { flex: 1; padding: 10px 14px; font-size: 14px; line-height: 1.7; color: var(--text-main,#1a1a1a); min-height: 44px; outline: none; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
+    .editor-body .img-text-row .itr-text:empty::before { content: '点击输入说明文字'; color: #c7c7cc; }
+   
     .markdown-render h2,
     .markdown-render h3,
     .markdown-render h4 {
@@ -271,26 +321,30 @@
     .markdown-render ol { margin: 0.25em 0 0.5em 1.1em; padding: 0; }
     .markdown-render li { margin: 0.12em 0; }
     .markdown-render blockquote {
-        margin: 0.5em 0;
-        padding: 0.15em 0 0.15em 0.8em;
-        border-left: 2.5px solid rgba(0,122,255,0.4);
+        margin: 0.6em 0;
+        padding: 10px 18px;
+        border-left: 3px solid rgba(0,122,255,0.35);
+        background: var(--card-bg);
+        border-radius: 999px;
+        border-top: 0.5px solid var(--border-color);
+        border-right: 0.5px solid var(--border-color);
+        border-bottom: 0.5px solid var(--border-color);
         color: var(--text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
+    .markdown-render blockquote p { margin: 0; }
+    .markdown-render blockquote + blockquote { margin-top: -0.3em; }
     .markdown-render code {
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-size: 0.9em;
-        background: rgba(127,127,127,0.1);
-        padding: 0.1em 0.32em;
-        border-radius: 5px;
+        font-size: 0.85em;
+        background: rgba(127,127,127,0.08);
+        padding: 0.15em 0.6em;
+        border-radius: 999px;
         word-break: break-word;
     }
-    .markdown-render pre {
-        margin: 0.6em 0;
-        padding: 10px 12px;
-        border-radius: 10px;
-        background: rgba(127,127,127,0.08);
-        overflow-x: auto;
-    }
+    .editor-body code { font-family: inherit; font-size: 0.85em; background: rgba(127,127,127,0.08); padding: 0.15em 0.6em; border-radius: 999px; word-break: break-word; }
     .markdown-render pre code {
         background: transparent;
         padding: 0;
@@ -306,28 +360,12 @@
     }
     .markdown-render hr {
         border: none;
-        border-top: 1px solid var(--border-color);
-        margin: 0.8em 0;
+        height: 1px;
+        background: linear-gradient(to right, transparent, var(--border-color), transparent);
+        margin: 1em auto;
+        width: 60%;
     }
-    .markdown-render table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 0.6em 0;
-        font-size: 0.875rem;
-        overflow: hidden;
-        border-radius: 8px;
-    }
-    .markdown-render th,
-    .markdown-render td {
-        border: 1px solid var(--border-color);
-        padding: 6px 8px;
-        text-align: left;
-        vertical-align: top;
-    }
-    .markdown-render th {
-        background: rgba(127,127,127,0.06);
-        font-weight: 700;
-    }
+    /* table styles consolidated above */
     .markdown-render img {
         max-width: 100%;
         height: auto;
@@ -335,8 +373,7 @@
         margin: 0.4em 0;
         display: block;
     }
-    .markdown-render ul.contains-task-list { list-style: none; margin-left: 0; }
-    .markdown-render .task-list-item input[type="checkbox"] { margin: 0 6px 0 -4px; transform: scale(1.1); }
+    /* task-list styles consolidated above */
     .empty-tip { text-align: center; padding: 40px 0; color: var(--text-secondary); font-size: 0.9375rem; }
     .section-header {
         padding: 24px 4px 6px;
@@ -754,13 +791,13 @@
     /* ===== Single contentEditable editor styles ===== */
     [contenteditable]:focus { outline: none; }
     .editor-body { min-height: 200px; line-height: 1.75; font-size: 1rem; padding: 4px 0; word-break: break-word; position: relative; }
-    .editor-body.show-placeholder::before { content: '输入文字，/ 使用命令'; position: absolute; top: 6px; left: 0; color: var(--text-secondary); opacity: 0.35; pointer-events: none; font-size: 1rem; user-select: none; }
+    .editor-body.show-placeholder::before { content: '点击此处开始输入文字，或输入/使用快捷功能命令面板'; position: absolute; top: 6px; left: 0; color: var(--text-secondary); opacity: 0.35; pointer-events: none; font-size: 1rem; user-select: none; }
     .editor-body p, .editor-body h1, .editor-body h2, .editor-body h3, .editor-body h4, .editor-body blockquote { margin: 0.2em 0; }
     .editor-body h1 { font-size: 1.45em; font-weight: 800; letter-spacing: -0.02em; }
     .editor-body h2 { font-size: 1.25em; font-weight: 800; letter-spacing: -0.02em; }
     .editor-body h3 { font-size: 1.1em; font-weight: 800; }
     .editor-body h4 { font-size: 1em; font-weight: 800; }
-    .editor-body blockquote { padding-left: 0.8em; border-left: 2.5px solid rgba(0,122,255,0.4); color: var(--text-secondary); }
+    .editor-body blockquote { margin: 0.6em 0; padding: 10px 14px 10px 16px; border-left: 3px solid rgba(0,122,255,0.35); background: var(--card-bg); border-radius: 999px; border-top: 0.5px solid var(--border-color); border-right: 0.5px solid var(--border-color); border-bottom: 0.5px solid var(--border-color); color: var(--text-secondary); font-size: 14px; line-height: 1.6; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     .editor-body hr { border: none; border-top: 1px solid var(--border-color); margin: 0.6em 0; opacity: 0.5; }
     .editor-body .todo-block { display: flex; align-items: center; gap: 6px; margin: 0.2em 0; }
     .editor-body .todo-block input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; flex-shrink: 0; }
@@ -787,10 +824,12 @@
     @keyframes toastSpin { to { transform: rotate(360deg); } }
     .editor-body .lkc-skeleton-cover { width: 100%; aspect-ratio: 2.4/1; background: linear-gradient(90deg, var(--card-bg) 25%, var(--border-color) 50%, var(--card-bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
     .editor-body .lkc-skeleton-line { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--card-bg) 25%, var(--border-color) 50%, var(--card-bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 6px; }
-    .editor-body .md-preview { margin: 0.2em 0; cursor: pointer; border-radius: 6px; padding: 2px 4px; transition: background 0.15s; user-select: none; -webkit-user-select: none; }
+    .editor-body .md-preview { margin: 0.2em 0; cursor: pointer; border-radius: 999px; padding: 2px 12px; transition: background 0.15s; user-select: none; -webkit-user-select: none; display: inline-block; }
     .editor-body .md-preview:hover { background: rgba(0,122,255,0.05); }
+    .editor-body .md-preview.block { display: block; width: 100%; max-width: 100%; border-radius: 0; padding: 0; background: transparent; border: none; overflow: visible; margin: 4px 0; min-width: 0; box-shadow: none; }
+    .editor-body .md-preview.block:hover { background: transparent; }
+    .editor-body .md-preview.block > *:last-child { margin-bottom: 0; }
     .editor-body .md-preview > *:first-child { margin-top: 0; }
-    .editor-body .md-preview > *:last-child { margin-bottom: 0; }
     .slash-row { transition: transform 0.08s ease, background 0.08s ease !important; }
     .slash-row:active { transform: scale(0.97) !important; background: rgba(127,127,127,0.06) !important; border-radius: 999px !important; }
 
@@ -802,21 +841,57 @@
     function preprocessExtendedMarkdown(text) {
         if (!text || typeof text !== 'string') return text;
         return text
-            .replace(/==([^=]+)==/g, '<mark style="background:rgba(255,204,0,0.25);color:var(--text-main);padding:0 4px;border-radius:3px;">$1</mark>')
-            .replace(/!!([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(90,200,250,0.15);color:#007aff;padding:1px 6px;border-radius:4px;font-weight:600;">💡 $1</span></span>')
-            .replace(/\?\?([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(255,149,0,0.12);color:#e88b00;padding:1px 6px;border-radius:4px;font-weight:600;">❓ $1</span></span>')
-            .replace(/@@([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(52,199,89,0.12);color:#34c759;padding:1px 6px;border-radius:4px;font-weight:600;">👤 $1</span></span>')
-            .replace(/(^|\s)#([\u4e00-\u9fa5\w-]+)/g, '$1<span style="color:#007aff;font-weight:500;">#$2</span>');
+            .replace(/~~([^~]+)~~/g, '<del style="background:rgba(127,127,127,0.06);padding:0 2px;">$1</del>')
+            .replace(/==([^=]+)==/g, '<span style="display:inline-flex;align-items:center;background:rgba(255,204,0,0.25);color:var(--text-main);padding:0 10px;border-radius:999px;line-height:1.8;font-weight:500;">$1</span>')
+            .replace(/!!([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(90,200,250,0.15);color:#007aff;padding:0 10px;border-radius:999px;font-weight:600;line-height:1.8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> $1</span></span>')
+            .replace(/\?\?([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(255,149,0,0.12);color:#e88b00;padding:0 10px;border-radius:999px;font-weight:600;line-height:1.8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> $1</span></span>')
+            .replace(/@@([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(52,199,89,0.12);color:#34c759;padding:0 10px;border-radius:999px;font-weight:600;line-height:1.8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> $1</span></span>')
+            .replace(/(^|\s)#([\u4e00-\u9fa5\w-]+)/g, '$1<span style="display:inline-flex;align-items:center;color:#007aff;background:rgba(0,122,255,0.08);padding:0 8px;border-radius:999px;font-size:0.85em;font-weight:500;line-height:1.8;">#$2</span>')
+            /* ---- callout > [!NOTE] / [!WARNING] / [!TIP] ---- */
+            .replace(/^>\s*\[!(\w+)\]\s*([\s\S]*?)(?=\n>\s*\[|\n*$(?!\n))/gm, function(m, type, body) {
+                var t = type.toLowerCase();
+                var cls = 'callout callout-' + t;
+                var icons = { 
+                    note:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>', 
+                    warning:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff9500" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', 
+                    tip:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', 
+                    important:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#af52de" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>', 
+                    caution:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff453a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>', 
+                };
+                var titles = { note:'笔记', warning:'注意', tip:'提示', important:'重要', caution:'小心' };
+                var icon = icons[t] || 'ℹ️';
+                var title = titles[t] || type;
+                var bodyText = body.replace(/^>\s*/gm, '').trim();
+                return '<div class="' + cls + '"><div class="callout-header"><span class="callout-icon">' + icon + '</span><span class="callout-title">' + title + '</span></div><div class="callout-body">' + bodyText + '</div></div>';
+            })
+            /* ---- emoji shortcodes ---- */
+            .replace(/:([a-z_+-]+):/g, function(m, name) {
+                var map = { smile:'😊', heart:'❤️', rocket:'🚀', fire:'🔥', check:'✅', x:'❌', warning:'⚠️', info:'ℹ️', question:'❓', thumbsup:'👍', thumbsdown:'👎', ok:'👌', wave:'👋', clap:'👏', pray:'🙏', star:'⭐', sparkles:'✨', bookmark:'🔖', link:'🔗', gear:'⚙️', lock:'🔒', unlock:'🔓', mail:'📧', phone:'📞', calendar:'📅', clock:'🕐', memo:'📝', pushpin:'📌', paperclip:'📎', file:'📄', folder:'📁', image:'🖼️', music:'🎵', video:'🎬', bulb:'💡', book:'📖', chart:'📊', code:'💻', database:'🗄️', globe:'🌐', bug:'🐛', flask:'🧪', robot:'🤖', party:'🎉', gift:'🎁', trophy:'🏆', medal:'🥇', zap:'⚡', rain:'🌧️', sun:'☀️', moon:'🌙', cloud:'☁️', snow:'❄️' };
+                return map[name] || m;
+            })
+            /* ---- 居中文字 ->text<- ---- */
+            .replace(/->(.+?)<-/g, '<div style="text-align:center;margin:0.6em 0;">$1</div>')
+            /* ---- 彩色标签 $color:文字$ / $文字$ ---- */
+            .replace(/\$(\w+):([^$]+)\$/g, function(m, color, text) {
+                var colors = { red:'#ff453a', blue:'#007aff', green:'#34c759', orange:'#ff9500', purple:'#af52de', gray:'#8e8e93' };
+                var c = colors[color.toLowerCase()] || '#007aff';
+                return '<span style="display:inline-flex;align-items:center;gap:3px;background:' + c + '18;color:' + c + ';padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.8;">' + text.trim() + '</span>';
+            })
+            .replace(/\$([^$]{1,30})\$/g, '<span style="display:inline-flex;align-items:center;gap:3px;background:rgba(0,122,255,0.1);color:#007aff;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.8;">$1</span>')
+            /* ---- 装饰分割线 ---emoji--- ---- */
+            .replace(/^---(.+?)---$/gm, function(m, icon) {
+                return '<hr style="border:none;margin:1.2em 0;"><div style="text-align:center;margin:-1.4em 0 1.2em;font-size:12px;color:#c7c7cc;letter-spacing:4px;position:relative;z-index:1;background:var(--card-bg,#fff);width:fit-content;padding:0 12px;margin-left:auto;margin-right:auto;">' + icon + '</div>';
+            });
     }
     function looksLikeMarkdown(text) {
         var s = String(text || '').trim();
         if (!s) return false;
-        return /(^|\n)#{1,6}\s|(^|\n)[-*+]\s|(^|\n)\d+\.\s|(^|\n)>\s|`{1,3}|\*\*[^*]+\*\*|__[^_]+__|!\[[^\]]*\]\([^\)]+\)|\[[^\]]+\]\([^\)]+\)|(^|\n)---+(\n|$)/m.test(s);
+        return /(^|\n)#{1,6}\s|(^|\n)[-*+]\s|(^|\n)\d+\.\s|(^|\n)>\s|`{1,3}|\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|!\[[^\]]*\]\([^\)]+\)|\[[^\]]+\]\([^\)]+\)|(^|\n)---+(\n|$)|==[^=]+==|!!|\?\?|@@|->.*<-|\$[^$]+\$|^\|.+\|$/m.test(s);
     }
     function looksLikeCiaoMarkdown(text) {
         if (!text || !text.trim()) return false;
         if (looksLikeMarkdown(text)) return true;
-        return /==[^=]+==|!![^\n]+|\?\?[^\n]+|@@[^\n]+/.test(text);
+        return /==[^=]+==|!![^\n]+|\?\?[^\n]+|@@[^\n]+|~~[^~]+~~|#[\u4e00-\u9fa5\w-]+/.test(text);
     }
     function stripMarkdownForPreview(text) {
         return String(text || '')
@@ -847,7 +922,7 @@
             if (!raw.trim()) return '';
             var processed = preprocessExtendedMarkdown(raw);
             var html = window.marked ? marked.parse(processed) : processed.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-            return window.DOMPurify ? DOMPurify.sanitize(html) : html;
+            return window.DOMPurify ? DOMPurify.sanitize(html, { ADD_TAGS: ['input'], ADD_ATTR: ['checked', 'type'] }) : html;
         } catch(e) {
             console.warn('[此刻] renderMarkdownHtml error', e);
             var safe = String(text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
@@ -1086,7 +1161,7 @@
     /* ---------- IndexedDB ---------- */
     function openDB() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open('MemosDB', 5);
+            const request = indexedDB.open('MemosDB', 6);
             request.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 if (e.oldVersion < 3) {
@@ -1104,6 +1179,9 @@
                 }
                 if (!db.objectStoreNames.contains('drafts')) {
                     db.createObjectStore('drafts', { keyPath: 'id' });
+                }
+                if (!db.objectStoreNames.contains('renderCaches') && e.oldVersion < 6) {
+                    db.createObjectStore('renderCaches', { keyPath: 'memoId' });
                 }
             };
             request.onsuccess = (e) => resolve(e.target.result);
@@ -1223,6 +1301,26 @@
             tx.objectStore('avatars').put({ id: memoId, dataUrl });
             tx.oncomplete = () => resolve();
             tx.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    /* ---------- renderCache 读写 ---------- */
+    async function saveRenderCacheToDB(db, memoId, cache) {
+        if (!db || !memoId) return;
+        const tx = db.transaction('renderCaches', 'readwrite');
+        tx.objectStore('renderCaches').put({ memoId: memoId, cache: cache, updatedAt: Date.now() });
+        return new Promise((resolve, reject) => {
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+        });
+    }
+    async function loadRenderCacheFromDB(db, memoId) {
+        if (!db || !memoId) return null;
+        return new Promise((resolve) => {
+            const tx = db.transaction('renderCaches', 'readonly');
+            const req = tx.objectStore('renderCaches').get(memoId);
+            req.onsuccess = () => resolve(req.result ? req.result.cache : null);
+            req.onerror = () => resolve(null);
         });
     }
     async function loadAvatarFromDB(db, memoId) {
@@ -1477,21 +1575,20 @@
                 )}
                 <div ref={rowRef} className="list-item" style={cardTint ? { background: `linear-gradient(0deg, ${cardTint}, ${cardTint}), var(--card-bg)` } : undefined} onPointerDown={() => { if (isNewCard) onOpen(memo); }} onClick={() => { if (isNewCard) return; gesture.current.opened ? snapClose() : onOpen(memo); }}>
                     <div className="item-left">
-                        <div className={`item-title${isNewCard ? ' new-card-title' : ''}`}>
+                        <div className={`item-title${isNewCard ? ' new-card-title' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
                             {!isNewCard && memo.pinned && <span className="pin-dot" />}
                             <span className="item-title-text">{isNewCard ? "新建笔记" : (memo.title || "无标题")}</span>
+                            {!isNewCard && tags.length > 0 && (
+                                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', overflow: 'hidden', justifyContent: 'flex-end', flex: 1, minWidth: 0 }}>
+                                    {tags.map(t => <span key={t} style={{ fontSize: 10, color: '#007aff', background: 'rgba(0,122,255,0.08)', padding: '0 5px', borderRadius: 999, lineHeight: '18px', whiteSpace: 'nowrap' }}>{t}</span>)}
+                                </div>
+                            )}
                         </div>
                         <div className="item-meta" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>{isNewCard ? "现在" : timeAgo(memo.updatedAt)}&nbsp;&nbsp;{isNewCard ? "点击记录你的瞬间" : preview}</span>
                             {expandText && <span className="expand-btn" onClick={e => { e.stopPropagation(); onExpand && onExpand(); }} style={{ flexShrink: 0 }}>{expandText}</span>}
                         </div>
-                        {!isNewCard && tags.length > 0 && (
-                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 2 }}>
-                                {tags.map(t => <span key={t} style={{ fontSize: 11, color: '#007aff', background: 'rgba(0,122,255,0.08)', padding: '1px 6px', borderRadius: 4 }}>{t}</span>)}
-                            </div>
-                        )}
                     </div>
-                    {!isNewCard && thumb && <img className="item-thumb" src={thumb} alt="" />}
                 </div>
             </div>
         );
@@ -1540,6 +1637,7 @@
                 }
             }
             if (paras.length > 0) {
+                tags = tags.slice(0, 3);
                 preview = stripMarkdownForPreview(paras.join(' ')).replace(/#[\u4e00-\u9fa5\w-]+/g, '').trim().slice(0, 60);
                 if (!preview && tags.length > 0) preview = tags[0].replace(/^#/, '');
                 if (!preview) preview = "无更多文本";
@@ -1667,18 +1765,20 @@
                     {thumb ? <img className="img-cover" src={thumb} alt="" style={{ pointerEvents: 'none' }} /> : <div className="img-cover-fb">📷</div>}
                     <div className="img-body">
                         <div className="img-text">
-                            <div className="t">{memo.title || "无标题"}</div>
+                            <div className="t" style={{ display: 'flex', alignItems: 'center', gap: 6, width: '100%' }}>
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{memo.title || "无标题"}</span>
+                                {!isNewCard && tags.length > 0 && (
+                                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', overflow: 'hidden', justifyContent: 'flex-end', flex: 1, minWidth: 0 }}>
+                                        {tags.map(function(t) { return React.createElement('span', { key: t, style: { fontSize: 10, color: '#007aff', background: 'rgba(0,122,255,0.08)', padding: '0 5px', borderRadius: 999, lineHeight: '18px', whiteSpace: 'nowrap' } }, t); })}
+                                    </div>
+                                )}
+                            </div>
                             <div className="m" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <span>{timeAgo(memo.updatedAt)}</span>
                                 <span style={{ color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>· {preview}</span>
                                 {expandText && <span className="expand-btn" onClick={e => { e.stopPropagation(); onExpand && onExpand(); }}>{expandText}</span>}
                             </div>
                         </div>
-                        {!isNewCard && tags.length > 0 && (
-                            <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginTop: 4 }}>
-                                {tags.map(function(t) { return React.createElement('span', { key: t, style: { fontSize: 11, color: '#007aff', background: 'rgba(0,122,255,0.08)', padding: '1px 6px', borderRadius: 4 } }, t); })}
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
@@ -1794,11 +1894,33 @@ function renderDocToEditorHTML(doc, files) {
                 return '<h' + level + ' data-blockid="' + node.id + '">' + text + '</h' + level + '>';
             case 'quote':
                 text = esc(node.children&&node.children[0]?node.children[0].text:'');
-                return '<blockquote data-blockid="' + node.id + '">' + text + '</blockquote>';
+                return '<blockquote data-blockid="' + node.id + '" style="margin:0.6em 0;padding:10px 14px 10px 16px;border-left:3px solid rgba(0,122,255,0.35);background:var(--card-bg);border-radius:999px;border-top:0.5px solid var(--border-color);border-right:0.5px solid var(--border-color);border-bottom:0.5px solid var(--border-color);color:var(--text-secondary);font-size:14px;line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,0.03)">' + text + '</blockquote>';
             case 'todo':
                 text = esc(node.children&&node.children[0]?node.children[0].text:'');
                 checked = node.attrs&&node.attrs.checked?' checked':'';
                 return '<div class="todo-block" data-blockid="' + node.id + '"><input type="checkbox"' + checked + ' contenteditable="false"> <span>' + text + '</span></div>';
+            case 'imgTextCard':
+                text = esc(node.children&&node.children[0]?node.children[0].text:'');
+                var imgFileId = node.attrs && node.attrs.fileId;
+                var imgSrc = (imgFileId && files && files[imgFileId] && files[imgFileId].url) || (node.attrs && (node.attrs.src || node.attrs.imgUrl)) || '';
+                var imgHtml = imgSrc ? '<img src="' + escapeHTML(imgSrc) + '" style="width:100%;max-height:468px;object-fit:cover;display:block;">' : '<div style="height:160px;background:rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:center;color:#c7c7cc;font-size:13px;">📷 点击添加图片</div>';
+                return '<div class="img-text-card" data-blockid="' + node.id + '" data-type="imgTextCard" contenteditable="false"><div class="itc-img-wrap">' + imgHtml + '</div><div class="itc-text" contenteditable="true">' + text + '</div></div>';
+            case 'imageTextRow':
+                text = esc(node.children&&node.children[0]?node.children[0].text:'');
+                var rowFid = node.attrs && node.attrs.fileId;
+                var rowImgUrl = (rowFid && files && files[rowFid] && files[rowFid].url) || (node.attrs && (node.attrs.src || node.attrs.imgUrl)) || '';
+                var rowImgHtml = rowImgUrl ? '<img src="' + escapeHTML(rowImgUrl) + '" style="width:100%;height:100%;object-fit:cover;display:block">' : '<div class="itr-placeholder">📷</div>';
+                return '<div class="img-text-row" data-blockid="' + node.id + '" data-type="imageTextRow" contenteditable="false"><div class="itr-img">' + rowImgHtml + '</div><div class="itr-text" contenteditable="true">' + text + '</div></div>';
+            case 'gallery': {
+                var gallItems = node.attrs && node.attrs.items || [];
+                var gallHtml = gallItems.length > 0 ? '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;border-radius:12px;">' + gallItems.map(function(s) { var u = (s && s.fileId && files && files[s.fileId] && files[s.fileId].url) || (s && s.url) || s; return '<img src="' + escapeHTML(u) + '" style="width:100%;height:366px;object-fit:cover;border-radius:22px;">'; }).join('') + '</div>' : '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:6px 0 14px;"><div style="height:366px;background:rgba(0,0,0,0.03);border-radius:22px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c7c7cc;"><span style="font-size:18px;opacity:0.4;">🖼</span><span style="font-size:11px;margin-top:4px;opacity:0.5;">点击添加</span></div><div style="height:366px;background:rgba(0,0,0,0.02);border-radius:22px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c7c7cc;"><span style="font-size:18px;opacity:0.3;">🖼</span><span style="font-size:11px;margin-top:4px;opacity:0.4;">多张图片</span></div></div>';
+                return '<div class="atomic" data-blockid="' + node.id + '" data-type="gallery" contenteditable="false">' + gallHtml + '</div>';
+            }
+            case 'image': {
+                var imgSrc = (node.attrs && node.attrs.fileId && files && files[node.attrs.fileId] && files[node.attrs.fileId].url) || '';
+                var imgHtml = imgSrc ? '<img src="' + escapeHTML(imgSrc) + '" style="max-width:100%;max-height:668px;border-radius:22px;display:block;margin:8px auto;object-fit:contain;">' : '<div style="height:566px;border-radius:22px;background:var(--card-bg);border:0.5px solid var(--border-color);display:flex;align-items:center;justify-content:center;color:#c7c7cc;font-size:13px;margin:8px 0;">📷 点击添加图片</div>';
+                return '<div class="atomic" data-blockid="' + node.id + '" data-type="image" contenteditable="false">' + imgHtml + '</div>';
+            }
             case 'divider':
                 return '<hr data-blockid="' + node.id + '">';
             case 'attachment': case 'link-card':
@@ -1826,9 +1948,21 @@ function parseEditorDOM(containerEl) {
             continue;
         }
         if (el.contentEditable === 'false') {
+            /* 带 data-mdtext 的渲染块 → 还原为段落文本 */
+            if (el.dataset.mdtext) {
+                /* 多行渲染文本（表格）按行拆分为多个段落 */
+                var lines = (el.dataset.mdtext || '').trim().split('\n');
+                for (var li = 0; li < lines.length; li++) {
+                    var lineText = lines[li].trim();
+                    if (lineText) {
+                        doc.push({ id: genId(), type: 'paragraph', children: [{ text: lineText }] });
+                    }
+                }
+                continue;
+            }
             var orig = prevMap[el.dataset.blockid];
             if (orig) { doc.push(orig); continue; }
-            /* 不在 prevMap 中的 contentEditable=false 块（例如 auto-render 后的段落），
+            /* 不在 prevMap 中的 contentEditable=false 块，
                从 DOM textContent 捞取文字兜底 */
             var fallbackText = (el.textContent || '').trim();
             if (fallbackText) {
@@ -1928,7 +2062,7 @@ BlockSystem.register('quote', {
         return React.createElement('blockquote', {
             key: node.id + '_' + ctx.renderKey,
             'data-blockid': node.id, 'data-type': 'quote',
-            style: { margin: '0.5em 0', padding: '0.15em 0 0.15em 0.8em', borderLeft: '2.5px solid rgba(0,122,255,0.4)', color: 'var(--text-secondary)', opacity: 0.9 }
+            style: { margin: '0.6em 0', padding: '10px 14px 10px 16px', borderLeft: '3px solid rgba(0,122,255,0.35)', background: 'var(--card-bg)', borderRadius: '999px', borderTop: '0.5px solid var(--border-color)', borderRight: '0.5px solid var(--border-color)', borderBottom: '0.5px solid var(--border-color)', color: 'var(--text-secondary)', fontSize: '14px', lineHeight: '1.6', boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }
         }, text || '\u200B');
     }
 });
@@ -1957,7 +2091,7 @@ BlockSystem.register('divider', {
         return React.createElement('hr', {
             key: node.id,
             'data-blockid': node.id, 'data-type': 'divider',
-            style: { border: 'none', borderTop: '1px solid var(--border-color)', margin: '0.6em 0', opacity: 0.5 }
+            style: { border: 'none', height: '1px', background: 'linear-gradient(to right, transparent, var(--border-color), transparent)', margin: '0.8em auto', width: '60%', opacity: 0.6 }
         });
     }
 });
@@ -1966,6 +2100,12 @@ BlockSystem.register('image', {
     isAtomic: true,
     render(node, ctx) {
         const src = node.attrs?.src || '';
+        if (!src) {
+            return React.createElement('div', {
+                key: node.id, 'data-blockid': node.id, 'data-type': 'image',
+                style: { borderRadius: 14, overflow: 'hidden', margin: '8px 0', background: 'var(--card-bg)', border: '0.5px solid var(--border-color)', minHeight: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c7c7cc', fontSize: 13 }
+            }, '📷 点击添加图片');
+        }
         return React.createElement('img', {
             key: node.id,
             'data-blockid': node.id, 'data-type': 'image',
@@ -1981,21 +2121,64 @@ BlockSystem.register('gallery', {
     isAtomic: true,
     render(node, ctx) {
         const items = node.attrs?.items || [];
+        if (items.length === 0) {
+            return React.createElement('div', {
+                key: node.id, 'data-blockid': node.id, 'data-type': 'gallery',
+                style: { borderRadius: 14, overflow: 'hidden', margin: '8px 0', background: 'var(--card-bg)', border: '0.5px solid var(--border-color)' }
+            }, React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 6, padding: '6px 0 14px' } },
+                React.createElement('div', { style: { height: 366, background: 'rgba(0,0,0,0.03)', borderRadius: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#c7c7cc' } },
+                    React.createElement('span', { style: { fontSize: 18, opacity: 0.4 } }, '🖼'),
+                    React.createElement('span', { style: { fontSize: 11, marginTop: 4, opacity: 0.5 } }, '点击添加')
+                ),
+                React.createElement('div', { style: { height: 366, background: 'rgba(0,0,0,0.02)', borderRadius: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#c7c7cc' } },
+                    React.createElement('span', { style: { fontSize: 18, opacity: 0.3 } }, '🖼'),
+                    React.createElement('span', { style: { fontSize: 11, marginTop: 4, opacity: 0.4 } }, '多张图片')
+                )
+            ));
+        }
         return React.createElement('div', {
             key: node.id,
             'data-blockid': node.id, 'data-type': 'gallery',
             style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4, margin: '8px 0', borderRadius: 12, overflow: 'hidden' }
-        }, items.map((src, i) =>
-            React.createElement('img', {
+        }, items.map(function(item, i) {
+            var src = (item && item.fileId && ctx && ctx.files && ctx.files[item.fileId] && ctx.files[item.fileId].url) || (item && item.url) || item;
+            return React.createElement('img', {
                 key: i,
                 src: proxyImg(src) || src,
-                style: { width: '100%', height: 120, objectFit: 'cover' },
+                style: { width: '100%', height: 366, objectFit: 'cover', borderRadius: 22 },
                 onError: (e) => { e.target.style.display = 'none'; }
-            })
-        ));
+            });
+        }));
     }
 });
 
+BlockSystem.register('imgTextCard', {
+    isAtomic: true,
+    render(node, ctx) {
+        var text = (node.children && node.children[0] && node.children[0].text) || '';
+        var imgUrl = node.attrs && node.attrs.imgUrl || '';
+        return React.createElement('div', {
+            key: node.id, 'data-blockid': node.id, 'data-type': 'imgTextCard',
+            style: { borderRadius: 16, overflow: 'hidden', margin: '8px 0', background: 'var(--card-bg)', border: '0.5px solid var(--border-color)', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }
+        },
+            React.createElement('div', { style: { width: '100%', height: 160, background: 'rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, color: '#c7c7cc' } }, '📷 点击添加图片'),
+            React.createElement('div', { contentEditable: true, suppressContentEditableWarning: true, style: { padding: '12px 14px', fontSize: 14, lineHeight: 1.6, color: 'var(--text-main)', minHeight: 44, outline: 'none' } }, text || '点击输入文字')
+        );
+    }
+});
+BlockSystem.register('imageTextRow', {
+    isAtomic: true,
+    render(node, ctx) {
+        var text = (node.children && node.children[0] && node.children[0].text) || '';
+        return React.createElement('div', {
+            key: node.id, 'data-blockid': node.id, 'data-type': 'imageTextRow',
+            style: { display: 'flex', gap: 10, borderRadius: 16, overflow: 'hidden', margin: '8px 0', background: 'var(--card-bg)', border: '0.5px solid var(--border-color)', minHeight: 100 }
+        },
+            React.createElement('div', { style: { flex: '0 0 50%', minWidth: 0, background: 'rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, opacity: 0.3 } }, '📷'),
+            React.createElement('div', { contentEditable: true, suppressContentEditableWarning: true, style: { flex: 1, padding: '10px 12px 10px 0', fontSize: 14, lineHeight: 1.6, color: 'var(--text-main)', display: 'flex', alignItems: 'center', outline: 'none' } }, text || '点击输入说明文字')
+        );
+    }
+});
 BlockSystem.register('musicCard', {
     isAtomic: true,
     render(node, ctx) {
@@ -2172,6 +2355,7 @@ BlockSystem.register('link-card', {
             { id: 'quote', icon: 'quote', title: '引用', subtitle: '引用块', keywords: 'q quote 引用', type: 'quote', group: 'basic', pinyin: 'yy', shortcut: '> ' },
             { id: 'todo', icon: 'todo', title: '待办', subtitle: '任务清单', keywords: 't todo 待办', type: 'todo', group: 'basic', pinyin: 'db', shortcut: '[ ] ' },
             { id: 'divider', icon: 'divider', title: '分割线', subtitle: '插入分隔符', keywords: 'd divider 分割线', type: 'divider', group: 'basic', pinyin: 'fgx', shortcut: '---' },
+            { id: 'decoDivider', icon: 'decoDivider', title: '装饰分割线', subtitle: '插入 ---🌟--- 装饰线', keywords: 'deco divider 装饰分割线', type: 'decorative_divider', group: 'basic', pinyin: 'zsfg', shortcut: '---emoji---' },
             { id: 'bold', icon: 'bold', title: '加粗', subtitle: '包裹选中文字为 **粗体**', keywords: 'b bold 加粗 粗体', type: 'inline_bold', group: 'basic', pinyin: 'jc', shortcut: '** **' },
             { id: 'italic', icon: 'italic', title: '斜体', subtitle: '包裹选中文字为 *斜体*', keywords: 'i italic 斜体 倾斜', type: 'inline_italic', group: 'basic', pinyin: 'xt', shortcut: '* *' },
             { id: 'highlight', icon: 'highlight', title: '高亮', subtitle: '包裹选中文字为 ==高亮==', keywords: 'h highlight 高亮', type: 'inline_highlight', group: 'basic', pinyin: 'gl', shortcut: '== ==' },
@@ -2179,13 +2363,19 @@ BlockSystem.register('link-card', {
             { id: 'question', icon: 'question', title: '问题', subtitle: '插入 ??问题 标签', keywords: 'q question 问题', type: 'inline_question', group: 'basic', pinyin: 'wt', shortcut: '??' },
             { id: 'mention', icon: 'mention', title: '提及', subtitle: '插入 @@提及 标签', keywords: 'm mention 提及 @', type: 'inline_mention', group: 'basic', pinyin: 'tj', shortcut: '@@' },
             { id: 'hashtag', icon: 'hashtag', title: '标签', subtitle: '插入 #标签', keywords: 'tag 标签 #', type: 'inline_hashtag', group: 'basic', pinyin: 'bq', shortcut: '#' },
+            { id: 'centered', icon: 'centered', title: '居中', subtitle: '包裹为 ->居中文字<-', keywords: 'center 居中', type: 'inline_centered', group: 'basic', pinyin: 'jz', shortcut: '-> <-' },
+            { id: 'tagLabel', icon: 'tagLabel', title: '彩色标签', subtitle: '包裹为 $标签$', keywords: 'tag label 彩色标签', type: 'inline_tag', group: 'basic', pinyin: 'csbq', shortcut: '$ $' },
             { id: 'codeBlock', icon: 'codeBlock', title: '代码块', subtitle: '插入代码块', keywords: 'code codeblock 代码块', type: 'code_block', group: 'basic', pinyin: 'dmk', shortcut: '```' },
             { id: 'unorderedList', icon: 'list', title: '无序列表', subtitle: '转为 - 列表项', keywords: 'list ul 无序列表 列表', type: 'unordered_list', group: 'basic', pinyin: 'wxl', shortcut: '- ' },
             { id: 'orderedList', icon: 'olist', title: '有序列表', subtitle: '转为 1. 列表项', keywords: 'ol list 有序列表 列表', type: 'ordered_list', group: 'basic', pinyin: 'yxl', shortcut: '1. ' },
+            { id: 'table', icon: 'table', title: '表格', subtitle: '插入 2×3 表格模板', keywords: 'table 表格', type: 'table', group: 'basic', pinyin: 'bg', shortcut: '| | |' },
+            { id: 'callout', icon: 'callout', title: 'Callout', subtitle: '插入 >[!NOTE] 提示卡片', keywords: 'callout note tip warning 提示 警告', type: 'callout', group: 'basic', pinyin: 'callout', shortcut: '> [!]' },
+            { id: 'imgTextCard', icon: 'imgTextCard', title: '图文卡片', subtitle: '圆角上图下文卡片', keywords: 'image text card 图文 卡片', type: 'imgTextCard', group: 'media', pinyin: 'twkp', shortcut: '' },
+            { id: 'imageTextRow', icon: 'imageTextRow', title: '图文混排', subtitle: '图片文字左右并排', keywords: 'image text row 图文 混排 左右', type: 'imageTextRow', group: 'media', pinyin: 'twhp', shortcut: '' },
             { id: 'link', icon: 'link', title: '链接', subtitle: '选中文字转超链接', keywords: 'l link 链接 超链接', type: 'inline_link', group: 'basic', pinyin: 'lj', shortcut: '[](url)' },
             { id: 'code', icon: 'code', title: '代码', subtitle: '内联代码包裹', keywords: 'c code 代码 内联', type: 'inline_code', group: 'basic', pinyin: 'dm', shortcut: '` `' },
             { id: 'strikethrough', icon: 'strikethrough', title: '删除线', subtitle: '~~删除线~~', keywords: 's strike strikethrough 删除线', type: 'inline_strike', group: 'basic', pinyin: 'scx', shortcut: '~~ ~~' },
-            { id: 'musicCard', icon: 'music', title: '音乐卡片', subtitle: '插入音乐链接卡片', keywords: 'm music 音乐', type: 'musicCard', group: 'media', pinyin: 'yykp' },
+            { id: 'musicCard', icon: 'music', title: '音乐卡片', subtitle: '插入音乐链接卡片', keywords: 'm music 音乐 卡片', type: 'musicCard', group: 'media', pinyin: 'yykp', shortcut: '' },
             { id: 'image', icon: 'image', title: '图片', subtitle: '插入图片占位', keywords: 'i image 图片', type: 'image', group: 'media', pinyin: 'tp' },
             { id: 'gallery', icon: 'gallery', title: '画廊', subtitle: '插入多图画廊', keywords: 'g gallery 画廊', type: 'gallery', group: 'media', pinyin: 'hl' },
         ]), []);
@@ -2207,6 +2397,13 @@ BlockSystem.register('link-card', {
             question: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><path d="M7.5 8.5a2.5 2.5 0 115 0c0 1.5-2 2-2 3"/><circle cx="10" cy="14" r="0.8" fill="currentColor"/></svg>',
             mention: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="3"/><path d="M5 17v-2a4 4 0 014-4h2a4 4 0 014 4v2"/><circle cx="10" cy="10" r="7"/></svg>',
             hashtag: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="8" y1="3" x2="6" y2="17"/><line x1="14" y1="3" x2="12" y2="17"/><line x1="3" y1="8" x2="17" y2="8"/><line x1="3" y1="13" x2="17" y2="13"/></svg>',
+            centered: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="10" x2="17" y2="10"/><line x1="6" y1="6" x2="14" y2="6"/><line x1="6" y1="14" x2="14" y2="14"/></svg>',
+            tagLabel: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="14" height="8" rx="4"/><path d="M7 10h6"/></svg>',
+            decoDivider: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="3" y1="10" x2="17" y2="10"/><circle cx="10" cy="10" r="2" fill="currentColor" stroke="none"/></svg>',
+            table: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="1"/><line x1="10" y1="3" x2="10" y2="17"/><line x1="3" y1="9" x2="17" y2="9"/></svg>',
+            callout: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12" rx="2"/><line x1="7" y1="8" x2="14" y2="8"/><line x1="7" y1="12" x2="12" y2="12"/><rect x="4" y="6" width="2" height="8" rx="1" fill="currentColor" stroke="none"/></svg>',
+            imgTextCard: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="3"/><rect x="4" y="4" width="12" height="8" rx="2" fill="currentColor" opacity="0.15"/><line x1="5" y1="14" x2="15" y2="14"/></svg>',
+            imageTextRow: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="12" rx="1.5"/><rect x="12" y="4" width="6" height="12" rx="1.5"/><circle cx="6.5" cy="7.5" r="1"/></svg>',
             codeBlock: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="14" height="14" rx="2"/><polyline points="7 8, 5 10, 7 12"/><polyline points="13 8, 15 10, 13 12"/></svg>',
             list: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="5" x2="16" y2="5"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="15" x2="16" y2="15"/><circle cx="4.5" cy="5" r="1"/><circle cx="4.5" cy="10" r="1"/><circle cx="4.5" cy="15" r="1"/></svg>',
             olist: '<svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="5" x2="16" y2="5"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="15" x2="16" y2="15"/><text x="2.5" y="7.5" font-size="8" fill="currentColor" stroke="none" font-weight="700">1</text><text x="2.5" y="12.5" font-size="8" fill="currentColor" stroke="none" font-weight="700">2</text><text x="2.5" y="17" font-size="8" fill="currentColor" stroke="none" font-weight="700">3</text></svg>',
@@ -2219,6 +2416,7 @@ BlockSystem.register('link-card', {
         const [bgColor, setBgColor] = useState(null);
         const [hasTyped, setHasTyped] = useState(false);
         const fileInputRef = useRef(null);
+        const pendingImageBlockRef = useRef(null);
         const dbRef = useRef(null);
         const saveTimer = useRef(null);
         const editorWrapperRef = useRef(null);
@@ -2294,11 +2492,14 @@ BlockSystem.register('link-card', {
             } catch (_) { caretOffset = 0; }
 
             if (text.charAt(0) !== '/' || caretOffset < 1) {
+                /* 兜底：文本以 / 开头但 caretOffset 未正确读取时仍触发 */
+                if (!(text.charAt(0) === '/' && text.length <= 30 && !/\s/.test(text.slice(1)))) {
                 setShowSlash(false);
                 setSlashQuery('');
                 setSlashTargetBlockId(null);
                 slashTargetBlockRef.current = null;
                 return;
+                }
             }
 
             var rawQuery = text.slice(1, caretOffset);
@@ -2396,7 +2597,7 @@ BlockSystem.register('link-card', {
                 var selectedText = '';
                 if (sel && sel.rangeCount > 0) { selectedText = sel.toString().trim(); }
                 var inlineText = selectedText || cleanedText || '文字';
-                var INLINE_MAP = { inline_bold: ['**', '**'], inline_italic: ['*', '*'], inline_link: ['[', '](url)'], inline_code: ['`', '`'], inline_strike: ['~~', '~~'], inline_highlight: ['==', '=='], inline_tip: ['!!', ''], inline_question: ['??', ''], inline_mention: ['@@', ''], inline_hashtag: ['#', ''] };
+                var INLINE_MAP = { inline_bold: ['**', '**'], inline_italic: ['*', '*'], inline_link: ['[', '](url)'], inline_code: ['`', '`'], inline_strike: ['~~', '~~'], inline_highlight: ['==', '=='], inline_tip: ['!!', ''], inline_question: ['??', ''], inline_mention: ['@@', ''], inline_hashtag: ['#', ''], inline_centered: ['->', '<-'], inline_tag: ['$', '$'] };
                 var pair = INLINE_MAP[type] || ['', ''];
                 var wrappedText = pair[0] + inlineText + pair[1];
                 if (selectedText && sel && sel.rangeCount) {
@@ -2429,15 +2630,21 @@ BlockSystem.register('link-card', {
                 ...(type === 'todo' ? { children: [{ text: cleanedText }], attrs: { checked: false } } : {}),
                 ...(type === 'divider' ? {} : {}),
                 ...(type === 'musicCard' ? { url: '', meta: null, status: 'empty' } : {}),
-                ...(type === 'image' ? { attrs: { src: '' } } : {}),
+                ...(type === 'image' ? { attrs: { fileId: '' } } : {}),
                 ...(type === 'gallery' ? { attrs: { items: [] } } : {}),
                 ...(type === 'code_block' ? { children: [{ text: '```\n' + cleanedText + '\n```' }] } : {}),
                 ...(type === 'unordered_list' ? { children: [{ text: '- ' + (cleanedText || '列表项') }] } : {}),
                 ...(type === 'ordered_list' ? { children: [{ text: '1. ' + (cleanedText || '列表项') }] } : {}),
+                ...(type === 'decorative_divider' ? { children: [{ text: '---🌟---' }] } : {}),
+                ...(type === 'table' ? { children: [{ text: '| 项目 | 说明 | 备注 |\n| --- | --- | --- |\n|  |  |  |\n|  |  |  |' }] } : {}),
+                ...(type === 'callout' ? { children: [{ text: '> [!NOTE]\n> 提示内容' }] } : {}),
+                ...(type === 'imgTextCard' ? { children: [{ text: '点击输入文字' }], attrs: { imgUrl: '' } } : {}),
+                ...(type === 'imageTextRow' ? { children: [{ text: '点击输入说明文字' }], attrs: { imgUrl: '' } } : {}),
             };
-            if (type === 'code_block' || type === 'unordered_list' || type === 'ordered_list') newBlock.type = 'paragraph';
+            if (type === 'code_block' || type === 'unordered_list' || type === 'ordered_list' || type === 'decorative_divider' || type === 'table' || type === 'callout') newBlock.type = 'paragraph';
+            if (type === 'table' || type === 'callout') { newBlock.children[0].text = cleanedText || newBlock.children[0].text; }
 
-            var needsTrailingParagraph = ['divider', 'musicCard', 'image', 'gallery'].includes(type);
+            var needsTrailingParagraph = ['divider', 'musicCard', 'image', 'gallery', 'decorative_divider', 'table', 'callout', 'imgTextCard', 'imageTextRow'].includes(type);
             var trailingBlock = needsTrailingParagraph ? { id: genId(), type: 'paragraph', children: [{ text: '' }] } : null;
             var replacementBlocks = trailingBlock ? [newBlock, trailingBlock] : [newBlock];
 
@@ -2550,10 +2757,13 @@ BlockSystem.register('link-card', {
                     if (av) setAvatarUrl(av);
                     // 加载自定义纯色背景
                     if (memo.bgColor) setBgColor(memo.bgColor);
-                    const fileIds = docRef.current.filter(n => n.type === "attachment").map(n => n.fileId);
-                    if (fileIds.length === 0) return;
+                    const fileIds = docRef.current.filter(n => n.type === "attachment" || n.type === 'image' || n.type === 'imgTextCard' || n.type === 'imageTextRow').map(n => n.fileId || (n.attrs && n.attrs.fileId)).filter(Boolean);
+                    /* 画廊从 items 中提取 fileId */
+                    var galleryItems = docRef.current.filter(function(n) { return n.type === 'gallery' && n.attrs && n.attrs.items; }).reduce(function(arr, n) { return arr.concat(n.attrs.items.map(function(item) { return (item && item.fileId) || item; })); }, []);
+                    var allFileIds = fileIds.concat(galleryItems).filter(Boolean);
+                    if (allFileIds.length === 0) return;
                     const map = {};
-                    for (const fid of fileIds) {
+                    for (const fid of allFileIds) {
                         const stored = await loadAttachmentFromDB(db, fid).catch(() => null);
                         if (stored) {
                             map[fid] = { name: stored.name, type: stored.type, url: stored.url, size: stored.size, thumb: stored.thumb || null };
@@ -2572,13 +2782,147 @@ BlockSystem.register('link-card', {
             domInited.current = true;
             setEditorDocRef(docRef.current);
             el.innerHTML = renderDocToEditorHTML(docRef.current, files);
+            /* 首次加载：应用渲染缓存 + 懒加载未缓存段落 */
+            var pendingCache = {};
+            /* 异步加载缓存，不阻塞 init render */
+            getDB().then(function(db) { return loadRenderCacheFromDB(db, memo.id); }).then(function(c) { if (c) pendingCache = c; }).catch(function() {});
+            setTimeout(function() {
+                var ps = el.querySelectorAll('p');
+                if (!ps.length) return;
+                var uncached = [];
+                /* ---- 第一遍：应用缓存 ---- */
+                for (var pi = 0; pi < ps.length; pi++) {
+                    var p = ps[pi];
+                    var bid = p.dataset.blockid;
+                    var cached = bid && pendingCache[bid];
+                    if (cached) {
+                        if (cached.t === 'i') {
+                            p.dataset.mdtext = cached.m;
+                            p.innerHTML = cached.h;
+                        } else if (cached.t === 'b') {
+                            var dv = document.createElement('div');
+                            dv.contentEditable = 'false'; dv.className = 'md-preview block markdown-render';
+                            dv.dataset.blockid = bid; dv.dataset.mdtext = cached.m;
+                            dv.innerHTML = cached.h;
+                            p.replaceWith(dv);
+                        }
+                    } else {
+                        var txt = (p.textContent || '').trim();
+                                                if (txt && looksLikeCiaoMarkdown(txt)) uncached.push(p);
+                    }
+                }
+                /* ---- 第二遍：分组渲染（表格/代码块/列表） ---- */
+                var grouped = [];
+                var gi = 0;
+                while (gi < uncached.length) {
+                    var ct = (uncached[gi].textContent || '').trim();
+                    if (/^\|.+\|$/.test(ct)) {
+                        var grp = [uncached[gi]], gtxts = [ct]; gi++;
+                        while (gi < uncached.length) {
+                            var cn = (uncached[gi].textContent || '').trim();
+                            if (/^\|.+\|$/.test(cn)) { grp.push(uncached[gi]); gtxts.push(cn); gi++; } else break;
+                        }
+                        var merged = gtxts.join('\n'), htmlG = renderMarkdownHtml(merged);
+                        var tmpG = document.createElement('div'); tmpG.innerHTML = htmlG;
+                        if (tmpG.firstElementChild && tmpG.firstElementChild.tagName === 'TABLE') {
+                            /* 防重复渲染：第一行不在 DOM 中了 → 跳过 */
+                            if (!grp[0] || !grp[0].parentNode) { continue; }
+                            var dvG = document.createElement('div');
+                            dvG.contentEditable = 'false'; dvG.className = 'md-preview block markdown-render';
+                            dvG.dataset.blockid = grp[0].dataset.blockid; dvG.dataset.mdtext = merged; dvG.innerHTML = htmlG;
+                            grp[0].replaceWith(dvG);
+                            for (var riG = grp.length - 1; riG >= 1; riG--) { if (grp[riG].parentNode) grp[riG].remove(); }
+                        }
+                        continue;
+                    }
+                    if (/^```/.test(ct)) {
+                        var grp2 = [uncached[gi]], gtxts2 = [ct]; gi++;
+                        while (gi < uncached.length) {
+                            var cn2 = (uncached[gi].textContent || '').trim(); gtxts2.push(cn2); gi++;
+                            if (/^```/.test(cn2)) break;
+                        }
+                        var merged2 = gtxts2.join('\n'), htmlG2 = renderMarkdownHtml(merged2);
+                        var tmpG2 = document.createElement('div'); tmpG2.innerHTML = htmlG2;
+                        if (tmpG2.firstElementChild && tmpG2.firstElementChild.tagName === 'PRE') {
+                            var dvG2 = document.createElement('div');
+                            dvG2.contentEditable = 'false'; dvG2.className = 'md-preview block markdown-render';
+                            dvG2.dataset.blockid = grp2[0].dataset.blockid; dvG2.dataset.mdtext = merged2; dvG2.innerHTML = htmlG2;
+                            grp2[0].replaceWith(dvG2);
+                            for (var riG2 = grp2.length - 1; riG2 >= 1; riG2--) { if (grp2[riG2].parentNode) grp2[riG2].remove(); }
+                        }
+                        continue;
+                    }
+                    if (/^[-*]\s/.test(ct) || /^\d+\.\s/.test(ct)) {
+                        var grp3 = [uncached[gi]], gtxts3 = [ct]; gi++;
+                        while (gi < uncached.length) {
+                            var cn3 = (uncached[gi].textContent || '').trim();
+                            if (/^[-*]\s/.test(cn3) || /^\d+\.\s/.test(cn3)) { grp3.push(uncached[gi]); gtxts3.push(cn3); gi++; } else break;
+                        }
+                        var merged3 = gtxts3.join('\n'), htmlG3 = renderMarkdownHtml(merged3);
+                        var tmpG3 = document.createElement('div'); tmpG3.innerHTML = htmlG3;
+                        if (tmpG3.firstElementChild && (tmpG3.firstElementChild.tagName === 'UL' || tmpG3.firstElementChild.tagName === 'OL')) {
+                            var dvG3 = document.createElement('div');
+                            dvG3.contentEditable = 'false'; dvG3.className = 'md-preview block markdown-render';
+                            dvG3.dataset.blockid = grp3[0].dataset.blockid; dvG3.dataset.mdtext = merged3; dvG3.innerHTML = htmlG3;
+                            grp3[0].replaceWith(dvG3);
+                            for (var riG3 = grp3.length - 1; riG3 >= 1; riG3--) { if (grp3[riG3].parentNode) grp3[riG3].remove(); }
+                        }
+                        continue;
+                    }
+                    grouped.push(uncached[gi]); gi++;
+                }
+                /* ---- 第三遍：补空段落 ---- */
+                var bdAll2 = el.querySelectorAll('.md-preview.block');
+                for (var bdi2 = 0; bdi2 < bdAll2.length; bdi2++) {
+                    var nx3 = bdAll2[bdi2].nextElementSibling;
+                    if (!nx3 || nx3.contentEditable === 'false' || nx3.tagName === 'HR' || nx3.classList.contains('atomic')) {
+                        var tp3 = document.createElement('p'); tp3.dataset.blockid = genId(); tp3.innerHTML = '<br>'; bdAll2[bdi2].after(tp3);
+                    }
+                }
+                /* ---- 第四遍：剩余单段落懒加载（批处理，每帧5组） ---- */
+                if (grouped.length > 0) {
+                    var batchSize = 5, idx2 = 0;
+                    (function pb() {
+                        var end2 = Math.min(idx2 + batchSize, grouped.length);
+                        for (; idx2 < end2; idx2++) {
+                            var cp = uncached[idx2];
+                            if (!cp || !cp.parentNode) continue;
+                            var txt2 = (cp.textContent || '').trim();
+                            if (!txt2 || !looksLikeCiaoMarkdown(txt2)) continue;
+                            var html2 = renderMarkdownHtml(txt2);
+                            var tmp2 = document.createElement('div'); tmp2.innerHTML = html2;
+                            var fc2 = tmp2.firstElementChild;
+                            var tag2 = fc2 && fc2.tagName;
+                            var isBlock2 = tag2 === 'DIV' || tag2 === 'HR' || tag2 === 'BLOCKQUOTE' || tag2 === 'TABLE' || tag2 === 'PRE' || tag2 === 'UL' || tag2 === 'OL';
+                            if (isBlock2) {
+                                var dv2 = document.createElement('div');
+                                dv2.contentEditable = 'false'; dv2.className = 'md-preview block markdown-render';
+                                dv2.dataset.blockid = cp.dataset.blockid; dv2.dataset.mdtext = txt2; dv2.innerHTML = html2;
+                                cp.replaceWith(dv2);
+                                var nx2 = dv2.nextElementSibling;
+                                if (!nx2 || nx2.contentEditable === 'false' || nx2.tagName === 'HR' || nx2.classList.contains('atomic')) {
+                                    var tp2 = document.createElement('p'); tp2.dataset.blockid = genId(); tp2.innerHTML = '<br>'; dv2.after(tp2);
+                                }
+                            } else {
+                                for (var ni2 = 0; ni2 < tmp2.childNodes.length; ni2++) {
+                                    if (tmp2.childNodes[ni2].nodeType === 1 && (tmp2.childNodes[ni2].tagName === 'SPAN' || tmp2.childNodes[ni2].tagName === 'MARK' || tmp2.childNodes[ni2].tagName === 'DEL')) {
+                                        tmp2.childNodes[ni2].contentEditable = 'false';
+                                    }
+                                }
+                                cp.dataset.mdtext = txt2; cp.innerHTML = tmp2.innerHTML;
+                            }
+                        }
+                        if (idx2 < grouped.length) setTimeout(pb, 16);
+                    })();
+                }
+            });
             // 自动聚焦
             if (autoFocus) {
                 setTimeout(function() { el.focus(); }, 200);
             }
         }, [files, memo.id]);
 
-        // 附件文件加载完成后更新编辑器中的原子块展示
+        // 附件/卡片文件加载完成后更新编辑器中的原子块展示
         useEffect(function() {
             var el = editorBodyRef.current;
             if (!el || !domInited.current) return;
@@ -2590,6 +2934,14 @@ BlockSystem.register('link-card', {
                     if (domEl) {
                         var html = renderAtomicHTML(node, files);
                         if (html) domEl.outerHTML = html;
+                    }
+                }
+                /* 卡片图片：files 加载后更新 DOM */
+                if (node.type === 'image' || node.type === 'imgTextCard' || node.type === 'imageTextRow' || node.type === 'gallery') {
+                    var domEl2 = el.querySelector('[data-blockid="' + node.id + '"]');
+                    if (domEl2) {
+                        var newHtml = renderDocToEditorHTML([node], files);
+                        domEl2.outerHTML = newHtml;
                     }
                 }
             }
@@ -2637,6 +2989,24 @@ BlockSystem.register('link-card', {
         useEffect(() => { titleValueRef.current = title; }, [title]);
 
         const doSave = useCallback((d) => {
+            /* 采集 DOM 渲染缓存 → 存入 IndexedDB */
+            try {
+                var el = editorBodyRef.current;
+                if (el) {
+                    var rc = {};
+                    el.querySelectorAll('p[data-mdtext]').forEach(function(p) {
+                        var bid = p.dataset.blockid;
+                        if (bid) rc[bid] = { t: 'i', h: p.innerHTML, m: p.dataset.mdtext };
+                    });
+                    el.querySelectorAll('.md-preview.block[data-mdtext]').forEach(function(dv) {
+                        var bid = dv.dataset.blockid;
+                        if (bid) rc[bid] = { t: 'b', h: dv.innerHTML, m: dv.dataset.mdtext };
+                    });
+                    if (Object.keys(rc).length > 0) {
+                        getDB().then(function(db) { saveRenderCacheToDB(db, memo.id, rc).catch(function(){}); }).catch(function(){});
+                    }
+                }
+            } catch(_) {}
             onSave(memo.id, { title: titleValueRef.current.trim() || "无标题", doc: d, updatedAt: new Date().toISOString() });
         }, [memo.id, onSave]);
 
@@ -2657,13 +3027,11 @@ BlockSystem.register('link-card', {
             clearTimeout(saveTimer.current);
             const pending = Object.values(pendingAttachmentsRef.current);
             if (pending.length > 0) await Promise.allSettled(pending);
-            /* 关闭前重新从 DOM 解析，确保 auto-render 后的文本也被捕获 */
-            var el2 = editorBodyRef.current;
-            if (el2) {
-                setEditorDocRef(docRef.current);
-                docRef.current = parseEditorDOM(el2);
+            /* 等待 CardReader 完成 */
+            if (window._pendingCardReaders && window._pendingCardReaders.length > 0) {
+                await Promise.allSettled(window._pendingCardReaders);
             }
-            doSave(docRef.current);
+            doSave(JSON.parse(JSON.stringify(docRef.current)));
             setClosing(true);
             setTimeout(() => { onClose(); }, 280);
         };
@@ -2935,21 +3303,73 @@ BlockSystem.register('link-card', {
             var filesArr = Array.from(e.target.files);
             e.target.value = '';
             if (!filesArr.length) return;
+            /* ---- 卡片图片占位点击 → 图片填入卡片 ---- */
+            var pendingBlockId = pendingImageBlockRef.current;
+            if (pendingBlockId) {
+                pendingImageBlockRef.current = null;
+                var file = filesArr[0];
+                if (file && file.type && file.type.startsWith('image/')) {
+                    if (!window._pendingCardReaders) window._pendingCardReaders = [];
+                    var pendingPromise = new Promise(function(resolve) {
+                        var fileId = genId();
+                        var reader = new FileReader();
+                        reader.onload = function(ev) {
+                            var dataUrl = ev.target.result;
+                            /* 保存到 IndexedDB（与附件一致） */
+                            (async function() {
+                                try {
+                                    var db = dbRef.current || await getDB();
+                                    if (!dbRef.current) dbRef.current = db;
+                                    var thumb = file.type.startsWith('image/') ? await createThumbnail(dataUrl) : null;
+                                    await saveAttachmentToDB(db, { id: fileId, name: file.name, type: file.type, size: file.size, url: dataUrl, thumb: thumb });
+                                    setFiles(function(prev) { var n = Object.assign({}, prev); n[fileId] = { name: file.name, type: file.type, url: dataUrl, thumb: thumb }; return n; });
+                                } catch(e) {}
+                                var blk = docRef.current.find(function(n) { return n.id === pendingBlockId; });
+                                if (!blk) { resolve(); return; }
+                                var isGallery = blk.type === 'gallery';
+                                var newAttrs;
+                                if (isGallery) {
+                                    var oldItems = blk.attrs && blk.attrs.items || [];
+                                    /* 仅存 fileId，dataUrl 不写入 localStorage 防撑爆限额 */
+                                    newAttrs = Object.assign({}, blk.attrs || {}, { items: oldItems.concat([{ fileId: fileId }]) });
+                                } else {
+                                    newAttrs = Object.assign({}, blk.attrs || {}, { fileId: fileId });
+                                }
+                                updateBlock(pendingBlockId, { attrs: newAttrs });
+                                doSave(JSON.parse(JSON.stringify(docRef.current)));
+                                resolve();
+                            })();
+                        };
+                        reader.onerror = function() { resolve(); };
+                        reader.onabort = function() { resolve(); };
+                        reader.readAsDataURL(file);
+                    });
+                    window._pendingCardReaders.push(pendingPromise);
+                }
+                return;
+            }
             if (!dbRef.current) {
                 try { dbRef.current = await getDB(); }
                 catch(err) { console.error("DB 初始化失败", err); return; }
             }
             for (var i = 0; i < filesArr.length; i++) await insertAttachmentAtCursor(filesArr[i]);
-        }, [insertAttachmentAtCursor]);
+        }, [insertAttachmentAtCursor, updateBlock, doSave]);
 
         /* ---------- 链接卡片更新（保留） ---------- */
         const updateBlock = useCallback((id, changes) => {
             const idx = docRef.current.findIndex(n => n.id === id);
             if (idx === -1) return;
             docRef.current[idx] = Object.assign({}, docRef.current[idx], changes);
+            setEditorDocRef(docRef.current);
+            /* ---- 同步更新 DOM 中的对应块 ---- */
+            var domEl = editorBodyRef.current && editorBodyRef.current.querySelector('[data-blockid="' + id + '"]');
+            if (domEl) {
+                var newHtml = renderDocToEditorHTML([docRef.current[idx]], files);
+                domEl.outerHTML = newHtml;
+            }
             setRenderKey(prev => prev + 1);
             triggerAutoSave();
-        }, [triggerAutoSave]);
+        }, [files, triggerAutoSave]);
 
         /* ===== Link card insertion ===== */
         const insertLinkCardAtDOM = useCallback(async function(url) {
@@ -2997,7 +3417,7 @@ BlockSystem.register('link-card', {
                     { re: /^### (.+)/, type: 'heading', level: 3, strip: 4 },
                     { re: /^## (.+)/, type: 'heading', level: 2, strip: 3 },
                     { re: /^# (.+)/, type: 'heading', level: 1, strip: 2 },
-                    { re: /^> (.+)/, type: 'quote', strip: 2 },
+                    { re: /^>(?!\s*\[!\S)(.+)/, type: 'quote', strip: 2 },
                     { re: /^\[ \] (.+)/, type: 'todo', attrs: { checked: false }, strip: 4 },
                     { re: /^\[\] (.+)/, type: 'todo', attrs: { checked: false }, strip: 3 },
                     { re: /^---$/, type: 'divider', exact: true },
@@ -3066,6 +3486,37 @@ BlockSystem.register('link-card', {
                 }
             }
 
+            /* ---- Enter 在非段落块中新建行 ---- */
+            if (e.key === 'Enter' && !e.shiftKey && !showSlash) {
+                var sel2 = window.getSelection();
+                if (sel2 && sel2.rangeCount) {
+                    var fn2 = sel2.focusNode;
+                    var el2 = fn2 ? (fn2.nodeType === 1 ? fn2 : fn2.parentElement) : null;
+                    var blkEl2 = el2 ? el2.closest('[data-blockid]') : null;
+                    if (blkEl2 && (!blkEl2.dataset || blkEl2.dataset.type !== 'paragraph')) {
+                        /* 卡片文字区内按 Enter → 允许浏览器默认行为（在卡片内新建行） */
+                        var cardTextAreas = ['imgTextCard', 'imageTextRow'];
+                        if (cardTextAreas.includes(blkEl2.dataset.type)) {
+                            var inText = el2.closest('.itc-text') || el2.closest('.itr-text');
+                            if (inText) return; // 让浏览器默认在 contentEditable 内换行
+                        }
+                        e.preventDefault();
+                        var newP = document.createElement('p');
+                        newP.dataset.blockid = genId();
+                        newP.innerHTML = '<br>';
+                        blkEl2.parentNode.insertBefore(newP, blkEl2.nextSibling);
+                        var r = document.createRange();
+                        r.setStart(newP, 0);
+                        r.collapse(true);
+                        sel2.removeAllRanges();
+                        sel2.addRange(r);
+                        setEditorDocRef(docRef.current);
+                        docRef.current = parseEditorDOM(editorBodyRef.current);
+                        triggerAutoSave();
+                        return;
+                    }
+                }
+            }
             if (e.key === 'Enter' && e.shiftKey) return;
             if (e.key === 'Backspace') {
                 var sel = window.getSelection();
@@ -3113,7 +3564,7 @@ BlockSystem.register('link-card', {
             var trimmed = text.trim();
             var isPureUrl = isUrl(trimmed);
             var embeddedUrl = isPureUrl ? null : extractUrlFromText(trimmed);
-            if (isPureUrl || (embeddedUrl && /music\.163\.com|163cn\.tv|y\.qq\.com|i\.y\.qq\.com|open\.spotify\.com|b23\.tv/i.test(embeddedUrl))) {
+            if (isPureUrl || (embeddedUrl && /music\.163\.com|163cn\.tv|y\.qq\.com|i\.y\.qq\.com|open\.spotify\.com|b23\.tv|xiaohongshu\.com|xhslink\.com/i.test(embeddedUrl))) {
                 e.preventDefault();
                 insertLinkCardAtDOM(isPureUrl ? trimmed : embeddedUrl);
                 return;
@@ -3130,21 +3581,86 @@ BlockSystem.register('link-card', {
 
         const handleEditorClick = useCallback(function(e) {
             if (showMenu) closeEditorMenu();
-            // MD preview → 点击还原为可编辑段落
-            var mdPreview = e.target.closest('.md-preview');
-            if (mdPreview) {
-                var id = mdPreview.dataset.blockid;
-                var text = mdPreview.dataset.mdtext || '';
-                var p = document.createElement('p');
-                p.dataset.blockid = id;
-                p.textContent = text;
-                mdPreview.replaceWith(p);
+            /* ---- 点击卡片图片区 → 打开图库 ---- */
+            var cardImg = e.target.closest('[data-blockid]');
+            if (cardImg && cardImg.dataset && cardImg.dataset.type) {
+                var cType = cardImg.dataset.type;
+                var cTarget = e.target;
+                /* ---- 点击卡片右侧区域 → 新增一行（优先于图库/图片区） ---- */
+                var cardTypes = ['imgTextCard','imageTextRow','image','gallery','musicCard','divider'];
+                if (cardTypes.includes(cType)) {
+                    var rect = cardImg.getBoundingClientRect();
+                    if (e.clientX - rect.left > rect.width * 0.85) {
+                        e.preventDefault();
+                        var newP = document.createElement('p');
+                        newP.dataset.blockid = genId();
+                        newP.innerHTML = '<br>';
+                        cardImg.parentNode.insertBefore(newP, cardImg.nextSibling);
+                        var r2 = document.createRange();
+                        r2.setStart(newP, 0);
+                        r2.collapse(true);
+                        var sel2 = window.getSelection();
+                        if (sel2) { sel2.removeAllRanges(); sel2.addRange(r2); }
+                        setEditorDocRef(docRef.current);
+                        docRef.current = parseEditorDOM(editorBodyRef.current);
+                        triggerAutoSave();
+                        return;
+                    }
+                }
+                var isImgArea = cType === 'image' || cType === 'gallery' || (cType === 'imgTextCard' && cTarget.closest('.itc-img-wrap')) || (cType === 'imageTextRow' && cTarget.closest('.itr-img'));
+                if (isImgArea) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    pendingImageBlockRef.current = cardImg.dataset.blockid;
+                    /* 关闭键盘 */
+                    if (document.activeElement) document.activeElement.blur();
+                    if (fileInputRef.current) fileInputRef.current.click();
+                    return;
+                }
+            }
+            // MD render → 点击还原为可编辑文本
+            var renderedEl = e.target.closest('[data-mdtext]');
+            if (renderedEl) {
+                var id = renderedEl.dataset.blockid;
+                var text = renderedEl.dataset.mdtext || '';
+                var targetP;
+                if (renderedEl.tagName === 'P') {
+                    renderedEl.removeAttribute('data-mdtext');
+                    renderedEl.textContent = text;
+                    targetP = renderedEl;
+                } else {
+                    /* 块级渲染 → 替换回可编辑段落 */
+                    /* 表格逐行恢复为独立段落，其他（callout 等）保持单段落 */
+                    var lines = text.split('\n').filter(function(l) { return l.trim(); });
+                    if (lines.length > 1 && lines[0].startsWith('|')) {
+                        var firstP = document.createElement('p');
+                        firstP.dataset.blockid = id;
+                        firstP.textContent = lines[0];
+                        renderedEl.replaceWith(firstP);
+                        var lastP = firstP;
+                        for (var li = 1; li < lines.length; li++) {
+                            var nextP = document.createElement('p');
+                            nextP.dataset.blockid = genId();
+                            nextP.textContent = lines[li];
+                            lastP.after(nextP);
+                            lastP = nextP;
+                        }
+                        targetP = lastP;
+                    } else {
+                        var p = document.createElement('p');
+                        p.dataset.blockid = id;
+                        p.textContent = text;
+                        renderedEl.replaceWith(p);
+                        targetP = p;
+                    }
+                }
+                /* 光标放到最后一个可编辑段落末尾 */
                 var range = document.createRange();
-                range.selectNodeContents(p);
+                range.selectNodeContents(targetP);
                 range.collapse(false);
                 var sel = window.getSelection();
                 if (sel) { sel.removeAllRanges(); sel.addRange(range); }
-                p.focus();
+                targetP.focus();
                 setEditorDocRef(docRef.current);
                 docRef.current = parseEditorDOM(editorBodyRef.current);
                 triggerAutoSave();
@@ -3224,35 +3740,226 @@ BlockSystem.register('link-card', {
 
         /* ===== Markdown 自动渲染（blur 时触发，延迟防抖） ===== */
         var mdCheckTimerRef = useRef(null);
+        var blurApplyingRef = useRef(false);
         var handleEditorBlur = useCallback(function() {
             clearTimeout(mdCheckTimerRef.current);
+            if (blurApplyingRef.current) return;
             mdCheckTimerRef.current = setTimeout(function() {
+                if (blurApplyingRef.current) return;
+                blurApplyingRef.current = true;
                 var el = editorBodyRef.current;
-                if (!el) return;
+                if (!el) { blurApplyingRef.current = false; return; }
                 var changed = false;
                 var ps = el.querySelectorAll('p');
-                for (var i = 0; i < ps.length; i++) {
-                    var p = ps[i];
-                    var text = (p.textContent || '').trim();
-                    if (text && looksLikeCiaoMarkdown(text)) {
-                        var id = p.dataset.blockid;
-                        if (!id) continue;
-                        var html = renderMarkdownHtml(text);
+                if (!ps.length) { blurApplyingRef.current = false; return; }
+                /* 段落过多时跳过块级渲染（表格/列表/代码块），仍做轻量内联渲染 */
+                var skipHeavy = ps.length > 200;
+
+                /* ---- 第一遍：识别表格/代码块/列表行组，合并渲染 ---- */
+                var ti = 0;
+                var tableGroups = [];
+                if (!skipHeavy) {
+                // 代码块：以 ``` 开头和结尾的行组
+                var codeGroups = [];
+                ti = 0;
+                while (ti < ps.length) {
+                    var txt = (ps[ti].textContent || '').trim();
+                    if (/^```/.test(txt)) {
+                        var idx1 = ti;
+                        var ctxts = [txt]; ti++;
+                        while (ti < ps.length) {
+                            var nt = (ps[ti].textContent || '').trim();
+                            ctxts.push(nt); ti++;
+                            if (/^```/.test(nt)) break;
+                        }
+                        codeGroups.push({ indices: Array.from({length: ti - idx1}, function(_,ii) { return idx1 + ii; }), texts: ctxts });
+                    } else { ti++; }
+                }
+
+                // 列表：连续以 -、*、数字. 开头的行组
+                var listGroups = [];
+                ti = 0;
+                while (ti < ps.length) {
+                    var txt = (ps[ti].textContent || '').trim();
+                    if (/^[-*]\s/.test(txt) || /^\d+\.\s/.test(txt)) {
+                        var li = ti, ltxts = [];
+                        while (ti < ps.length) {
+                            var nt = (ps[ti].textContent || '').trim();
+                            if (/^[-*]\s/.test(nt) || /^\d+\.\s/.test(nt)) { ltxts.push(nt); ti++; } else break;
+                        }
+                        listGroups.push({ indices: Array.from({length: ti - li}, function(_,ii) { return li + ii; }), texts: ltxts });
+                    } else { ti++; }
+                }
+
+                // 表格行组
+                ti = 0;
+                while (ti < ps.length) {
+                    var txt2 = (ps[ti].textContent || '').trim();
+                    if (/^\|.+\|$/.test(txt2)) {
+                        var group = [ti];
+                        var groupTexts = [txt2];
+                        ti++;
+                        while (ti < ps.length) {
+                            var nextText = (ps[ti].textContent || '').trim();
+                            if (/^\|.+\|$/.test(nextText)) {
+                                group.push(ti);
+                                groupTexts.push(nextText);
+                                ti++;
+                            } else break;
+                        }
+                        tableGroups.push({ indices: group, texts: groupTexts });
+                    } else {
+                        ti++;
+                    }
+                }
+
+                /* ---- 处理表格组 ---- */
+                for (var g = 0; g < tableGroups.length; g++) {
+                    var grp = tableGroups[g];
+                    var merged = grp.texts.join('\n');
+                    var html = renderMarkdownHtml(merged);
+                    var temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    var firstChild = temp.firstElementChild;
+                    if (firstChild && (firstChild.tagName === 'TABLE')) {
+                        /* 防重复渲染：首行已不在 DOM 中 → 跳过 */
+                        if (!ps[grp.indices[0]] || !ps[grp.indices[0]].parentNode) { continue; }
                         var div = document.createElement('div');
                         div.contentEditable = 'false';
-                        div.className = 'md-preview block';
+                        div.className = 'md-preview block markdown-render';
+                        div.dataset.blockid = ps[grp.indices[0]].dataset.blockid;
+                        div.dataset.mdtext = merged;
+                        div.innerHTML = html;
+                        ps[grp.indices[0]].replaceWith(div);
+                        for (var ri = grp.indices.length - 1; ri >= 1; ri--) {
+                            var toRemove = ps[grp.indices[ri]];
+                            if (toRemove.parentNode) toRemove.remove();
+                        }
+                    }
+                }
+
+                /* ---- 处理代码块组 ---- */
+                for (var gi2 = 0; gi2 < codeGroups.length; gi2++) {
+                    var grp2 = codeGroups[gi2];
+                    // 跳过已不在 DOM 中的组（被表格组处理牵连删除的）
+                    if (!ps[grp2.indices[0]] || !ps[grp2.indices[0]].parentNode) continue;
+                    var merged2 = grp2.texts.join('\n');
+                    var html2 = renderMarkdownHtml(merged2);
+                    var tmp2 = document.createElement('div'); tmp2.innerHTML = html2;
+                    if (tmp2.firstElementChild && (tmp2.firstElementChild.tagName === 'PRE')) {
+                        /* 防重复渲染 */
+                        if (!ps[grp2.indices[0]] || !ps[grp2.indices[0]].parentNode) { continue; }
+                        var dv2 = document.createElement('div');
+                        dv2.contentEditable = 'false'; dv2.className = 'md-preview block markdown-render';
+                        dv2.dataset.blockid = ps[grp2.indices[0]].dataset.blockid;
+                        dv2.dataset.mdtext = merged2; dv2.innerHTML = html2;
+                        ps[grp2.indices[0]].replaceWith(dv2);
+                        for (var ri2 = grp2.indices.length - 1; ri2 >= 1; ri2--) {
+                            var tr2 = ps[grp2.indices[ri2]]; if (tr2.parentNode) tr2.remove();
+                        }
+                    }
+                }
+
+                /* ---- 处理列表组 ---- */
+                for (var gi3 = 0; gi3 < listGroups.length; gi3++) {
+                    var grp3 = listGroups[gi3];
+                    if (!ps[grp3.indices[0]] || !ps[grp3.indices[0]].parentNode) continue;
+                    var merged3 = grp3.texts.join('\n');
+                    var html3 = renderMarkdownHtml(merged3);
+                    var tmp3 = document.createElement('div'); tmp3.innerHTML = html3;
+                    if (tmp3.firstElementChild && (tmp3.firstElementChild.tagName === 'UL' || tmp3.firstElementChild.tagName === 'OL')) {
+                        /* 防重复渲染 */
+                        if (!ps[grp3.indices[0]] || !ps[grp3.indices[0]].parentNode) { continue; }
+                        var dv3 = document.createElement('div');
+                        dv3.contentEditable = 'false'; dv3.className = 'md-preview block markdown-render';
+                        dv3.dataset.blockid = ps[grp3.indices[0]].dataset.blockid;
+                        dv3.dataset.mdtext = merged3; dv3.innerHTML = html3;
+                        ps[grp3.indices[0]].replaceWith(dv3);
+                        for (var ri3 = grp3.indices.length - 1; ri3 >= 1; ri3--) {
+                            var tr3 = ps[grp3.indices[ri3]]; if (tr3.parentNode) tr3.remove();
+                        }
+                    }
+                }
+                } /* end if (!skipHeavy) */
+
+                /* ---- 统一为所有块级渲染的组补空段落，并刷新 ps ---- */
+                var blockDivs = el.querySelectorAll('.md-preview.block');
+                for (var bdi = 0; bdi < blockDivs.length; bdi++) {
+                    var bd = blockDivs[bdi];
+                    var nx = bd.nextElementSibling;
+                    if (!nx || nx.contentEditable === 'false' || nx.tagName === 'HR' || nx.classList.contains('atomic')) {
+                        var tp = document.createElement('p'); tp.dataset.blockid = genId(); tp.innerHTML = '<br>'; bd.after(tp);
+                    }
+                }
+                ps = el.querySelectorAll('p');
+                changed = true;
+
+                /* ---- 第二遍：处理单段落（内联语法/其他块级语法） ---- */
+                for (var i = 0; i < ps.length; i++) {
+                    var p = ps[i];
+                    if (p.contentEditable === 'false') continue;
+                    var text = (p.textContent || '').trim();
+                    if (!text || !looksLikeCiaoMarkdown(text)) continue;
+                    var id = p.dataset.blockid;
+                    if (!id) continue;
+                    var html = renderMarkdownHtml(text);
+                    var temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    var isBlock = false;
+                    var firstChild = temp.firstElementChild;
+                    if (firstChild) {
+                        var tag = firstChild.tagName;
+                        isBlock = tag === 'DIV' || tag === 'HR' || tag === 'BLOCKQUOTE' || tag === 'TABLE' || tag === 'PRE' || tag === 'UL' || tag === 'OL';
+                    }
+                    if (isBlock) {
+                        /* 不完整语法保护：块级渲染无实质变化 → 跳过，保持纯文本可编辑 */
+                        var skipBlock = false;
+                        if (tag === 'BLOCKQUOTE') {
+                            var textAfter = text.replace(/^>\s*/, '');
+                            if (!textAfter || textAfter.length < 2) skipBlock = true;
+                        }
+                        if (tag === 'BLOCKQUOTE' || tag === 'DIV') {
+                            if (/^>\s*\[!/.test(text) && !/^>\s*\[!\w+\]/.test(text)) skipBlock = true;
+                        }
+                        if (tag === 'PRE' && (!text.replace(/```/g, '').trim() || text.trim() === '```')) skipBlock = true;
+                        if (skipBlock) continue;
+                        var div = document.createElement('div');
+                        div.contentEditable = 'false';
+                        div.className = 'md-preview block markdown-render';
                         div.dataset.blockid = id;
                         div.dataset.mdtext = text;
                         div.innerHTML = html;
                         p.replaceWith(div);
-                        changed = true;
+                        var next = div.nextElementSibling;
+                        if (!next || next.contentEditable === 'false' || next.tagName === 'HR' || next.classList.contains('atomic')) {
+                            var trailP = document.createElement('p');
+                            trailP.dataset.blockid = genId();
+                            trailP.innerHTML = '<br>';
+                            div.after(trailP);
+                        }
+                    } else {
+                        var nodes = temp.childNodes;
+                        for (var ni = 0; ni < nodes.length; ni++) {
+                            if (nodes[ni].nodeType === 1 && (nodes[ni].tagName === 'SPAN' || nodes[ni].tagName === 'MARK' || nodes[ni].tagName === 'DEL')) {
+                                nodes[ni].contentEditable = 'false';
+                            }
+                        }
+                        p.dataset.mdtext = text;
+                        p.innerHTML = temp.innerHTML;
+                        var range = document.createRange();
+                        range.selectNodeContents(p);
+                        range.collapse(false);
+                        var sel = window.getSelection();
+                        if (sel) { sel.removeAllRanges(); sel.addRange(range); }
                     }
+                    changed = true;
                 }
                 if (changed) {
                     setEditorDocRef(docRef.current);
                     docRef.current = parseEditorDOM(el);
                     triggerAutoSave();
                 }
+                blurApplyingRef.current = false;
             }, 400);
         }, [triggerAutoSave]);
 
@@ -3265,8 +3972,8 @@ BlockSystem.register('link-card', {
             var sel = window.getSelection();
             if (!sel || !sel.rangeCount) return;
             var node = sel.focusNode;
-            var preview = node && (node.closest ? node.closest('.md-preview') : null);
-            if (!preview) preview = e && e.target && e.target.closest ? e.target.closest('.md-preview') : null;
+            var preview = node && (node.closest ? node.closest('[data-mdtext]') : null);
+            if (!preview) preview = e && e.target && e.target.closest ? e.target.closest('[data-mdtext]') : null;
         }, [showMenu]);
 
         /* ===== Remove attachment ===== */
@@ -3680,7 +4387,7 @@ BlockSystem.register('link-card', {
                 {showMenu && (
                     <>
                         <div onPointerDown={closeEditorMenu} style={{ position: "fixed", inset: 0, zIndex: 3001, background: menuClosing ? "transparent" : "transparent", transition: "background 220ms ease" }} />
-                        <div onPointerDown={e => e.stopPropagation()} style={{ position: "fixed", zIndex: 3002, right: 16, top: "calc(env(safe-area-inset-top) + 7px + 46px + 6px)", width: 246, background: "var(--popover-bg)", backdropFilter: "blur(32px) saturate(1.25)", WebkitBackdropFilter: "blur(32px) saturate(1.25)", border: "0.5px solid var(--border-color)", borderRadius: 32, boxShadow: "0 6px 18px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.03)", overflow: "hidden", opacity: menuClosing ? 0 : 1, transform: menuClosing ? "translateY(-10px) scale(0.92)" : "translateY(0) scale(1)", transformOrigin: "85% -18px", transition: "opacity 180ms ease, transform 220ms cubic-bezier(0.34,1.56,0.64,1)", willChange: "opacity, transform" }}>
+                        <div onPointerDown={e => e.stopPropagation()} style={{ position: "fixed", zIndex: 3002, right: 16, top: "calc(env(safe-area-inset-top) + 7px + 46px + 6px)", width: 246, background: "var(--popover-bg)", backdropFilter: "blur(32px) saturate(1.25)", WebkitBackdropFilter: "blur(32px) saturate(1.25)", border: "0.5px solid var(--border-color)", borderRadius: 22, boxShadow: "0 6px 18px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.03)", overflow: "hidden", opacity: menuClosing ? 0 : 1, transform: menuClosing ? "translateY(-10px) scale(0.92)" : "translateY(0) scale(1)", transformOrigin: "85% -18px", transition: "opacity 180ms ease, transform 220ms cubic-bezier(0.34,1.56,0.64,1)", willChange: "opacity, transform" }}>
                             <div style={{ padding: 7 }}>
                                 <button onClick={handleAddAttachment} style={{ width: "100%", minHeight: 50, border: "none", background: "transparent", borderRadius: 17, display: "flex", alignItems: "center", gap: 11, padding: "8px 10px", color: "var(--text-main)", fontSize: 14, fontFamily: "inherit", cursor: "pointer", textAlign: "left" }}>
                                     <span style={{ width: 24, height: 24, display: "flex", alignItems: "center", justifyContent: "center", flex: "none", color: "#007aff" }} aria-hidden="true">
@@ -3752,7 +4459,7 @@ BlockSystem.register('link-card', {
                         backdropFilter: 'blur(12px)',
                         WebkitBackdropFilter: 'blur(12px)',
                         border: '0.5px solid var(--border-color)',
-                        borderRadius: 32,
+                        borderRadius: 22,
                         boxShadow: '0 10px 28px rgba(0,0,0,0.14)',
                         padding: '10px 10px',
                         maxHeight: 280,
@@ -3882,7 +4589,7 @@ BlockSystem.register('link-card', {
                 <div style={{ position: "fixed", top: "calc(env(safe-area-inset-top) + 7px + 46px + 6px)", right: 16, zIndex: 9999, width: 246, transformOrigin: "85% -18px", opacity: closing ? 0 : 1, transform: closing ? "translateY(-10px) scale(0.92)" : "translateY(0) scale(1)", transition: "opacity 180ms ease, transform 220ms cubic-bezier(0.34,1.56,0.64,1)", willChange: "opacity, transform" }} onPointerDown={e => e.stopPropagation()}>
                     <div style={{
                         background: "var(--popover-bg)", backdropFilter: "blur(32px) saturate(1.25)", WebkitBackdropFilter: "blur(32px) saturate(1.25)",
-                        border: "0.5px solid var(--border-color)", borderRadius: 32,
+                        border: "0.5px solid var(--border-color)", borderRadius: 22,
                         boxShadow: "0 6px 18px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.03)",
                         padding: 14, overflow: "hidden"
                     }}>
@@ -4511,7 +5218,7 @@ BlockSystem.register('link-card', {
                         </div>
                         <div className="list-item">
                             <div className="item-left"><div className="item-title">联系我们</div></div>
-                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>yanmiao822@gmail.com</span>
+                            <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>overtreess@gmail.com</span>
                         </div>
                     </div>
 
