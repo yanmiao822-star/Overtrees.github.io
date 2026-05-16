@@ -272,9 +272,8 @@
     .editor-body ol { padding-left: 1.2em; margin: 0.4em 0; }
     .editor-body li { padding: 2px 0; }
     .markdown-render .task-list-item { display: flex; align-items: center; gap: 10px; padding: 3px 0; }
-    .markdown-render .task-list-item input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; border: 1.8px solid rgba(142,142,147,0.6); flex-shrink: 0; position: relative; margin: 0; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
-    .markdown-render .task-list-item input[type="checkbox"]:checked { background: #007aff; border-color: #007aff; }
-    .markdown-render .task-list-item input[type="checkbox"]:checked::after { content: ''; position: absolute; left: 6px; top: 3px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+    .markdown-render .task-list-item input[type="checkbox"] { appearance: none; -webkit-appearance: none; width: 22px; height: 22px; flex-shrink: 0; position: relative; margin: 0; cursor: pointer; border: none; background: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='9.5' stroke='%23C7C7CC' stroke-width='1.8'/%3E%3C/svg%3E") center/contain no-repeat; }
+    .markdown-render .task-list-item input[type="checkbox"]:checked { background: url("data:image/svg+xml,%3Csvg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='11' fill='%23007AFF'/%3E%3Cpath d='M7 11l3 3 5-5' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat; }
     .markdown-render li.task-list-item-checked { color: var(--text-secondary); text-decoration: line-through; }
     .markdown-render li.task-list-item-checked input[type="checkbox"] { text-decoration: none; }
     /* ===== Callout 提示块 ===== */
@@ -800,9 +799,13 @@
     .editor-body blockquote { margin: 0.6em 0; padding: 10px 14px 10px 16px; border-left: 3px solid rgba(0,122,255,0.35); background: var(--card-bg); border-radius: 999px; border-top: 0.5px solid var(--border-color); border-right: 0.5px solid var(--border-color); border-bottom: 0.5px solid var(--border-color); color: var(--text-secondary); font-size: 14px; line-height: 1.6; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
     .editor-body hr { border: none; border-top: 1px solid var(--border-color); margin: 0.6em 0; opacity: 0.5; }
     .editor-body .todo-block { display: flex; align-items: center; gap: 6px; margin: 0.2em 0; }
-    .editor-body .todo-block input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; flex-shrink: 0; }
+    .editor-body .todo-block input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; flex-shrink: 0; appearance: none; -webkit-appearance: none; border: none; background: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='9.5' stroke='%23C7C7CC' stroke-width='1.8'/%3E%3C/svg%3E") center/contain no-repeat; }
+    .editor-body .todo-block input[type="checkbox"]:checked { background: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='11' fill='%23007AFF'/%3E%3Cpath d='M7 11l3 3 5-5' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat; }
     .editor-body .atomic { user-select: none; -webkit-user-select: none; cursor: default; }
     .editor-body .atomic.attachment { margin: 8px 0; border-radius: 32px; overflow: hidden; }
+    .editor-body .atomic[data-type="image"],
+    .editor-body .atomic[data-type="gallery"],
+    .editor-body .atomic[data-type="musicCard"] { margin: 8px 36px; }
     .editor-body .atomic.attachment img { max-width: 100%; border-radius: 32px; display: block; }
     .editor-body .atomic-placeholder { padding: 24px; text-align: center; background: var(--card-bg); border-radius: 32px; color: var(--text-secondary); font-size: 0.9375rem; border: 0.5px solid var(--border-color); }
     .editor-body .link-card-block, .editor-body .link-card-err, .editor-body .link-card-link-card-loading { margin: 8px 0; border-radius: 32px; overflow: hidden; background: var(--card-bg); border: 0.5px solid var(--border-color); cursor: pointer; }
@@ -1925,6 +1928,25 @@ function renderDocToEditorHTML(doc, files) {
                 return '<hr data-blockid="' + node.id + '">';
             case 'attachment': case 'link-card':
                 return renderAtomicHTML(node, files);
+            case 'musicCard':
+                var muUrl = node.url || '';
+                var muMeta = node.meta;
+                var muStatus = node.status || 'empty';
+                if (muUrl && muMeta) {
+                    var muCover = muMeta.cover || '';
+                    var muTitle = muMeta.title || (muUrl ? new URL(muUrl).hostname.replace('www.','') : '音乐');
+                    var muSource = muMeta.source || '音乐';
+                    var muHtml = '<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--card-bg);border-radius:12px;cursor:pointer;font-size:13px;">';
+                    if (muCover) muHtml += '<img src="' + escapeHTML(muCover) + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;" onerror="this.style.display=\'none\'">';
+                    else muHtml += '<div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div>';
+                    muHtml += '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML(muTitle) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">' + escapeHTML(muSource) + '</div></div></div>';
+                    return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard">' + muHtml + '</div>';
+                }
+                if (muStatus === 'input') {
+                    return '<div contenteditable="true" data-blockid="' + node.id + '" data-type="musicCard" data-music-url="pending" style="padding:12px 18px;border-radius:999px;background:var(--card-bg);border:0.5px solid var(--border-color);font-size:14px;color:var(--text-secondary);outline:none;">' + escapeHTML(node.url || '粘贴音乐链接到这里...') + '</div>';
+                }
+                return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard" style="padding:12px 18px;background:var(--card-bg);border-radius:999px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-secondary);">🎵 <span>' + (node.url || '音乐链接') + '</span></div>';
+            case 'embedCard':
             default:
                 text = esc(node.children&&node.children[0]?node.children[0].text:'');
                 return '<p data-blockid="' + node.id + '">' + text + '</p>';
@@ -1950,13 +1972,19 @@ function parseEditorDOM(containerEl) {
         if (el.contentEditable === 'false') {
             /* 带 data-mdtext 的渲染块 → 还原为段落文本 */
             if (el.dataset.mdtext) {
-                /* 多行渲染文本（表格）按行拆分为多个段落 */
-                var lines = (el.dataset.mdtext || '').trim().split('\n');
-                for (var li = 0; li < lines.length; li++) {
-                    var lineText = lines[li].trim();
-                    if (lineText) {
-                        doc.push({ id: genId(), type: 'paragraph', children: [{ text: lineText }] });
+                var raw = (el.dataset.mdtext || '').trim();
+                /* 表格拆分多行（每行恢复为独立段落），callout 保持单段落避免智能前缀误匹配 */
+                if (/^\|.+\|$/m.test(raw)) {
+                    var lines = raw.split('\n');
+                    for (var li = 0; li < lines.length; li++) {
+                        var lineText = lines[li].trim();
+                        if (lineText) {
+                            doc.push({ id: genId(), type: 'paragraph', children: [{ text: lineText }] });
+                        }
                     }
+                } else {
+                    /* callout/blockquote/其他块级 → 保持原始多行文本为单段落 */
+                    doc.push({ id: genId(), type: 'paragraph', children: [{ text: raw }] });
                 }
                 continue;
             }
@@ -1981,6 +2009,11 @@ function parseEditorDOM(containerEl) {
         } else if (el.classList.contains('todo-block')) {
             var cb = el.querySelector('input[type="checkbox"]');
             doc.push({id:id,type:'todo',children:[{text:text}],attrs:{checked:!!(cb&&cb.checked)}});
+        } else if (el.dataset && el.dataset.musicUrl === 'pending') {
+            /* 音乐卡片输入占位 → 保存已输入文本, 保持输入状态 */
+            var muInputText = (el.textContent || '').trim();
+            var muSavedUrl = (muInputText && muInputText !== '粘贴音乐链接到这里...') ? muInputText : '';
+            doc.push({id:id,type:'musicCard',url:muSavedUrl,meta:null,status:'input'});
         } else {
             doc.push({id:id,type:'paragraph',children:[{text:text}]});
         }
@@ -2103,7 +2136,7 @@ BlockSystem.register('image', {
         if (!src) {
             return React.createElement('div', {
                 key: node.id, 'data-blockid': node.id, 'data-type': 'image',
-                style: { borderRadius: 14, overflow: 'hidden', margin: '8px 0', background: 'var(--card-bg)', border: '0.5px solid var(--border-color)', minHeight: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c7c7cc', fontSize: 13 }
+                style: { borderRadius: 14, overflow: 'hidden', margin: '8px 36px', background: 'var(--card-bg)', border: '0.5px solid var(--border-color)', height: 160, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#c7c7cc', fontSize: 13 }
             }, '📷 点击添加图片');
         }
         return React.createElement('img', {
@@ -2124,7 +2157,7 @@ BlockSystem.register('gallery', {
         if (items.length === 0) {
             return React.createElement('div', {
                 key: node.id, 'data-blockid': node.id, 'data-type': 'gallery',
-                style: { borderRadius: 14, overflow: 'hidden', margin: '8px 0', background: 'var(--card-bg)', border: '0.5px solid var(--border-color)' }
+                style: { borderRadius: 14, overflow: 'hidden', margin: '8px 36px', background: 'var(--card-bg)', border: '0.5px solid var(--border-color)' }
             }, React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 6, padding: '6px 0 14px' } },
                 React.createElement('div', { style: { height: 366, background: 'rgba(0,0,0,0.03)', borderRadius: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', color: '#c7c7cc' } },
                     React.createElement('span', { style: { fontSize: 18, opacity: 0.4 } }, '🖼'),
@@ -3668,6 +3701,36 @@ BlockSystem.register('link-card', {
             }
 
             // 点击图片/附件左右边缘 → 插入新段落
+            // 点击音乐卡片 → 输入链接
+            var musicCard = e.target.closest('[data-type="musicCard"]');
+            if (musicCard) {
+                var blockId2 = musicCard.dataset.blockid;
+                var url2 = musicCard.dataset.url || '';
+                if (!url2) {
+                    e.preventDefault();
+                    /* 无链接 → 原地替换为可编辑输入行 */
+                    var inputDiv = document.createElement('div');
+                    inputDiv.contentEditable = 'true';
+                    inputDiv.dataset.blockid = blockId2;
+                    inputDiv.dataset.musicUrl = 'pending';
+                    inputDiv.style.cssText = 'padding:12px 18px;border-radius:999px;background:var(--card-bg);border:0.5px solid var(--border-color);font-size:14px;color:var(--text-secondary);outline:none;';
+                    inputDiv.textContent = '粘贴音乐链接到这里...';
+                    musicCard.replaceWith(inputDiv);
+                    /* 更新 doc 状态为 input */
+                    var docMc = docRef.current;
+                    var mcIdx = docMc.findIndex(function(n) { return n.id === blockId2; });
+                    if (mcIdx !== -1) { docMc[mcIdx].status = 'input'; }
+                    var r3 = document.createRange();
+                    r3.selectNodeContents(inputDiv);
+                    r3.collapse(false);
+                    var s3 = window.getSelection();
+                    if (s3) { s3.removeAllRanges(); s3.addRange(r3); }
+                    inputDiv.focus();
+                } else {
+                    window.open(url2, '_blank');
+                }
+                return;
+            }
             var atomic = e.target.closest('.atomic.attachment, .atomic.link-card-block, .atomic.link-card-err');
             if (atomic) {
                 var rect = atomic.getBoundingClientRect();
@@ -3744,6 +3807,45 @@ BlockSystem.register('link-card', {
         var handleEditorBlur = useCallback(function() {
             clearTimeout(mdCheckTimerRef.current);
             if (blurApplyingRef.current) return;
+            /* 立即处理音乐卡片输入（不等 400ms 防抖） */
+            try {
+                var elNow = editorBodyRef.current;
+                if (elNow) {
+                    var musicNow = elNow.querySelectorAll('[data-music-url="pending"]');
+                    for (var mn = 0; mn < musicNow.length; mn++) {
+                        var mp = musicNow[mn];
+                        var mt = (mp.textContent || '').trim();
+                        if (mt && mt !== '粘贴音乐链接到这里...' && (mt.startsWith('http://') || mt.startsWith('https://') || /^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(mt))) {
+                            if (!mt.startsWith('http')) mt = 'https://' + mt;
+                            var mId = mp.dataset.blockid;
+                            mp.removeAttribute('data-music-url');
+                            var mDoc = docRef.current;
+                            var mIdx = mDoc.findIndex(function(n) { return n.id === mId; });
+                            if (mIdx !== -1) { mDoc[mIdx].url = mt; mDoc[mIdx].status = 'loading'; mDoc[mIdx].type = 'musicCard'; delete mDoc[mIdx].children; }
+                            setEditorDocRef(docRef.current);
+                            var mLoad = '<div contenteditable="false" data-blockid="' + mId + '" data-type="musicCard" data-url="' + escapeHTML(mt) + '" style="padding:12px;background:var(--card-bg);border-radius:12px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-secondary);"><div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div><div style="flex:1;min-width:0;"><div class="lkc-skeleton-line" style="width:75%;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--card-bg) 25%,var(--border-color) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div><div class="lkc-skeleton-line" style="width:50%;height:12px;border-radius:6px;margin-top:8px;background:linear-gradient(90deg,var(--card-bg) 25%,var(--border-color) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div></div></div>';
+                            mp.outerHTML = mLoad;
+                            fetchLinkMeta(mt).then(function(meta) {
+                                var d2 = docRef.current; var i2 = d2.findIndex(function(n) { return n.id === mId; });
+                                if (i2 !== -1) { d2[i2].meta = meta; d2[i2].status = meta && meta.title ? 'ready' : 'error'; }
+                                var ce2 = editorBodyRef.current;
+                                if (ce2) {
+                                    var el2 = ce2.querySelector('[data-blockid="' + mId + '"]');
+                                    if (el2) {
+                                        var cv = meta && meta.cover || ''; var tl = meta && meta.title || mt; var sr = meta && meta.source || '音乐';
+                                        var rh = '<div contenteditable="false" data-blockid="' + mId + '" data-type="musicCard" data-url="' + escapeHTML(mt) + '" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--card-bg);border-radius:12px;cursor:pointer;font-size:13px;">';
+                                        if (cv) rh += '<img src="' + escapeHTML(cv) + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;">';
+                                        else rh += '<div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div>';
+                                        rh += '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML(tl) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">' + escapeHTML(sr) + '</div></div></div>';
+                                        el2.outerHTML = rh;
+                                        triggerAutoSave();
+                                    }
+                                }
+                            }).catch(function() { triggerAutoSave(); });
+                        }
+                    }
+                }
+            } catch(_) {}
             mdCheckTimerRef.current = setTimeout(function() {
                 if (blurApplyingRef.current) return;
                 blurApplyingRef.current = true;
@@ -3894,6 +3996,62 @@ BlockSystem.register('link-card', {
                 ps = el.querySelectorAll('p');
                 changed = true;
 
+                /* ---- 处理待输入的音乐链接 ---- */
+                var muPs = el.querySelectorAll('[data-music-url="pending"]');
+                for (var mui = 0; mui < muPs.length; mui++) {
+                    var muP = muPs[mui];
+                    var muText = (muP.textContent || '').trim();
+                    if (muText && muText !== '粘贴音乐链接到这里...' && (muText.startsWith('http://') || muText.startsWith('https://') || /^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(muText))) {
+                        /* 补全协议头 */
+                        if (!muText.startsWith('http')) muText = 'https://' + muText;
+                        var muId = muP.dataset.blockid;
+                        var muUrl3 = muText;
+                        muP.removeAttribute('data-music-url');
+                        /* 立即将 doc 中的 status 改为 loading，防止后续重渲染出输入框 */
+                        var docMu3 = docRef.current;
+                        var muIdx3 = docMu3.findIndex(function(n) { return n.id === muId; });
+                        if (muIdx3 !== -1) { docMu3[muIdx3].url = muUrl3; docMu3[muIdx3].status = 'loading'; docMu3[muIdx3].type = 'musicCard'; delete docMu3[muIdx3].children; }
+                        setEditorDocRef(docRef.current);
+                        /* 显示加载骨架 */
+                        var loadDiv = document.createElement('div');
+                        loadDiv.contentEditable = 'false';
+                        loadDiv.dataset.blockid = muId;
+                        loadDiv.dataset.type = 'musicCard';
+                        loadDiv.dataset.url = muUrl3;
+                        loadDiv.style.cssText = 'padding:12px;background:var(--card-bg);border-radius:12px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-secondary);';
+                        loadDiv.innerHTML = '<div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div><div style="flex:1;min-width:0;"><div class="lkc-skeleton-line" style="width:75%;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--card-bg) 25%,var(--border-color) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div><div class="lkc-skeleton-line" style="width:50%;height:12px;border-radius:6px;margin-top:8px;background:linear-gradient(90deg,var(--card-bg) 25%,var(--border-color) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div></div>';
+                        muP.replaceWith(loadDiv);
+                        /*
+                         * 异步获取元数据
+                         * 注意：doc 中的 status 已在上面改为 loading
+                         */
+                        fetchLinkMeta(muUrl3).then(function(meta) {
+                            var d2 = docRef.current; var i2 = d2.findIndex(function(n) { return n.id === muId; });
+                            if (i2 !== -1) { d2[i2].meta = meta; d2[i2].status = meta && meta.title ? 'ready' : 'error'; }
+                            var ce2 = editorBodyRef.current;
+                            if (ce2) {
+                                var el2 = ce2.querySelector('[data-blockid="' + muId + '"]');
+                                if (el2) {
+                                    var cv = meta && meta.cover || ''; var tl = meta && meta.title || muUrl3; var sr = meta && meta.source || '音乐';
+                                    var finalDiv = document.createElement('div');
+                                    finalDiv.contentEditable = 'false';
+                                    finalDiv.dataset.blockid = muId;
+                                    finalDiv.dataset.type = 'musicCard';
+                                    finalDiv.dataset.url = muUrl3;
+                                    finalDiv.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px;background:var(--card-bg);border-radius:12px;cursor:pointer;font-size:13px;';
+                                    var finalHtml = '';
+                                    if (cv) finalHtml += '<img src="' + escapeHTML(cv) + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;">';
+                                    else finalHtml += '<div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div>';
+                                    finalHtml += '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML(tl) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">' + escapeHTML(sr) + '</div></div>';
+                                    finalDiv.innerHTML = finalHtml;
+                                    el2.replaceWith(finalDiv);
+                                    triggerAutoSave();
+                                }
+                            }
+                        }).catch(function() { triggerAutoSave(); });
+                        changed = true;
+                    }
+                }
                 /* ---- 第二遍：处理单段落（内联语法/其他块级语法） ---- */
                 for (var i = 0; i < ps.length; i++) {
                     var p = ps[i];
@@ -3957,6 +4115,31 @@ BlockSystem.register('link-card', {
                 if (changed) {
                     setEditorDocRef(docRef.current);
                     docRef.current = parseEditorDOM(el);
+                    /* 强制清除所有 pending 的音乐卡片输入状态 */
+                    var forceDoc = docRef.current;
+                    for (var fi = 0; fi < forceDoc.length; fi++) {
+                        if (forceDoc[fi].type === 'musicCard' && forceDoc[fi].status === 'input') {
+                            forceDoc[fi].status = 'loading';
+                        }
+                    }
+                    /* 清除 DOM 和 doc 中所有残留的 musicCard 输入框 */
+                    var seenMusicIds = {};
+                    el.querySelectorAll('[data-type="musicCard"]').forEach(function(mcEl) {
+                        var mid = mcEl.dataset.blockid;
+                        if (mid) { seenMusicIds[mid] = true; }
+                    });
+                    el.querySelectorAll('[data-music-url]').forEach(function(remEl) {
+                        if (remEl.dataset.musicUrl === 'pending') {
+                            var dupId = remEl.dataset.blockid;
+                            remEl.remove();
+                            if (dupId) {
+                                var removeIdx = docRef.current.findIndex(function(n) { return n.id === dupId; });
+                                if (removeIdx !== -1) {
+                                    docRef.current.splice(removeIdx, 1);
+                                }
+                            }
+                        }
+                    });
                     triggerAutoSave();
                 }
                 blurApplyingRef.current = false;
