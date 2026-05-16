@@ -21,18 +21,51 @@
     })();
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+<script src="./vendor/react.production.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="./vendor/react-dom.production.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.min.js"></script>
+<script src="./vendor/fflate.min.js"></script>
 
 
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="./vendor/marked.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script src="./vendor/purify.min.js"></script>
 
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="./vendor/google-gsi-client.js" async defer></script>
+
+<script src="./src/constants.js"></script>
+<script src="./src/utils/id.js"></script>
+<script src="./src/utils/time.js"></script>
+<script src="./src/utils/dom.js"></script>
+
+<script src="./src/utils/svg.js"></script>
+
+<script src="./src/services/storage.idb.js?v=2"></script>
+
+
+<script src="./src/services/storage.local.js"></script>
+
+<script src="./src/editor/editor.md.js"></script>
+
+<script src="./src/editor/editor.render.js?v=2"></script>
+
+<script src="./src/components/LinkCard.js"></script>
+
+<script src="./src/hooks/useSwipeGesture.js"></script>
+
+<script src="./src/components/BgSheet.js"></script>
+
+<script src="./src/components/LazyImage.js"></script>
+
+<script src="./src/components/SettingsView.js"></script>
+
+<script src="./src/components/SwipeRow.js"></script>
+
+<script src="./src/components/ImageCard.js"></script>
+
+<script src="./src/blocks/registry.js"></script>
+<script src="./src/blocks/all.js"></script>
 
 <style>
     :root {
@@ -837,105 +870,13 @@
 </style>
 
 <script>
-    // ===== 工具函数：在 Babel/React 之前注册 =====
-    // 此刻扩展语法预处理
-    function preprocessExtendedMarkdown(text) {
-        if (!text || typeof text !== 'string') return text;
-        return text
-            .replace(/~~([^~]+)~~/g, '<del style="background:rgba(127,127,127,0.06);padding:0 2px;">$1</del>')
-            .replace(/==([^=]+)==/g, '<span style="display:inline-flex;align-items:center;background:rgba(255,204,0,0.25);color:var(--text-main);padding:0 10px;border-radius:999px;line-height:1.8;font-weight:500;">$1</span>')
-            .replace(/!!([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(90,200,250,0.15);color:#007aff;padding:0 10px;border-radius:999px;font-weight:600;line-height:1.8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg> $1</span></span>')
-            .replace(/\?\?([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(255,149,0,0.12);color:#e88b00;padding:0 10px;border-radius:999px;font-weight:600;line-height:1.8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> $1</span></span>')
-            .replace(/@@([^\n]+)/g, '<span style="display:inline-flex;align-items:center;gap:3px;"><span style="font-size:0.8em;background:rgba(52,199,89,0.12);color:#34c759;padding:0 10px;border-radius:999px;font-weight:600;line-height:1.8;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> $1</span></span>')
-            .replace(/(^|\s)#([\u4e00-\u9fa5\w-]+)/g, '$1<span style="display:inline-flex;align-items:center;color:#007aff;background:rgba(0,122,255,0.08);padding:0 8px;border-radius:999px;font-size:0.85em;font-weight:500;line-height:1.8;">#$2</span>')
-            /* ---- callout > [!NOTE] / [!WARNING] / [!TIP] ---- */
-            .replace(/^>\s*\[!(\w+)\]\s*([\s\S]*?)(?=\n>\s*\[|\n*$(?!\n))/gm, function(m, type, body) {
-                var t = type.toLowerCase();
-                var cls = 'callout callout-' + t;
-                var icons = { 
-                    note:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>', 
-                    warning:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff9500" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>', 
-                    tip:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', 
-                    important:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#af52de" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>', 
-                    caution:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff453a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>', 
-                };
-                var titles = { note:'笔记', warning:'注意', tip:'提示', important:'重要', caution:'小心' };
-                var icon = icons[t] || 'ℹ️';
-                var title = titles[t] || type;
-                var bodyText = body.replace(/^>\s*/gm, '').trim();
-                return '<div class="' + cls + '"><div class="callout-header"><span class="callout-icon">' + icon + '</span><span class="callout-title">' + title + '</span></div><div class="callout-body">' + bodyText + '</div></div>';
-            })
-            /* ---- emoji shortcodes ---- */
-            .replace(/:([a-z_+-]+):/g, function(m, name) {
-                var map = { smile:'😊', heart:'❤️', rocket:'🚀', fire:'🔥', check:'✅', x:'❌', warning:'⚠️', info:'ℹ️', question:'❓', thumbsup:'👍', thumbsdown:'👎', ok:'👌', wave:'👋', clap:'👏', pray:'🙏', star:'⭐', sparkles:'✨', bookmark:'🔖', link:'🔗', gear:'⚙️', lock:'🔒', unlock:'🔓', mail:'📧', phone:'📞', calendar:'📅', clock:'🕐', memo:'📝', pushpin:'📌', paperclip:'📎', file:'📄', folder:'📁', image:'🖼️', music:'🎵', video:'🎬', bulb:'💡', book:'📖', chart:'📊', code:'💻', database:'🗄️', globe:'🌐', bug:'🐛', flask:'🧪', robot:'🤖', party:'🎉', gift:'🎁', trophy:'🏆', medal:'🥇', zap:'⚡', rain:'🌧️', sun:'☀️', moon:'🌙', cloud:'☁️', snow:'❄️' };
-                return map[name] || m;
-            })
-            /* ---- 居中文字 ->text<- ---- */
-            .replace(/->(.+?)<-/g, '<div style="text-align:center;margin:0.6em 0;">$1</div>')
-            /* ---- 彩色标签 $color:文字$ / $文字$ ---- */
-            .replace(/\$(\w+):([^$]+)\$/g, function(m, color, text) {
-                var colors = { red:'#ff453a', blue:'#007aff', green:'#34c759', orange:'#ff9500', purple:'#af52de', gray:'#8e8e93' };
-                var c = colors[color.toLowerCase()] || '#007aff';
-                return '<span style="display:inline-flex;align-items:center;gap:3px;background:' + c + '18;color:' + c + ';padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.8;">' + text.trim() + '</span>';
-            })
-            .replace(/\$([^$]{1,30})\$/g, '<span style="display:inline-flex;align-items:center;gap:3px;background:rgba(0,122,255,0.1);color:#007aff;padding:0 10px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.8;">$1</span>')
-            /* ---- 装饰分割线 ---emoji--- ---- */
-            .replace(/^---(.+?)---$/gm, function(m, icon) {
-                return '<hr style="border:none;margin:1.2em 0;"><div style="text-align:center;margin:-1.4em 0 1.2em;font-size:12px;color:#c7c7cc;letter-spacing:4px;position:relative;z-index:1;background:var(--card-bg,#fff);width:fit-content;padding:0 12px;margin-left:auto;margin-right:auto;">' + icon + '</div>';
-            });
-    }
-    function looksLikeMarkdown(text) {
-        var s = String(text || '').trim();
-        if (!s) return false;
-        return /(^|\n)#{1,6}\s|(^|\n)[-*+]\s|(^|\n)\d+\.\s|(^|\n)>\s|`{1,3}|\*\*[^*]+\*\*|__[^_]+__|~~[^~]+~~|!\[[^\]]*\]\([^\)]+\)|\[[^\]]+\]\([^\)]+\)|(^|\n)---+(\n|$)|==[^=]+==|!!|\?\?|@@|->.*<-|\$[^$]+\$|^\|.+\|$/m.test(s);
-    }
-    function looksLikeCiaoMarkdown(text) {
-        if (!text || !text.trim()) return false;
-        if (looksLikeMarkdown(text)) return true;
-        return /==[^=]+==|!![^\n]+|\?\?[^\n]+|@@[^\n]+|~~[^~]+~~|#[\u4e00-\u9fa5\w-]+/.test(text);
-    }
-    function stripMarkdownForPreview(text) {
-        return String(text || '')
-            .replace(/==([^=]+)==/g, '$1')
-            .replace(/!!([^\n]+)/g, '💡 $1')
-            .replace(/\?\?([^\n]+)/g, '❓ $1')
-            .replace(/@@([^\n]+)/g, '👤 $1')
-            .replace(/```[\s\S]*?```/g, ' 代码块 ')
-            .replace(/`([^`]+)`/g, '$1')
-            .replace(/!\[([^\]]*)\]\(([^\)]+)\)/g, '$1')
-            .replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '$1')
-            .replace(/(^|\n)#{1,6}\s+/g, '$1')
-            .replace(/(^|\n)>\s?/g, '$1')
-            .replace(/(^|\n)[-*+]\s+/g, '$1')
-            .replace(/(^|\n)\d+\.\s+/g, '$1')
-            .replace(/\*\*([^*]+)\*\*/g, '$1')
-            .replace(/__([^_]+)__/g, '$1')
-            .replace(/\*([^*]+)\*/g, '$1')
-            .replace(/_([^_]+)_/g, '$1')
-            .replace(/~~([^~]+)~~/g, '$1')
-            .replace(/\n+/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-    }
-    function renderMarkdownHtml(text) {
-        try {
-            var raw = String(text || '');
-            if (!raw.trim()) return '';
-            var processed = preprocessExtendedMarkdown(raw);
-            var html = window.marked ? marked.parse(processed) : processed.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-            return window.DOMPurify ? DOMPurify.sanitize(html, { ADD_TAGS: ['input'], ADD_ATTR: ['checked', 'type'] }) : html;
-        } catch(e) {
-            console.warn('[此刻] renderMarkdownHtml error', e);
-            var safe = String(text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-            return '<p>' + safe + '</p>';
-        }
-    }
-    function shouldConvertPureUrlToCard(text) {
-        var raw = String(text || '');
-        if (!raw.trim()) return false;
-        if (looksLikeMarkdown(raw)) return false;
-        return /^https?:\/\/[^\s]+$/.test(raw.trim());
-    }
+    // ===== Markdown 工具函数（来自 CikeMd 模块） =====
+    window.preprocessExtendedMarkdown = function(text){ return window.CikeMd ? window.CikeMd.preprocessExtendedMarkdown(text) : text; };
+    window.looksLikeMarkdown = function(text){ return window.CikeMd ? window.CikeMd.looksLikeMarkdown(text) : false; };
+    window.looksLikeCiaoMarkdown = function(text){ return window.CikeMd ? window.CikeMd.looksLikeCiaoMarkdown(text) : false; };
+    window.stripMarkdownForPreview = function(text){ return window.CikeMd ? window.CikeMd.stripMarkdownForPreview(text) : text; };
+    window.renderMarkdownHtml = function(text){ return window.CikeMd ? window.CikeMd.renderMarkdownHtml(text) : text; };
+    window.shouldConvertPureUrlToCard = function(text){ return window.CikeMd ? window.CikeMd.shouldConvertPureUrlToCard(text) : false; };
     if (window.marked) {
         marked.setOptions({ breaks: true, gfm: true });
         var _origParse = marked.parse.bind(marked);
@@ -962,57 +903,31 @@ const {
 const {
   flushSync
 } = ReactDOM;
-const genId = () => Math.random().toString(36).slice(2, 10);
+const genId = () => (window.CikeId && window.CikeId.genId ? window.CikeId.genId() : Math.random().toString(36).slice(2, 10));
 function focusEditableWithCaret(target, offset = 0) {
-  if (!target) return false;
-  const root = target.closest && target.closest('[contenteditable="true"]');
-  try {
-    (root || target).focus({
-      preventScroll: true
-    });
-  } catch (_) {
-    try {
-      (root || target).focus();
-    } catch (err) {
-      warn('focusEditableWithCaret focus', err);
-    }
-  }
-  const hasTextNode = Array.from(target.childNodes || []).some(n => n.nodeType === Node.TEXT_NODE);
-  if (!hasTextNode) target.textContent = '\u200B';
-  const textNode = Array.from(target.childNodes || []).find(n => n.nodeType === Node.TEXT_NODE);
-  if (!textNode) return document.activeElement === target || document.activeElement === root;
-  const raw = textNode.textContent || '';
-  const logicalLen = raw.replace(/\u200B/g, '').length;
-  const anchorOffset = raw === '\u200B' ? 1 : Math.min(offset, logicalLen);
-  try {
-    const range = document.createRange();
-    range.setStart(textNode, anchorOffset);
-    range.collapse(true);
-    const sel = window.getSelection();
-    if (!sel) return false;
-    sel.removeAllRanges();
-    sel.addRange(range);
-  } catch (_) {
-    warn('focusEditableWithCaret sel', _);
-  }
-  return document.activeElement === target || document.activeElement === root;
+  return window.CikeDom && window.CikeDom.focusEditableWithCaret
+    ? window.CikeDom.focusEditableWithCaret(target, offset, typeof warn === 'function' ? warn : null)
+    : false;
 }
 
 /* ---------- Worker API ---------- */
-const API_BASE = 'https://mynote.yanmiao822.workers.dev';
-const URL_REGEX = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)$/i;
-const URL_INLINE_REGEX = /https?:\/\/[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*/i;
+const API_BASE = window.CikeConstants ? window.CikeConstants.API_BASE : 'https://mynote.yanmiao822.workers.dev';
+const URL_REGEX = window.CikeConstants ? window.CikeConstants.URL_REGEX : /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&\/=]*)$/i;
+const URL_INLINE_REGEX = window.CikeConstants ? window.CikeConstants.URL_INLINE_REGEX : /https?:\/\/[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&\/=]*/i;
 function isUrl(str) {
-  return URL_REGEX.test(str.trim());
+  return window.CikeConstants && window.CikeConstants.isUrl
+    ? window.CikeConstants.isUrl(str)
+    : URL_REGEX.test(String(str || '').trim());
 }
 function extractUrlFromText(str) {
-  const match = str.match(URL_INLINE_REGEX);
-  return match ? match[0] : null;
+  return window.CikeConstants && window.CikeConstants.extractUrlFromText
+    ? window.CikeConstants.extractUrlFromText(str)
+    : (String(str || '').match(URL_INLINE_REGEX) || [null])[0];
 }
 function getTypeIcon(type) {
-  if (type === 'music') return '🎵';
-  if (type === 'video') return '🎬';
-  return '🔗';
+  return window.CikeConstants && window.CikeConstants.getTypeIcon
+    ? window.CikeConstants.getTypeIcon(type)
+    : (type === 'music' ? '🎵' : type === 'video' ? '🎬' : '🔗');
 }
 async function fetchLinkMeta(url) {
   const controller = new AbortController();
@@ -1040,163 +955,26 @@ function proxyImg(url) {
 }
 
 /* ---------- LinkCard 组件 ---------- */
-function LinkCard({
-  node
-}) {
-  const {
-    url,
-    meta,
-    status
-  } = node;
-  const isBilibili = meta && (meta.source === '哔哩哔哩' || meta.type === 'video' && (url.includes('bilibili') || url.includes('b23.tv')));
-  const handleCardClick = e => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    // 左右边缘 24px 内防误触，不跳转
-    if (x < 24 || x > rect.width - 24) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-    // 中间区域手动跳转，绕过 contentEditable / target=_blank 在 iOS 的不稳定行为
-    e.preventDefault();
-    e.stopPropagation();
-    window.location.assign(url);
-  };
-  if (status === 'loading') {
-    return /*#__PURE__*/React.createElement("div", {
-      className: "link-card-skeleton",
-      contentEditable: false
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "link-card-skeleton-cover"
-    }), /*#__PURE__*/React.createElement("div", {
-      className: "link-card-skeleton-body"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "link-card-skeleton-line",
-      style: {
-        width: '75%'
-      }
-    }), /*#__PURE__*/React.createElement("div", {
-      className: "link-card-skeleton-line",
-      style: {
-        width: '50%'
-      }
-    })));
-  }
-  if (status === 'error' || !meta || !meta.title) {
-    let domain = url;
-    try {
-      domain = new URL(url).hostname.replace('www.', '');
-    } catch {}
-    return /*#__PURE__*/React.createElement("div", {
-      className: "link-card-error",
-      role: "link",
-      tabIndex: 0,
-      "data-href": url,
-      contentEditable: false,
-      onClick: handleCardClick
-    }, /*#__PURE__*/React.createElement("span", {
-      className: "link-card-type-icon"
-    }, "\uD83D\uDD17"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        flex: 1,
-        minWidth: 0
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "link-card-title",
-      style: {
-        WebkitLineClamp: 1
-      }
-    }, domain), /*#__PURE__*/React.createElement("div", {
-      className: "link-card-subtitle",
-      style: {
-        WebkitLineClamp: 1,
-        marginTop: 2
-      }
-    }, url)));
-  }
-  const coverUrl = proxyImg(meta.cover);
-  const icon = getTypeIcon(meta.type);
-  let sourceDomain = url;
-  try {
-    sourceDomain = new URL(url).hostname.replace('www.', '');
-  } catch {}
-  const hasCover = Boolean(coverUrl || meta.cover);
-  return /*#__PURE__*/React.createElement("div", {
-    className: "link-card",
-    role: "link",
-    tabIndex: 0,
-    "data-href": url,
-    contentEditable: false,
-    onClick: handleCardClick
-  }, /*#__PURE__*/React.createElement("div", {
-    className: `link-card-cover-wrap${hasCover ? ' has-cover' : ' no-cover'}`
-  }, hasCover && /*#__PURE__*/React.createElement("img", {
-    src: coverUrl || meta.cover,
-    alt: "",
-    onError: e => {
-      e.target.parentNode.className = 'link-card-cover-wrap no-cover';
-    }
-  })), /*#__PURE__*/React.createElement("div", {
-    className: `link-card-body${hasCover ? ' has-cover' : ''}`
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "link-card-title"
-  }, meta.title), !isBilibili && meta.subtitle && /*#__PURE__*/React.createElement("div", {
-    className: "link-card-subtitle"
-  }, meta.subtitle), /*#__PURE__*/React.createElement("div", {
-    className: "link-card-source"
-  }, /*#__PURE__*/React.createElement("span", null, icon), /*#__PURE__*/React.createElement("span", {
-    className: "link-card-source-dot"
-  }), /*#__PURE__*/React.createElement("span", null, meta.source || sourceDomain))));
-}
+// LinkCard \u79FB\u81F3 src/components/LinkCard.js\u6A21\u5757
 
-// 检测 iOS 系统 24 小时制开关
+// 检测 iOS 系统 24 小时制开关（优先来自 CikeTime 模块）
 function is24hFormat() {
-  try {
-    return !new Intl.DateTimeFormat(undefined, {
-      hour: 'numeric'
-    }).formatToParts(new Date(2024, 0, 1, 13)).some(p => p.type === 'dayPeriod');
-  } catch {
-    return false;
-  }
+  return window.CikeTime && window.CikeTime.is24hFormat ? window.CikeTime.is24hFormat() : false;
 }
 function timeAgo(iso) {
-  if (!iso) return "现在";
-  const d = new Date(iso);
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const yesterday = new Date(today.getTime() - 86400000);
-  if (d >= today) {
-    // 今天 → HH:MM（跟随 iOS 系统设置）
-    const h = d.getHours();
-    const m = String(d.getMinutes()).padStart(2, '0');
-    if (is24hFormat()) {
-      return `${String(h).padStart(2, '0')}:${m}`;
-    } else {
-      const ampm = h < 12 ? '上午' : '下午';
-      const h12 = h % 12 || 12;
-      return `${ampm} ${h12}:${m}`;
-    }
-  }
-  if (d >= yesterday) return "昨天";
-  if (d.getFullYear() === now.getFullYear()) return `${d.getMonth() + 1}/${d.getDate()}`;
-  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+  return window.CikeTime && window.CikeTime.timeAgo ? window.CikeTime.timeAgo(iso) : (iso ? new Date(iso).toLocaleString() : '现在');
 }
-const NEW_CARD_ID = "__new_memo_card__";
+const NEW_CARD_ID = window.CikeConstants ? window.CikeConstants.NEW_CARD_ID : "__new_memo_card__";
 
 /* ---------- Google Drive 配置 ---------- */
-const GOOGLE_CLIENT_ID = '369692322774-se6hvcg8lvlacbgl8hf3u4d3tme7aeht.apps.googleusercontent.com';
-const GOOGLE_API_KEY = 'YOUR_API_KEY';
-const BACKUP_FILE_NAME = 'memories_backup.json';
+const GOOGLE_CLIENT_ID = window.CikeConstants ? window.CikeConstants.GOOGLE_CLIENT_ID : '369692322774-se6hvcg8lvlacbgl8hf3u4d3tme7aeht.apps.googleusercontent.com';
+const GOOGLE_API_KEY = window.CikeConstants ? window.CikeConstants.GOOGLE_API_KEY : 'YOUR_API_KEY';
+const BACKUP_FILE_NAME = window.CikeConstants ? window.CikeConstants.BACKUP_FILE_NAME : 'memories_backup.json';
 
-/* ---------- DB 单例 ---------- */
-let _dbInstance = null;
+/* ---------- DB 单例（来自 CikeIdb 模块） ---------- */
+var _dbInstance = null;
 function getDB() {
-  if (_dbInstance) return Promise.resolve(_dbInstance);
-  return openDB().then(db => {
-    _dbInstance = db;
-    return db;
-  });
+  return window.CikeIdb ? window.CikeIdb.getDB() : Promise.reject(new Error('CikeIdb not loaded'));
 }
 
 /* ---------- 安全日志辅助 ---------- */
@@ -1219,1874 +997,79 @@ function getSectionLabel(dateStr) {
   return `${date.getFullYear()}年`;
 }
 
-/* ---------- IndexedDB ---------- */
+/* ---------- IndexedDB（来自 CikeIdb 模块） ---------- */
 function openDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('MemosDB', 6);
-    request.onupgradeneeded = e => {
-      const db = e.target.result;
-      if (e.oldVersion < 3) {
-        for (const name of ['attachments', 'avatars']) {
-          if (db.objectStoreNames.contains(name)) {
-            db.deleteObjectStore(name);
-          }
-        }
-      }
-      if (!db.objectStoreNames.contains('attachments')) {
-        db.createObjectStore('attachments', {
-          keyPath: 'id'
-        });
-      }
-      if (!db.objectStoreNames.contains('avatars')) {
-        db.createObjectStore('avatars', {
-          keyPath: 'id'
-        });
-      }
-      if (!db.objectStoreNames.contains('drafts')) {
-        db.createObjectStore('drafts', {
-          keyPath: 'id'
-        });
-      }
-      if (!db.objectStoreNames.contains('renderCaches') && e.oldVersion < 6) {
-        db.createObjectStore('renderCaches', {
-          keyPath: 'memoId'
-        });
-      }
-    };
-    request.onsuccess = e => resolve(e.target.result);
-    request.onerror = e => reject(e.target.error);
-  });
+  return window.CikeIdb ? window.CikeIdb.openDB() : Promise.reject(new Error('CikeIdb not loaded'));
 }
 
-// 根据文件名扩展名推断 MIME type，用于备份恢复时 blob 丢失 type
+// 根据文件名扩展名推断 MIME type（来自 CikeIdb 模块）
 function guessMimeFromName(fileName) {
-  const ext = fileName.split('.').pop().toLowerCase();
-  const map = {
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'png': 'image/png',
-    'gif': 'image/gif',
-    'webp': 'image/webp',
-    'bmp': 'image/bmp',
-    'svg': 'image/svg+xml',
-    'heic': 'image/heic',
-    'heif': 'image/heif',
-    'avif': 'image/avif',
-    'mp4': 'video/mp4',
-    'mov': 'video/quicktime',
-    'm4v': 'video/mp4',
-    'webm': 'video/webm',
-    'mp3': 'audio/mpeg',
-    'm4a': 'audio/mp4',
-    'wav': 'audio/wav',
-    'ogg': 'audio/ogg',
-    'pdf': 'application/pdf',
-    'txt': 'text/plain',
-    'json': 'application/json',
-    'zip': 'application/zip'
-  };
-  return map[ext] || 'application/octet-stream';
+  return window.CikeIdb ? window.CikeIdb.guessMimeFromName(fileName) : 'application/octet-stream';
 }
 
-// 打包附件到 ZIP data（map: filename → Uint8Array）
+// 打包附件到 ZIP data（来自 CikeIdb 模块）
 async function packAttachmentsToZip(db, zipData, onProgress) {
-  const allKeys = await new Promise((res, rej) => {
-    const tx = db.transaction('attachments', 'readonly');
-    const req = tx.objectStore('attachments').getAllKeys();
-    req.onsuccess = () => res(req.result);
-    req.onerror = () => rej(req.error);
-  });
-  for (let i = 0; i < allKeys.length; i++) {
-    if (onProgress) onProgress(i, allKeys.length);
-    const record = await loadAttachmentFromDB(db, allKeys[i]);
-    if (record && record.url) {
-      const binStr = atob(record.url.split(',')[1]);
-      const buf = new Uint8Array(binStr.length);
-      for (let j = 0; j < binStr.length; j++) buf[j] = binStr.charCodeAt(j);
-      const safeName = (record.name || allKeys[i]).replace(/[/\\:*?"<>|]/g, '_');
-      zipData[`attachments/${allKeys[i]}_${safeName}`] = buf;
-    }
-  }
+  return window.CikeIdb ? window.CikeIdb.packAttachmentsToZip(db, zipData, onProgress) : undefined;
 }
-
-// 从 ZIP 恢复附件到 IDB，每个附件独立 try/catch
+// 从 ZIP 恢复附件到 IDB（来自 CikeIdb 模块）
 async function restoreAttachmentsFromZip(unzipped, db) {
-  const attPaths = Object.keys(unzipped).filter(k => k.startsWith('attachments/'));
-  let success = 0,
-    fail = 0;
-  for (const attPath of attPaths) {
-    const bytes = unzipped[attPath];
-    if (!bytes) continue;
-    try {
-      const fileName = attPath.replace('attachments/', '');
-      const firstUnderscore = fileName.indexOf('_');
-      let fileId, displayName;
-      if (firstUnderscore > 0) {
-        fileId = fileName.slice(0, firstUnderscore);
-        displayName = fileName.slice(firstUnderscore + 1);
-      } else {
-        fileId = fileName;
-        displayName = fileName;
-      }
-      const mime = guessMimeFromName(displayName);
-      const blob = new Blob([bytes], {
-        type: mime
-      });
-      const dataUrl = await new Promise(res => {
-        const reader = new FileReader();
-        reader.onload = () => res(reader.result);
-        reader.readAsDataURL(blob);
-      });
-      await deleteAttachmentFromDB(db, fileId).catch(() => {});
-      const regenThumb = await createThumbnail(dataUrl).catch(() => null);
-      await saveAttachmentToDB(db, {
-        id: fileId,
-        name: displayName,
-        type: mime,
-        url: dataUrl,
-        thumb: regenThumb
-      });
-      success++;
-    } catch (attErr) {
-      console.error('附件恢复失败:', attPath, attErr);
-      fail++;
-    }
-  }
-  return {
-    success,
-    fail
-  };
+  return window.CikeIdb ? window.CikeIdb.restoreAttachmentsFromZip(unzipped, db) : {success:0,fail:0};
 }
 async function restoreAvatars(avatars, db) {
-  if (!avatars) return;
-  for (const [memoId, dataUrl] of Object.entries(avatars)) {
-    try {
-      const tx = db.transaction('avatars', 'readwrite');
-      tx.objectStore('avatars').put({
-        id: memoId,
-        dataUrl
-      });
-      await new Promise((res, rej) => {
-        tx.oncomplete = res;
-        tx.onerror = rej;
-      });
-    } catch (_) {
-      warn('头像恢复失败', _);
-    }
-  }
+  return window.CikeIdb ? window.CikeIdb.restoreAvatars(avatars, db) : undefined;
 }
 async function saveAttachmentToDB(db, obj) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('attachments', 'readwrite');
-    tx.objectStore('attachments').put(obj);
-    tx.oncomplete = () => resolve();
-    tx.onerror = e => reject(e.target.error);
-  });
+  return window.CikeIdb ? window.CikeIdb.saveAttachmentToDB(db, obj) : Promise.reject(new Error('CikeIdb not loaded'));
 }
 async function loadAttachmentFromDB(db, id) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('attachments', 'readonly');
-    const req = tx.objectStore('attachments').get(id);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = e => reject(e.target.error);
-  });
+  return window.CikeIdb ? window.CikeIdb.loadAttachmentFromDB(db, id) : Promise.reject(new Error('CikeIdb not loaded'));
 }
 async function deleteAttachmentFromDB(db, id) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('attachments', 'readwrite');
-    tx.objectStore('attachments').delete(id);
-    tx.oncomplete = () => resolve();
-    tx.onerror = e => reject(e.target.error);
-  });
+  return window.CikeIdb ? window.CikeIdb.deleteAttachmentFromDB(db, id) : Promise.reject(new Error('CikeIdb not loaded'));
 }
 async function saveAvatarToDB(db, memoId, dataUrl) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('avatars', 'readwrite');
-    tx.objectStore('avatars').put({
-      id: memoId,
-      dataUrl
-    });
-    tx.oncomplete = () => resolve();
-    tx.onerror = e => reject(e.target.error);
-  });
+  return window.CikeIdb ? window.CikeIdb.saveAvatarToDB(db, memoId, dataUrl) : Promise.reject(new Error('CikeIdb not loaded'));
 }
 
-/* ---------- renderCache 读写 ---------- */
+/* ---------- renderCache 读写（来自 CikeIdb 模块） ---------- */
 async function saveRenderCacheToDB(db, memoId, cache) {
-  if (!db || !memoId) return;
-  const tx = db.transaction('renderCaches', 'readwrite');
-  tx.objectStore('renderCaches').put({
-    memoId: memoId,
-    cache: cache,
-    updatedAt: Date.now()
-  });
-  return new Promise((resolve, reject) => {
-    tx.oncomplete = resolve;
-    tx.onerror = () => reject(tx.error);
-  });
+  return window.CikeIdb ? window.CikeIdb.saveRenderCacheToDB(db, memoId, cache) : undefined;
 }
 async function loadRenderCacheFromDB(db, memoId) {
-  if (!db || !memoId) return null;
-  return new Promise(resolve => {
-    const tx = db.transaction('renderCaches', 'readonly');
-    const req = tx.objectStore('renderCaches').get(memoId);
-    req.onsuccess = () => resolve(req.result ? req.result.cache : null);
-    req.onerror = () => resolve(null);
-  });
+  return window.CikeIdb ? window.CikeIdb.loadRenderCacheFromDB(db, memoId) : null;
 }
 async function loadAvatarFromDB(db, memoId) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction('avatars', 'readonly');
-    const req = tx.objectStore('avatars').get(memoId);
-    req.onsuccess = () => resolve(req.result ? req.result.dataUrl : null);
-    req.onerror = e => reject(e.target.error);
-  });
+  return window.CikeIdb ? window.CikeIdb.loadAvatarFromDB(db, memoId) : Promise.reject(new Error('CikeIdb not loaded'));
 }
 function createThumbnail(dataUrl) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => {
-      const size = 200;
-      const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext('2d');
-      const side = Math.min(img.width, img.height);
-      const sx = (img.width - side) / 2;
-      const sy = (img.height - side) / 2;
-      ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
-      resolve(canvas.toDataURL('image/jpeg', 0.92));
-    };
-    img.src = dataUrl;
-  });
+  return window.CikeIdb ? window.CikeIdb.createThumbnail(dataUrl) : Promise.resolve(null);
 }
 function dataURLtoBlob(dataURL) {
-  const arr = dataURL.split(',');
-  const mime = arr[0].match(/:(.*?);/)[1];
-  const bstr = atob(arr[1]);
-  const n = bstr.length;
-  const u8arr = new Uint8Array(n);
-  for (let i = 0; i < n; i++) u8arr[i] = bstr.charCodeAt(i);
-  return new Blob([u8arr], {
-    type: mime
-  });
+  return window.CikeIdb ? window.CikeIdb.dataURLtoBlob(dataURL) : new Blob([]);
 }
 
 /* ---------- SwipeRow ---------- */
-function SwipeRow({
-  memo,
-  onOpen,
-  onPin,
-  onDelete,
-  expandText,
-  onExpand
-}) {
-  const rowRef = useRef(null);
-  const wrapperRef = useRef(null);
-  const btn1Ref = useRef(null);
-  const btn2Ref = useRef(null);
-  const ACTION_W = 168,
-    THRESHOLD = 55,
-    MIN_DX = 5;
-  const [thumb, setThumb] = useState(null);
-  const isNewCard = memo.id === NEW_CARD_ID;
-
-  // 所有手势状态放 ref，避免闭包问题
-  const gesture = useRef({
-    startX: null,
-    startY: null,
-    curX: 0,
-    opened: false,
-    swiping: false
-  });
-  const applyProgress = useCallback(p => {
-    // 错峰渐入/渐出：删除（右侧）在 p∈[0,0.55] 完成，置顶（左侧）在 p∈[0.35,1] 完成
-    const pinP = Math.max(0, Math.min(1, (p - 0.35) / 0.65));
-    const delP = Math.min(1, p / 0.55);
-    if (btn1Ref.current) {
-      btn1Ref.current.style.transform = `translateX(${(1 - pinP) * 60}px)`;
-      btn1Ref.current.style.opacity = pinP;
-      btn1Ref.current.style.pointerEvents = pinP > 0.3 ? 'auto' : 'none';
-    }
-    if (btn2Ref.current) {
-      btn2Ref.current.style.transform = `translateX(${(1 - delP) * 30}px)`;
-      btn2Ref.current.style.opacity = delP;
-      btn2Ref.current.style.pointerEvents = delP > 0.3 ? 'auto' : 'none';
-    }
-    if (wrapperRef.current) {
-      wrapperRef.current.style.borderTopRightRadius = `${Math.max(32 * p, 2)}px`;
-      wrapperRef.current.style.borderBottomRightRadius = `${Math.max(32 * p, 2)}px`;
-    }
-  }, []);
-  const setTranslate = useCallback(x => {
-    if (rowRef.current) rowRef.current.style.transform = `translateX(${x}px)`;
-    applyProgress(Math.min(1, Math.abs(x) / ACTION_W));
-  }, [applyProgress]);
-  const snapOpen = useCallback(() => {
-    if (rowRef.current) rowRef.current.style.transition = "transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94)";
-    setTranslate(-ACTION_W);
-    gesture.current.opened = true;
-    gesture.current.curX = -ACTION_W;
-  }, [setTranslate]);
-  const snapClose = useCallback(() => {
-    if (rowRef.current) rowRef.current.style.transition = "transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94)";
-    setTranslate(0);
-    gesture.current.opened = false;
-    gesture.current.curX = 0;
-    gesture.current.swiping = false;
-  }, [setTranslate]);
-
-  // non-passive touch 绑定，用 ref 存函数避免每次重新绑定
-  const handlersRef = useRef({});
-  handlersRef.current.touchStart = e => {
-    gesture.current.startX = e.touches[0].clientX;
-    gesture.current.startY = e.touches[0].clientY;
-    gesture.current.swiping = false;
-    if (rowRef.current) rowRef.current.style.transition = "none";
-  };
-  handlersRef.current.touchMove = e => {
-    const g = gesture.current;
-    if (g.startX === null) return;
-    const dx = e.touches[0].clientX - g.startX;
-    const dy = e.touches[0].clientY - g.startY;
-    if (!g.swiping && Math.abs(dy) > Math.abs(dx) + 8) {
-      snapClose();
-      g.startX = null;
-      return;
-    }
-    if (!g.swiping && Math.abs(dx) > MIN_DX) g.swiping = true;
-    if (!g.swiping) return;
-    e.preventDefault();
-    const base = g.opened ? -ACTION_W : 0;
-    const next = Math.min(0, Math.max(-ACTION_W, base + dx));
-    if (rowRef.current) rowRef.current.style.transform = `translateX(${next}px)`;
-    applyProgress(Math.min(1, Math.abs(next) / ACTION_W));
-    g.curX = next;
-  };
-  handlersRef.current.touchEnd = () => {
-    const g = gesture.current;
-    if (g.opened) {
-      g.curX > -ACTION_W + THRESHOLD ? snapClose() : snapOpen();
-    } else {
-      g.curX < -THRESHOLD ? snapOpen() : snapClose();
-    }
-    g.startX = null;
-  };
-  useEffect(() => {
-    const el = rowRef.current;
-    if (!el || isNewCard) return;
-    const ts = e => handlersRef.current.touchStart(e);
-    const tm = e => handlersRef.current.touchMove(e);
-    const te = e => handlersRef.current.touchEnd(e);
-    el.addEventListener('touchstart', ts, {
-      passive: true
-    });
-    el.addEventListener('touchmove', tm, {
-      passive: false
-    });
-    el.addEventListener('touchend', te, {
-      passive: true
-    });
-    return () => {
-      el.removeEventListener('touchstart', ts);
-      el.removeEventListener('touchmove', tm);
-      el.removeEventListener('touchend', te);
-    };
-  }, [isNewCard]);
-  useEffect(() => {
-    if (isNewCard) return;
-    setThumb(null);
-    const firstAttach = memo.doc && memo.doc.find(n => n.type === "attachment");
-    if (!firstAttach) return;
-    if (firstAttach.thumbDataUrl) {
-      setThumb(firstAttach.thumbDataUrl);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const db = await getDB();
-        for (let attempt = 0; attempt < 5; attempt++) {
-          if (cancelled) return;
-          const stored = await loadAttachmentFromDB(db, firstAttach.fileId).catch(() => null);
-          if (!stored) break;
-          if (stored.type && stored.type.startsWith("image/") && stored.thumb) {
-            if (!cancelled) setThumb(stored.thumb);
-            return;
-          }
-          await new Promise(r => setTimeout(r, 300));
-        }
-      } catch (e) {}
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [memo.id, memo.doc]);
-  let preview = "无更多文本";
-  let attachCount = 0;
-  let tags = [];
-  if (memo.doc) {
-    const paras = [];
-    for (const n of memo.doc) {
-      if (n.type === "paragraph" && n.children && n.children[0]) {
-        const t = (n.children[0].text || "").trim();
-        if (t) {
-          paras.push(t);
-          /* 逐段检测 #标签 */
-          var mt = t.match(/#[\u4e00-\u9fa5\w-]+/g);
-          if (mt) {
-            for (var ti = 0; ti < mt.length; ti++) {
-              if (tags.indexOf(mt[ti]) === -1) tags.push(mt[ti]);
-            }
-          }
-        }
-      }
-      if (n.type === "attachment") attachCount++;
-    }
-    if (paras.length > 0) {
-      const raw = paras.join(' ');
-      tags = tags.slice(0, 3);
-      preview = stripMarkdownForPreview(raw).replace(/#[\u4e00-\u9fa5\w-]+/g, '').trim().slice(0, 80);
-      if (!preview && tags.length > 0) preview = tags[0].replace(/^#/, '');
-      if (!preview) preview = "无更多文本";
-    }
-  }
-
-  // 从首张图片取色作为卡片底色
-  const [dominantColor, setDominantColor] = useState(null);
-  useEffect(() => {
-    if (!thumb || isNewCard) {
-      setDominantColor(null);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const img = new Image();
-        img.src = thumb;
-        await new Promise((res, rej) => {
-          img.onload = res;
-          img.onerror = rej;
-        });
-        if (cancelled) return;
-        const c = document.createElement('canvas');
-        c.width = 8;
-        c.height = 8;
-        const ctx = c.getContext('2d');
-        ctx.drawImage(img, 0, 0, 8, 8);
-        const d = ctx.getImageData(0, 0, 8, 8).data;
-        let r = 0,
-          g = 0,
-          b = 0,
-          n = 0;
-        for (let i = 0; i < d.length; i += 4) {
-          r += d[i];
-          g += d[i + 1];
-          b += d[i + 2];
-          n++;
-        }
-        r = Math.round(r / n);
-        g = Math.round(g / n);
-        b = Math.round(b / n);
-        if (!cancelled) setDominantColor(`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`);
-      } catch {
-        if (!cancelled) setDominantColor(null);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [thumb, isNewCard]);
-  const cardTint = dominantColor ? `rgba(${parseInt(dominantColor.slice(1, 3), 16)},${parseInt(dominantColor.slice(3, 5), 16)},${parseInt(dominantColor.slice(5, 7), 16)},0.06)` : '';
-  return /*#__PURE__*/React.createElement("div", {
-    className: "swipe-wrapper",
-    ref: wrapperRef
-  }, !isNewCard && /*#__PURE__*/React.createElement("div", {
-    className: "swipe-actions"
-  }, /*#__PURE__*/React.createElement("button", {
-    ref: btn1Ref,
-    className: "swipe-action-btn",
-    style: {
-      background: "#4A90D9",
-      transform: "translateX(60px)",
-      opacity: 0
-    },
-    onClick: e => {
-      e.stopPropagation();
-      snapClose();
-      onPin(memo.id);
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "17",
-    height: "17",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "#fff",
-    strokeWidth: "2.2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("line", {
-    x1: "12",
-    y1: "17",
-    x2: "12",
-    y2: "22"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"
-  })), memo.pinned ? "取消" : "置顶"), /*#__PURE__*/React.createElement("button", {
-    ref: btn2Ref,
-    className: "swipe-action-btn",
-    style: {
-      background: "#E0433A",
-      transform: "translateX(30px)",
-      opacity: 0
-    },
-    onClick: e => {
-      e.stopPropagation();
-      snapClose();
-      onDelete(memo.id);
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "17",
-    height: "17",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "#fff",
-    strokeWidth: "2.2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("polyline", {
-    points: "3 6 5 6 21 6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M10 11v6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M14 11v6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
-  })), "\u5220\u9664")), /*#__PURE__*/React.createElement("div", {
-    ref: rowRef,
-    className: "list-item",
-    style: cardTint ? {
-      background: `linear-gradient(0deg, ${cardTint}, ${cardTint}), var(--card-bg)`
-    } : undefined,
-    onPointerDown: () => {
-      if (isNewCard) onOpen(memo);
-    },
-    onClick: () => {
-      if (isNewCard) return;
-      gesture.current.opened ? snapClose() : onOpen(memo);
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-left"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: `item-title${isNewCard ? ' new-card-title' : ''}`,
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6,
-      width: '100%'
-    }
-  }, !isNewCard && memo.pinned && /*#__PURE__*/React.createElement("span", {
-    className: "pin-dot"
-  }), /*#__PURE__*/React.createElement("span", {
-    className: "item-title-text"
-  }, isNewCard ? "新建笔记" : memo.title || "无标题"), !isNewCard && tags.length > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 4,
-      flexWrap: 'wrap',
-      overflow: 'hidden',
-      justifyContent: 'flex-end',
-      flex: 1,
-      minWidth: 0
-    }
-  }, tags.map(t => /*#__PURE__*/React.createElement("span", {
-    key: t,
-    style: {
-      fontSize: 10,
-      color: '#007aff',
-      background: 'rgba(0,122,255,0.08)',
-      padding: '0 5px',
-      borderRadius: 999,
-      lineHeight: '18px',
-      whiteSpace: 'nowrap'
-    }
-  }, t)))), /*#__PURE__*/React.createElement("div", {
-    className: "item-meta",
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      flex: 1
-    }
-  }, isNewCard ? "现在" : timeAgo(memo.updatedAt), "\xA0\xA0", isNewCard ? "点击记录你的瞬间" : preview), expandText && /*#__PURE__*/React.createElement("span", {
-    className: "expand-btn",
-    onClick: e => {
-      e.stopPropagation();
-      onExpand && onExpand();
-    },
-    style: {
-      flexShrink: 0
-    }
-  }, expandText)))));
-}
 
 /* ---------- ImageCard ---------- */
-function ImageCard({
-  memo,
-  onOpen,
-  onPin,
-  onDelete,
-  expandText,
-  onExpand
-}) {
-  const isNewCard = memo.id === NEW_CARD_ID;
-  const [thumb, setThumb] = useState(null);
-  useEffect(() => {
-    if (isNewCard) {
-      setThumb(null);
-      return;
-    }
-    setThumb(null);
-    const firstAtt = memo.doc && memo.doc.find(n => n.type === "attachment");
-    if (!firstAtt) return;
-    if (firstAtt.thumbDataUrl) {
-      setThumb(firstAtt.thumbDataUrl);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const db = await getDB();
-        for (let attempt = 0; attempt < 5; attempt++) {
-          if (cancelled) return;
-          const stored = await loadAttachmentFromDB(db, firstAtt.fileId).catch(() => null);
-          if (!stored) break;
-          if (stored.type && stored.type.startsWith("image/") && (stored.url || stored.thumb)) {
-            if (!cancelled) setThumb(stored.url || stored.thumb);
-            return;
-          }
-          await new Promise(r => setTimeout(r, 300));
-        }
-      } catch (e) {}
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [memo.id, memo.doc, isNewCard]);
-  let preview = "无更多文本";
-  let tags = [];
-  if (memo.doc) {
-    const paras = [];
-    for (const n of memo.doc) {
-      if (n.type === "paragraph" && n.children && n.children[0] && n.children[0].text) {
-        const t = n.children[0].text.trim();
-        if (t) {
-          paras.push(t);
-          var mt = t.match(/#[\u4e00-\u9fa5\w-]+/g);
-          if (mt) {
-            for (var ti = 0; ti < mt.length; ti++) {
-              if (tags.indexOf(mt[ti]) === -1) tags.push(mt[ti]);
-            }
-          }
-        }
-      }
-    }
-    if (paras.length > 0) {
-      tags = tags.slice(0, 3);
-      preview = stripMarkdownForPreview(paras.join(' ')).replace(/#[\u4e00-\u9fa5\w-]+/g, '').trim().slice(0, 60);
-      if (!preview && tags.length > 0) preview = tags[0].replace(/^#/, '');
-      if (!preview) preview = "无更多文本";
-    }
-  }
-
-  // 左滑手势
-  const wrapperRef = useRef(null);
-  const btn1Ref = useRef(null);
-  const btn2Ref = useRef(null);
-  const rowRef = useRef(null);
-  const ACTION_W = 168,
-    THRESHOLD = 55,
-    MIN_DX = 5;
-  const gesture = useRef({
-    startX: null,
-    startY: null,
-    curX: 0,
-    opened: false,
-    swiping: false
-  });
-  const applyProgress = useCallback(p => {
-    const pinP = Math.max(0, Math.min(1, (p - 0.35) / 0.65));
-    const delP = Math.min(1, p / 0.55);
-    if (btn1Ref.current) {
-      btn1Ref.current.style.transform = `translateX(${(1 - pinP) * 60}px)`;
-      btn1Ref.current.style.opacity = pinP;
-      btn1Ref.current.style.pointerEvents = pinP > 0.3 ? 'auto' : 'none';
-    }
-    if (btn2Ref.current) {
-      btn2Ref.current.style.transform = `translateX(${(1 - delP) * 30}px)`;
-      btn2Ref.current.style.opacity = delP;
-      btn2Ref.current.style.pointerEvents = delP > 0.3 ? 'auto' : 'none';
-    }
-    if (wrapperRef.current) {
-      wrapperRef.current.style.borderTopRightRadius = `${Math.max(32 * p, 2)}px`;
-      wrapperRef.current.style.borderBottomRightRadius = `${Math.max(32 * p, 2)}px`;
-    }
-    // 左滑时图片下边两角跟随圆角动画
-    const img = rowRef.current && rowRef.current.querySelector('.img-cover, .img-cover-fb');
-    if (img) {
-      img.style.borderRadius = `32px 32px ${p * 32}px ${p * 32}px`;
-    }
-  }, []);
-  const setTranslate = useCallback(x => {
-    if (rowRef.current) rowRef.current.style.transform = `translateX(${x}px)`;
-    applyProgress(Math.min(1, Math.abs(x) / ACTION_W));
-  }, [applyProgress]);
-  const snapOpen = useCallback(() => {
-    if (rowRef.current) rowRef.current.style.transition = "transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94)";
-    setTranslate(-ACTION_W);
-    gesture.current.opened = true;
-    gesture.current.curX = -ACTION_W;
-  }, [setTranslate]);
-  const snapClose = useCallback(() => {
-    if (rowRef.current) rowRef.current.style.transition = "transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94)";
-    setTranslate(0);
-    gesture.current.opened = false;
-    gesture.current.curX = 0;
-    gesture.current.swiping = false;
-  }, [setTranslate]);
-  const handlersRef = useRef({});
-  handlersRef.current.touchStart = e => {
-    if (isNewCard) return;
-    gesture.current.startX = e.touches[0].clientX;
-    gesture.current.startY = e.touches[0].clientY;
-    gesture.current.swiping = false;
-    if (rowRef.current) rowRef.current.style.transition = "none";
-  };
-  handlersRef.current.touchMove = e => {
-    if (isNewCard) return;
-    const g = gesture.current;
-    if (g.startX === null) return;
-    const dx = e.touches[0].clientX - g.startX;
-    const dy = e.touches[0].clientY - g.startY;
-    if (!g.swiping && Math.abs(dy) > Math.abs(dx) + 8) {
-      snapClose();
-      g.startX = null;
-      return;
-    }
-    if (!g.swiping && Math.abs(dx) > MIN_DX) g.swiping = true;
-    if (!g.swiping) return;
-    e.preventDefault();
-    const base = g.opened ? -ACTION_W : 0;
-    const next = Math.min(0, Math.max(-ACTION_W, base + dx));
-    if (rowRef.current) rowRef.current.style.transform = `translateX(${next}px)`;
-    applyProgress(Math.min(1, Math.abs(next) / ACTION_W));
-    g.curX = next;
-  };
-  handlersRef.current.touchEnd = () => {
-    if (isNewCard) return;
-    const g = gesture.current;
-    if (g.opened) {
-      g.curX > -ACTION_W + THRESHOLD ? snapClose() : snapOpen();
-    } else {
-      g.curX < -THRESHOLD ? snapOpen() : snapClose();
-    }
-    g.startX = null;
-  };
-  useEffect(() => {
-    if (isNewCard) return;
-    const el = rowRef.current;
-    if (!el) return;
-    const ts = e => handlersRef.current.touchStart(e);
-    const tm = e => handlersRef.current.touchMove(e);
-    const te = e => handlersRef.current.touchEnd(e);
-    el.addEventListener('touchstart', ts, {
-      passive: true
-    });
-    el.addEventListener('touchmove', tm, {
-      passive: false
-    });
-    el.addEventListener('touchend', te, {
-      passive: true
-    });
-    return () => {
-      el.removeEventListener('touchstart', ts);
-      el.removeEventListener('touchmove', tm);
-      el.removeEventListener('touchend', te);
-    };
-  }, [isNewCard]);
-  return /*#__PURE__*/React.createElement("div", {
-    className: "swipe-wrapper",
-    ref: wrapperRef
-  }, !isNewCard && /*#__PURE__*/React.createElement("div", {
-    className: "swipe-actions"
-  }, /*#__PURE__*/React.createElement("button", {
-    ref: btn1Ref,
-    className: "swipe-action-btn",
-    style: {
-      background: "#4A90D9",
-      transform: "translateX(60px)",
-      opacity: 0
-    },
-    onClick: e => {
-      e.stopPropagation();
-      snapClose();
-      onPin(memo.id);
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "17",
-    height: "17",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "#fff",
-    strokeWidth: "2.2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("line", {
-    x1: "12",
-    y1: "17",
-    x2: "12",
-    y2: "22"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"
-  })), memo.pinned ? "取消" : "置顶"), /*#__PURE__*/React.createElement("button", {
-    ref: btn2Ref,
-    className: "swipe-action-btn",
-    style: {
-      background: "#E0433A",
-      transform: "translateX(30px)",
-      opacity: 0
-    },
-    onClick: e => {
-      e.stopPropagation();
-      snapClose();
-      onDelete(memo.id);
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    width: "17",
-    height: "17",
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "#fff",
-    strokeWidth: "2.2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("polyline", {
-    points: "3 6 5 6 21 6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M10 11v6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M14 11v6"
-  }), /*#__PURE__*/React.createElement("path", {
-    d: "M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"
-  })), "\u5220\u9664")), /*#__PURE__*/React.createElement("div", {
-    ref: rowRef,
-    className: "img-card",
-    onClick: () => {
-      if (!isNewCard && !gesture.current.opened) onOpen(memo);
-    },
-    style: {
-      borderBottom: 'none'
-    }
-  }, thumb ? /*#__PURE__*/React.createElement("img", {
-    className: "img-cover",
-    src: thumb,
-    alt: "",
-    style: {
-      pointerEvents: 'none'
-    }
-  }) : /*#__PURE__*/React.createElement("div", {
-    className: "img-cover-fb"
-  }, "\uD83D\uDCF7"), /*#__PURE__*/React.createElement("div", {
-    className: "img-body"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "img-text"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "t",
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6,
-      width: '100%'
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap'
-    }
-  }, memo.title || "无标题"), !isNewCard && tags.length > 0 && /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 4,
-      flexWrap: 'wrap',
-      overflow: 'hidden',
-      justifyContent: 'flex-end',
-      flex: 1,
-      minWidth: 0
-    }
-  }, tags.map(function (t) {
-    return React.createElement('span', {
-      key: t,
-      style: {
-        fontSize: 10,
-        color: '#007aff',
-        background: 'rgba(0,122,255,0.08)',
-        padding: '0 5px',
-        borderRadius: 999,
-        lineHeight: '18px',
-        whiteSpace: 'nowrap'
-      }
-    }, t);
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "m",
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6
-    }
-  }, /*#__PURE__*/React.createElement("span", null, timeAgo(memo.updatedAt)), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--text-secondary)',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      flex: 1
-    }
-  }, "\xB7 ", preview), expandText && /*#__PURE__*/React.createElement("span", {
-    className: "expand-btn",
-    onClick: e => {
-      e.stopPropagation();
-      onExpand && onExpand();
-    }
-  }, expandText))))));
-}
-
-/* ---------- LazyImage ---------- */
-function LazyImage({
-  file
-}) {
-  const [phase, setPhase] = useState("skeleton");
-  const [fullLoaded, setFullLoaded] = useState(false);
-  const elRef = useRef(null);
-  useEffect(() => {
-    const el = elRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        setPhase("thumb");
-        observer.unobserve(el);
-      }
-    }, {
-      rootMargin: "100px"
-    });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  const handleFullLoad = () => {
-    setFullLoaded(true);
-    if (file.thumb && file.thumb.startsWith("blob:")) {
-      URL.revokeObjectURL(file.thumb);
-    }
-  };
-  if (phase === "skeleton") {
-    return /*#__PURE__*/React.createElement("div", {
-      ref: elRef,
-      className: "attachment-placeholder"
-    });
-  }
-  return /*#__PURE__*/React.createElement("div", {
-    className: "lazy-img-wrapper"
-  }, /*#__PURE__*/React.createElement("img", {
-    src: file.thumb || file.url,
-    alt: file.name,
-    className: "lazy-img-thumb"
-  }), /*#__PURE__*/React.createElement("img", {
-    src: file.url,
-    alt: file.name,
-    className: `lazy-img-full ${fullLoaded ? "loaded" : ""}`,
-    onLoad: handleFullLoad,
-    loading: "lazy"
-  }));
-}
-
-/* ---------- Editor ---------- */
-/* ---------- BlockSystem ---------- */
-/* ---------- DraftStore ---------- */
-const DraftStore = {
+const DraftStore = window.CikeLocal ? window.CikeLocal.DraftStore : {
   KEY: 'memo_draft_',
-  async save(memoId, data) {
-    try {
-      const db = await getDB();
-      const tx = db.transaction('drafts', 'readwrite') || db.transaction('attachments', 'readonly');
-    } catch (e) {}
-    try {
-      localStorage.setItem(this.KEY + memoId, JSON.stringify(data));
-    } catch (e) {}
-  },
-  async load(memoId) {
-    try {
-      const raw = localStorage.getItem(this.KEY + memoId);
-      if (raw) return JSON.parse(raw);
-    } catch (e) {}
-    return null;
-  },
-  async clear(memoId) {
-    try {
-      localStorage.removeItem(this.KEY + memoId);
-    } catch (e) {}
-  }
+  async save(memoId, data) { try { localStorage.setItem(this.KEY + memoId, JSON.stringify(data)); } catch (e) { console.warn('[此刻] DraftStore save', e); } },
+  async load(memoId) { try { var raw = localStorage.getItem(this.KEY + memoId); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } },
+  async clear(memoId) { try { localStorage.removeItem(this.KEY + memoId); } catch (e) { console.warn('[此刻] DraftStore clear', e); } }
 };
-/* ---------- Create IndexedDB drafts store ---------- */
-// Extend the existing getDB function to also create drafts store
-const _origOpenDB = window.openDB;
-/* ===== Single contentEditable DOM utilities ===== */
-function escapeHTML(str) {
-  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-var __editorDocRef = null;
-function setEditorDocRef(doc) {
-  __editorDocRef = doc;
-}
+/* ---------- 编辑器变量 ---------- */
+function escapeHTML(str) { return window.CikeEditor ? window.CikeEditor.escapeHTML(str) : String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+var __editorDocRef = window.CikeEditor ? window.CikeEditor.getEditorDocRef() : null;
+function setEditorDocRef(doc) { __editorDocRef = doc; if(window.CikeEditor) window.CikeEditor.setEditorDocRef(doc); }
 function renderAtomicHTML(node, files) {
-  if (node.type === 'attachment') {
-    var f = files && files[node.fileId];
-    if (f && f.type && f.type.startsWith('image/') && f.url) {
-      return '<div contenteditable="false" class="atomic attachment" data-blockid="' + node.id + '" data-fileid="' + node.fileId + '"><img src="' + f.url + '" alt="' + escapeHTML(f.name || '') + '" style="max-width:100%;border-radius:32px;corner-shape:squircle;display:block"></div>';
-    }
-    return '<div contenteditable="false" class="atomic attachment" data-blockid="' + node.id + '" data-fileid="' + node.fileId + '"><div class="atomic-placeholder">📎 ' + escapeHTML(f ? f.name : '附件') + '</div></div>';
-  }
-  if (node.type === 'link-card') {
-    var url = node.url || '',
-      meta = node.meta;
-    if (!meta || !meta.title) {
-      var domain = '';
-      try {
-        domain = new URL(url).hostname.replace('www.', '');
-      } catch (e) {}
-      return '<div contenteditable="false" class="atomic link-card-err" data-blockid="' + node.id + '" data-url="' + escapeHTML(url) + '"><div class="lkc-body"><div class="lkc-title">' + escapeHTML(domain || url) + '</div><div class="lkc-source"><span class="lkc-source-icon">🔗</span><span class="lkc-source-dot"></span><span class="lkc-source-text">' + escapeHTML(url) + '</span></div></div></div>';
-    }
-    var icon = typeof getTypeIcon === 'function' ? getTypeIcon(meta.type) : '🔗';
-    var coverHTML = '';
-    var coverUrl = typeof proxyImg === 'function' ? proxyImg(meta.cover) : meta.cover;
-    if (coverUrl) coverHTML = '<div class="lkc-cover"><img src="' + coverUrl + '" alt="" onerror="this.parentNode.style.display=\'none\'"></div>';
-    var sourceDomain = '';
-    try {
-      sourceDomain = new URL(url).hostname.replace('www.', '');
-    } catch (e) {}
-    var isBilibili = meta && (meta.source === '哔哩哔哩' || meta.type === 'video' && (url.indexOf('bilibili') >= 0 || url.indexOf('b23.tv') >= 0));
-    return '<div contenteditable="false" class="atomic link-card-block" data-blockid="' + node.id + '" data-url="' + escapeHTML(url) + '">' + coverHTML + '<div class="lkc-body' + (coverHTML ? ' has-cover' : '') + '"><div class="lkc-title">' + escapeHTML(meta.title) + '</div>' + (!isBilibili && meta.subtitle ? '<div class="lkc-subtitle">' + escapeHTML(meta.subtitle) + '</div>' : '') + '<div class="lkc-source"><span class="lkc-source-icon">' + icon + '</span><span class="lkc-source-dot"></span><span class="lkc-source-text">' + escapeHTML(meta.source || sourceDomain || '') + '</span></div></div></div>';
-  }
-  if (node.type === 'musicCard') {
-    var muUrl = node.url || '';
-    var muMeta = node.meta;
-    var muStatus = node.status || 'empty';
-    if (muUrl && muMeta && muMeta.title) {
-      var muCoverRaw = muMeta.cover ? proxyImg(muMeta.cover) : '';
-      var muTitle = muMeta.title || (muUrl ? new URL(muUrl).hostname.replace('www.', '') : '音乐');
-      var muSource = muMeta.source || '音乐';
-      var muHasCover = !!muCoverRaw;
-      var muHtml = '<div contenteditable="false" class="link-card-block" data-blockid="' + node.id + '" data-type="musicCard" data-url="' + escapeHTML(muUrl) + '">';
-      if (muHasCover) muHtml += '<div class="lkc-cover"><img src="' + escapeHTML(muCoverRaw) + '" alt="" onerror="this.closest(\'.lkc-cover\').style.display=\'none\'"></div>';
-      muHtml += '<div class="lkc-body' + (muHasCover ? ' has-cover' : '') + '">';
-      muHtml += '<div class="lkc-title">' + escapeHTML(muTitle) + '</div>';
-      if (muMeta.subtitle) muHtml += '<div class="lkc-subtitle">' + escapeHTML(muMeta.subtitle) + '</div>';
-      muHtml += '<div class="lkc-source"><span class="lkc-source-icon">🎵</span><span class="lkc-source-dot"></span><span class="lkc-source-text">' + escapeHTML(muSource) + '</span></div>';
-      muHtml += '</div></div>';
-      return muHtml;
-    }
-    if (muStatus === 'loading' && muUrl) {
-      return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard" data-url="' + escapeHTML(muUrl) + '" class="link-card-skeleton"><div class="link-card-skeleton-cover"></div><div class="link-card-skeleton-body"><div class="link-card-skeleton-line" style="width:75%;"></div><div class="link-card-skeleton-line" style="width:50%;"></div></div></div>';
-    }
-    return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard" style="padding:12px 16px;border-radius:999px;background:var(--card-bg);border:0.5px solid var(--border-color);font-size:14px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;"><span>🎵</span><span>' + escapeHTML(node.url || '点击粘贴音乐链接') + '</span></div>';
-  }
-  return '';
+  return window.CikeEditor && window.CikeEditor.renderAtomicHTML ? window.CikeEditor.renderAtomicHTML(node, files) : '';
 }
 function renderDocToEditorHTML(doc, files) {
-  function esc(t) {
-    var s = t || '';
-    return s ? escapeHTML(s) : '<br>';
-  }
-  return doc.map(function (node) {
-    var text, level, checked;
-    switch (node.type) {
-      case 'paragraph':
-        text = esc(node.children && node.children[0] ? node.children[0].text : '');
-        return '<p data-blockid="' + node.id + '">' + text + '</p>';
-      case 'heading':
-        level = node.attrs && node.attrs.level || 2;
-        text = esc(node.children && node.children[0] ? node.children[0].text : '');
-        return '<h' + level + ' data-blockid="' + node.id + '">' + text + '</h' + level + '>';
-      case 'quote':
-        text = esc(node.children && node.children[0] ? node.children[0].text : '');
-        return '<blockquote data-blockid="' + node.id + '" style="margin:0.6em 0;padding:10px 14px 10px 16px;border-left:3px solid rgba(0,122,255,0.35);background:var(--card-bg);border-radius:999px;border-top:0.5px solid var(--border-color);border-right:0.5px solid var(--border-color);border-bottom:0.5px solid var(--border-color);color:var(--text-secondary);font-size:14px;line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,0.03)">' + text + '</blockquote>';
-      case 'todo':
-        text = esc(node.children && node.children[0] ? node.children[0].text : '');
-        checked = node.attrs && node.attrs.checked ? ' checked' : '';
-        return '<div class="todo-block" data-blockid="' + node.id + '"><input type="checkbox"' + checked + ' contenteditable="false"> <span>' + text + '</span></div>';
-      case 'imgTextCard':
-        text = esc(node.children && node.children[0] ? node.children[0].text : '');
-        var imgFileId = node.attrs && node.attrs.fileId;
-        var imgSrc = imgFileId && files && files[imgFileId] && files[imgFileId].url || node.attrs && (node.attrs.src || node.attrs.imgUrl) || '';
-        var imgHtml = imgSrc ? '<img src="' + escapeHTML(imgSrc) + '" style="width:100%;max-height:468px;object-fit:cover;display:block;">' : '<div style="height:160px;background:rgba(0,0,0,0.03);display:flex;align-items:center;justify-content:center;color:#c7c7cc;font-size:13px;">📷 点击添加图片</div>';
-        return '<div class="img-text-card" data-blockid="' + node.id + '" data-type="imgTextCard" contenteditable="false"><div class="itc-img-wrap">' + imgHtml + '</div><div class="itc-text" contenteditable="true">' + text + '</div></div>';
-      case 'imageTextRow':
-        text = esc(node.children && node.children[0] ? node.children[0].text : '');
-        var rowFid = node.attrs && node.attrs.fileId;
-        var rowImgUrl = rowFid && files && files[rowFid] && files[rowFid].url || node.attrs && (node.attrs.src || node.attrs.imgUrl) || '';
-        var rowImgHtml = rowImgUrl ? '<img src="' + escapeHTML(rowImgUrl) + '" style="width:100%;height:100%;object-fit:cover;display:block">' : '<div class="itr-placeholder">📷</div>';
-        return '<div class="img-text-row" data-blockid="' + node.id + '" data-type="imageTextRow" contenteditable="false"><div class="itr-img">' + rowImgHtml + '</div><div class="itr-text" contenteditable="true">' + text + '</div></div>';
-      case 'gallery':
-        {
-          var gallItems = node.attrs && node.attrs.items || [];
-          var gallHtml = gallItems.length > 0 ? '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;border-radius:12px;corner-shape:squircle;">' + gallItems.map(function (s) {
-            var u = s && s.fileId && files && files[s.fileId] && files[s.fileId].url || s && s.url || s;
-            return '<img src="' + escapeHTML(u) + '" style="width:100%;height:366px;object-fit:cover;border-radius:22px;corner-shape:squircle;">';
-          }).join('') + '</div>' : '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:6px 0 14px;"><div style="height:366px;background:rgba(0,0,0,0.03);border-radius:22px;corner-shape:squircle;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c7c7cc;"><span style="font-size:18px;opacity:0.4;">🖼</span><span style="font-size:11px;margin-top:4px;opacity:0.5;">点击添加</span></div><div style="height:366px;background:rgba(0,0,0,0.02);border-radius:22px;corner-shape:squircle;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c7c7cc;"><span style="font-size:18px;opacity:0.3;">🖼</span><span style="font-size:11px;margin-top:4px;opacity:0.4;">多张图片</span></div></div>';
-          return '<div class="atomic" data-blockid="' + node.id + '" data-type="gallery" contenteditable="false">' + gallHtml + '</div>';
-        }
-      case 'image':
-        {
-          var imgSrc = node.attrs && node.attrs.fileId && files && files[node.attrs.fileId] && files[node.attrs.fileId].url || '';
-          var imgHtml = imgSrc ? '<img src="' + escapeHTML(imgSrc) + '" style="max-width:100%;max-height:668px;border-radius:22px;corner-shape:squircle;display:block;margin:8px auto;object-fit:contain;">' : '<div style="height:566px;border-radius:22px;corner-shape:squircle;background:var(--card-bg);border:0.5px solid var(--border-color);display:flex;align-items:center;justify-content:center;color:#c7c7cc;font-size:13px;margin:8px 0;">📷 点击添加图片</div>';
-          return '<div class="atomic" data-blockid="' + node.id + '" data-type="image" contenteditable="false">' + imgHtml + '</div>';
-        }
-      case 'divider':
-        return '<hr data-blockid="' + node.id + '">';
-      case 'attachment':
-      case 'link-card':
-        return renderAtomicHTML(node, files);
-      case 'musicCard':
-        var muUrl = node.url || '';
-        var muMeta = node.meta;
-        var muStatus = node.status || 'empty';
-        if (muUrl && muMeta && muMeta.title) {
-          var muCoverRaw = muMeta.cover ? proxyImg(muMeta.cover) : '';
-          var muTitle = muMeta.title || (muUrl ? new URL(muUrl).hostname.replace('www.', '') : '音乐');
-          var muSource = muMeta.source || '音乐';
-          var muHasCover = !!muCoverRaw;
-          var muHtml = '<div contenteditable="false" class="link-card-block" data-blockid="' + node.id + '" data-type="musicCard" data-url="' + escapeHTML(muUrl) + '">';
-          if (muHasCover) muHtml += '<div class="lkc-cover"><img src="' + escapeHTML(muCoverRaw) + '" alt="" onerror="this.closest(\'.lkc-cover\').style.display=\'none\'"></div>';
-          muHtml += '<div class="lkc-body' + (muHasCover ? ' has-cover' : '') + '">';
-          muHtml += '<div class="lkc-title">' + escapeHTML(muTitle) + '</div>';
-          if (muMeta.subtitle) muHtml += '<div class="lkc-subtitle">' + escapeHTML(muMeta.subtitle) + '</div>';
-          muHtml += '<div class="lkc-source"><span class="lkc-source-icon">🎵</span><span class="lkc-source-dot"></span><span class="lkc-source-text">' + escapeHTML(muSource) + '</span></div>';
-          muHtml += '</div></div>';
-          return muHtml;
-        }
-        if (muStatus === 'input') {
-          return '<div contenteditable="true" data-blockid="' + node.id + '" data-type="musicCard" data-music-url="pending" style="padding:12px 18px;border-radius:999px;background:var(--card-bg);border:0.5px solid var(--border-color);font-size:14px;color:var(--text-secondary);outline:none;">' + escapeHTML(node.url || '粘贴音乐链接到这里...') + '</div>';
-        }
-        if (muStatus === 'loading' && muUrl) {
-          return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard" data-url="' + escapeHTML(muUrl) + '" class="link-card-skeleton"><div class="link-card-skeleton-cover"></div><div class="link-card-skeleton-body"><div class="link-card-skeleton-line" style="width:75%;"></div><div class="link-card-skeleton-line" style="width:50%;"></div></div></div>';
-        }
-        return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard" style="padding:12px 16px;border-radius:999px;background:var(--card-bg);border:0.5px solid var(--border-color);font-size:14px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;"><span>🎵</span><span>' + escapeHTML(node.url || '点击粘贴音乐链接') + '</span></div>';
-      case 'embedCard':
-      default:
-        text = esc(node.children && node.children[0] ? node.children[0].text : '');
-        return '<p data-blockid="' + node.id + '">' + text + '</p>';
-    }
-  }).join('\n');
+  return window.CikeEditor ? window.CikeEditor.renderDocToEditorHTML(doc, files) : doc.map(function(n){return '<p>'+((n.children&&n.children[0]&&n.children[0].text)||'')+'</p>';}).join('\n');
 }
 function parseEditorDOM(containerEl) {
-  var doc = [],
-    prevDoc = __editorDocRef || [],
-    prevMap = {};
-  for (var i = 0; i < prevDoc.length; i++) prevMap[prevDoc[i].id] = prevDoc[i];
-  var children = containerEl.children;
-  for (var i = 0; i < children.length; i++) {
-    var el = children[i];
-    if (el.nodeType !== 1) {
-      /* 捕获裸文本节点（附件后打字被浏览器放在 textNode 中） */
-      var txt = (el.textContent || '').trim();
-      if (txt) {
-        var tid = genId();
-        doc.push({
-          id: tid,
-          type: 'paragraph',
-          children: [{
-            text: txt
-          }]
-        });
-      }
-      continue;
-    }
-    if (el.contentEditable === 'false') {
-      /* 音乐卡片 → 强制保持 musicCard 类型 */
-      if (el.dataset.type === 'musicCard') {
-        var origMu = prevMap[el.dataset.blockid];
-        if (origMu) {
-          origMu.type = 'musicCard';
-          doc.push(origMu);
-        } else {
-          doc.push({
-            id: el.dataset.blockid || genId(),
-            type: 'musicCard',
-            url: el.dataset.url || '',
-            meta: null,
-            status: el.dataset.url ? 'loading' : 'empty'
-          });
-        }
-        continue;
-      }
-      /* 带 data-mdtext 的渲染块 → 还原为段落文本 */
-      if (el.dataset.mdtext) {
-        var raw = (el.dataset.mdtext || '').trim();
-        /* 表格拆分多行（每行恢复为独立段落），callout 保持单段落避免智能前缀误匹配 */
-        if (/^\|.+\|$/m.test(raw)) {
-          var lines = raw.split('\n');
-          for (var li = 0; li < lines.length; li++) {
-            var lineText = lines[li].trim();
-            if (lineText) {
-              doc.push({
-                id: genId(),
-                type: 'paragraph',
-                children: [{
-                  text: lineText
-                }]
-              });
-            }
-          }
-        } else {
-          /* callout/blockquote/其他块级 → 保持原始多行文本为单段落 */
-          doc.push({
-            id: genId(),
-            type: 'paragraph',
-            children: [{
-              text: raw
-            }]
-          });
-        }
-        continue;
-      }
-      var orig = prevMap[el.dataset.blockid];
-      if (orig) {
-        doc.push(orig);
-        continue;
-      }
-      /* 不在 prevMap 中的 contentEditable=false 块，
-         从 DOM textContent 捞取文字兜底 */
-      var fallbackText = (el.textContent || '').trim();
-      if (fallbackText) {
-        doc.push({
-          id: el.dataset.blockid || genId(),
-          type: 'paragraph',
-          children: [{
-            text: fallbackText
-          }]
-        });
-      }
-      continue;
-    }
-    var id = el.dataset.blockid || genId();
-    if (!el.dataset.blockid) el.dataset.blockid = id;
-    var tag = el.tagName.toLowerCase();
-    var text = el.textContent || '';
-    if (tag === 'h1' || tag === 'h2' || tag === 'h3' || tag === 'h4') {
-      doc.push({
-        id: id,
-        type: 'heading',
-        children: [{
-          text: text
-        }],
-        attrs: {
-          level: parseInt(tag[1])
-        }
-      });
-    } else if (tag === 'blockquote') {
-      doc.push({
-        id: id,
-        type: 'quote',
-        children: [{
-          text: text
-        }]
-      });
-    } else if (el.classList.contains('todo-block')) {
-      var cb = el.querySelector('input[type="checkbox"]');
-      doc.push({
-        id: id,
-        type: 'todo',
-        children: [{
-          text: text
-        }],
-        attrs: {
-          checked: !!(cb && cb.checked)
-        }
-      });
-    } else if (el.dataset && el.dataset.musicUrl === 'pending') {
-      /* 音乐卡片输入占位 → 保存已输入文本, 保持输入状态 */
-      var muInputText = (el.textContent || '').trim();
-      var muSavedUrl = muInputText && muInputText !== '粘贴音乐链接到这里...' ? muInputText : '';
-      doc.push({
-        id: id,
-        type: 'musicCard',
-        url: muSavedUrl,
-        meta: null,
-        status: 'input'
-      });
-    } else {
-      doc.push({
-        id: id,
-        type: 'paragraph',
-        children: [{
-          text: text
-        }]
-      });
-    }
-  }
-  return doc;
+  return window.CikeEditor ? window.CikeEditor.parseEditorDOM(containerEl) : [];
 }
-/* ===== End DOM utilities ===== */
-
-const BlockSystem = {
-  types: {},
-  register(type, config) {
-    this.types[type] = {
-      type,
-      ...config
-    };
-  },
-  get(type) {
-    return this.types[type];
-  },
-  render(node, ctx) {
-    const cfg = this.types[node.type];
-    if (!cfg) return null;
-    if (cfg.isAtomic) {
-      // atomic (contentEditable=false)
-      return React.createElement('div', {
-        key: node.id,
-        'data-blockid': node.id,
-        'data-type': node.type,
-        ...(node.type === 'attachment' ? {
-          'data-fileid': node.fileId
-        } : {}),
-        ...(node.type === 'link-card' || node.type === 'embedCard' ? {
-          'data-url': node.url
-        } : {}),
-        contentEditable: false,
-        style: {
-          userSelect: 'none',
-          margin: node.type === 'attachment' ? '8px 0' : '0'
-        }
-      }, cfg.render ? cfg.render(node, ctx) : null);
-    }
-    return cfg.render(node, ctx);
-  },
-  renderDoc(doc, ctx) {
-    return doc.map(node => this.render(node, ctx));
-  }
-};
-
-/* ---------- BlockSystem: Register types ---------- */
-BlockSystem.register('paragraph', {
-  isAtomic: false,
-  render(node, ctx) {
-    const text = node.children?.[0]?.text || '';
-    if (ctx.autoRenderMap?.[node.id] && looksLikeCiaoMarkdown(text)) {
-      return React.createElement('div', {
-        key: node.id + '_' + ctx.renderKey,
-        'data-blockid': node.id,
-        'data-type': 'paragraph',
-        contentEditable: false,
-        className: 'markdown-render',
-        style: {
-          minHeight: '1.5em',
-          cursor: 'pointer',
-          padding: '2px 0'
-        },
-        dangerouslySetInnerHTML: {
-          __html: renderMarkdownHtml(text) || '<p><br></p>'
-        },
-        onClick: () => ctx.setAutoRenderMap?.(p => {
-          const n = {
-            ...p
-          };
-          delete n[node.id];
-          return n;
-        })
-      });
-    }
-    return React.createElement('p', {
-      key: node.id + '_' + ctx.renderKey,
-      'data-blockid': node.id,
-      'data-type': 'paragraph',
-      style: {
-        margin: '1px 0',
-        minHeight: '1.5em'
-      }
-    }, text || '\u200B');
-  }
-});
-BlockSystem.register('heading', {
-  isAtomic: false,
-  render(node, ctx) {
-    const text = node.children?.[0]?.text || '';
-    const level = node.attrs?.level || 2;
-    const sizes = {
-      1: 1.5,
-      2: 1.25,
-      3: 1.1,
-      4: 1,
-      5: 0.9,
-      6: 0.85
-    };
-    const size = sizes[level] || 1.25;
-    return React.createElement('h' + level, {
-      key: node.id + '_' + ctx.renderKey,
-      'data-blockid': node.id,
-      'data-type': 'heading',
-      'data-level': level,
-      style: {
-        margin: '0.5em 0 0.2em',
-        fontSize: size + 'em',
-        fontWeight: 700,
-        letterSpacing: '-0.03em',
-        lineHeight: 1.3
-      }
-    }, text || '\u200B');
-    return null; // placeholder until contentEditable implementation
-  }
-});
-BlockSystem.register('quote', {
-  isAtomic: false,
-  render(node, ctx) {
-    const text = node.children?.[0]?.text || '';
-    return React.createElement('blockquote', {
-      key: node.id + '_' + ctx.renderKey,
-      'data-blockid': node.id,
-      'data-type': 'quote',
-      style: {
-        margin: '0.6em 0',
-        padding: '10px 14px 10px 16px',
-        borderLeft: '3px solid rgba(0,122,255,0.35)',
-        background: 'var(--card-bg)',
-        borderRadius: '999px',
-        borderTop: '0.5px solid var(--border-color)',
-        borderRight: '0.5px solid var(--border-color)',
-        borderBottom: '0.5px solid var(--border-color)',
-        color: 'var(--text-secondary)',
-        fontSize: '14px',
-        lineHeight: '1.6',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
-      }
-    }, text || '\u200B');
-  }
-});
-BlockSystem.register('todo', {
-  isAtomic: false,
-  render(node, ctx) {
-    const text = node.children?.[0]?.text || '';
-    const checked = node.attrs?.checked || false;
-    return React.createElement('div', {
-      key: node.id + '_' + ctx.renderKey,
-      'data-blockid': node.id,
-      'data-type': 'todo',
-      style: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: 8,
-        margin: '4px 0'
-      }
-    }, React.createElement('input', {
-      type: 'checkbox',
-      checked,
-      readOnly: true,
-      style: {
-        width: 18,
-        height: 18,
-        margin: 0,
-        cursor: 'pointer'
-      },
-      onClick: e => {
-        e.preventDefault();
-        ctx.updateBlock?.(node.id, {
-          attrs: {
-            ...node.attrs,
-            checked: !checked
-          }
-        });
-      }
-    }), React.createElement('span', {
-      style: {
-        flex: 1,
-        textDecoration: checked ? 'line-through' : 'none',
-        opacity: checked ? 0.5 : 1
-      }
-    }, text || '\u200B'));
-  }
-});
-BlockSystem.register('divider', {
-  isAtomic: true,
-  render(node, ctx) {
-    return React.createElement('hr', {
-      key: node.id,
-      'data-blockid': node.id,
-      'data-type': 'divider',
-      style: {
-        border: 'none',
-        height: '1px',
-        background: 'linear-gradient(to right, transparent, var(--border-color), transparent)',
-        margin: '0.8em auto',
-        width: '60%',
-        opacity: 0.6
-      }
-    });
-  }
-});
-BlockSystem.register('image', {
-  isAtomic: true,
-  render(node, ctx) {
-    const src = node.attrs?.src || '';
-    if (!src) {
-      return React.createElement('div', {
-        key: node.id,
-        'data-blockid': node.id,
-        'data-type': 'image',
-        style: {
-          borderRadius: 14,
-          overflow: 'hidden',
-          margin: '8px 36px',
-          background: 'var(--card-bg)',
-          border: '0.5px solid var(--border-color)',
-          height: 160,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#c7c7cc',
-          fontSize: 13
-        }
-      }, '📷 点击添加图片');
-    }
-    return React.createElement('img', {
-      key: node.id,
-      'data-blockid': node.id,
-      'data-type': 'image',
-      src: proxyImg(src) || src,
-      alt: node.attrs?.alt || '',
-      style: {
-        maxWidth: '100%',
-        borderRadius: 10,
-        margin: '8px 0',
-        display: 'block'
-      },
-      onError: e => {
-        e.target.style.display = 'none';
-      }
-    });
-  }
-});
-BlockSystem.register('gallery', {
-  isAtomic: true,
-  render(node, ctx) {
-    const items = node.attrs?.items || [];
-    if (items.length === 0) {
-      return React.createElement('div', {
-        key: node.id,
-        'data-blockid': node.id,
-        'data-type': 'gallery',
-        style: {
-          borderRadius: 14,
-          overflow: 'hidden',
-          margin: '8px 36px',
-          background: 'var(--card-bg)',
-          border: '0.5px solid var(--border-color)'
-        }
-      }, React.createElement('div', {
-        style: {
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2,1fr)',
-          gap: 6,
-          padding: '6px 0 14px'
-        }
-      }, React.createElement('div', {
-        style: {
-          height: 366,
-          background: 'rgba(0,0,0,0.03)',
-          borderRadius: 22,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          color: '#c7c7cc'
-        }
-      }, React.createElement('span', {
-        style: {
-          fontSize: 18,
-          opacity: 0.4
-        }
-      }, '🖼'), React.createElement('span', {
-        style: {
-          fontSize: 11,
-          marginTop: 4,
-          opacity: 0.5
-        }
-      }, '点击添加')), React.createElement('div', {
-        style: {
-          height: 366,
-          background: 'rgba(0,0,0,0.02)',
-          borderRadius: 22,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'column',
-          color: '#c7c7cc'
-        }
-      }, React.createElement('span', {
-        style: {
-          fontSize: 18,
-          opacity: 0.3
-        }
-      }, '🖼'), React.createElement('span', {
-        style: {
-          fontSize: 11,
-          marginTop: 4,
-          opacity: 0.4
-        }
-      }, '多张图片'))));
-    }
-    return React.createElement('div', {
-      key: node.id,
-      'data-blockid': node.id,
-      'data-type': 'gallery',
-      style: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: 4,
-        margin: '8px 0',
-        borderRadius: 12,
-        overflow: 'hidden'
-      }
-    }, items.map(function (item, i) {
-      var src = item && item.fileId && ctx && ctx.files && ctx.files[item.fileId] && ctx.files[item.fileId].url || item && item.url || item;
-      return React.createElement('img', {
-        key: i,
-        src: proxyImg(src) || src,
-        style: {
-          width: '100%',
-          height: 366,
-          objectFit: 'cover',
-          borderRadius: 22
-        },
-        onError: e => {
-          e.target.style.display = 'none';
-        }
-      });
-    }));
-  }
-});
-BlockSystem.register('imgTextCard', {
-  isAtomic: true,
-  render(node, ctx) {
-    var text = node.children && node.children[0] && node.children[0].text || '';
-    var imgUrl = node.attrs && node.attrs.imgUrl || '';
-    return React.createElement('div', {
-      key: node.id,
-      'data-blockid': node.id,
-      'data-type': 'imgTextCard',
-      style: {
-        borderRadius: 16,
-        overflow: 'hidden',
-        margin: '8px 0',
-        background: 'var(--card-bg)',
-        border: '0.5px solid var(--border-color)',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
-      }
-    }, React.createElement('div', {
-      style: {
-        width: '100%',
-        height: 160,
-        background: 'rgba(0,0,0,0.03)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 13,
-        color: '#c7c7cc'
-      }
-    }, '📷 点击添加图片'), React.createElement('div', {
-      contentEditable: true,
-      suppressContentEditableWarning: true,
-      style: {
-        padding: '12px 14px',
-        fontSize: 14,
-        lineHeight: 1.6,
-        color: 'var(--text-main)',
-        minHeight: 44,
-        outline: 'none'
-      }
-    }, text || '点击输入文字'));
-  }
-});
-BlockSystem.register('imageTextRow', {
-  isAtomic: true,
-  render(node, ctx) {
-    var text = node.children && node.children[0] && node.children[0].text || '';
-    return React.createElement('div', {
-      key: node.id,
-      'data-blockid': node.id,
-      'data-type': 'imageTextRow',
-      style: {
-        display: 'flex',
-        gap: 10,
-        borderRadius: 16,
-        overflow: 'hidden',
-        margin: '8px 0',
-        background: 'var(--card-bg)',
-        border: '0.5px solid var(--border-color)',
-        minHeight: 100
-      }
-    }, React.createElement('div', {
-      style: {
-        flex: '0 0 50%',
-        minWidth: 0,
-        background: 'rgba(0,0,0,0.03)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 24,
-        opacity: 0.3
-      }
-    }, '📷'), React.createElement('div', {
-      contentEditable: true,
-      suppressContentEditableWarning: true,
-      style: {
-        flex: 1,
-        padding: '10px 12px 10px 0',
-        fontSize: 14,
-        lineHeight: 1.6,
-        color: 'var(--text-main)',
-        display: 'flex',
-        alignItems: 'center',
-        outline: 'none'
-      }
-    }, text || '点击输入说明文字'));
-  }
-});
-BlockSystem.register('musicCard', {
-  isAtomic: true,
-  render(node, ctx) {
-    const url = node.url || '';
-    const meta = node.meta;
-    const status = node.status || 'empty';
-    if (status === 'loading' && url) {
-      return React.createElement('div', {
-        key: node.id,
-        'data-blockid': node.id,
-        'data-type': 'musicCard',
-        className: 'link-card-skeleton'
-      }, React.createElement('div', {
-        className: 'link-card-skeleton-cover'
-      }), React.createElement('div', {
-        className: 'link-card-skeleton-body'
-      }, React.createElement('div', {
-        className: 'link-card-skeleton-line',
-        style: {
-          width: '75%'
-        }
-      }), React.createElement('div', {
-        className: 'link-card-skeleton-line',
-        style: {
-          width: '50%'
-        }
-      })));
-    }
-    if (!meta || !meta.title) {
-      return React.createElement('div', {
-        key: node.id,
-        'data-blockid': node.id,
-        'data-type': 'musicCard',
-        style: {
-          padding: '12px 16px',
-          borderRadius: 999,
-          background: 'var(--card-bg)',
-          border: '0.5px solid var(--border-color)',
-          fontSize: 14,
-          color: 'var(--text-secondary)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10
-        }
-      }, React.createElement('span', null, '🎵'), React.createElement('span', null, url || '点击粘贴音乐链接'));
-    }
-    const coverUrl = proxyImg(meta.cover);
-    const hasCover = !!coverUrl;
-    return React.createElement('div', {
-      key: node.id,
-      className: 'link-card-block',
-      'data-blockid': node.id,
-      'data-type': 'musicCard',
-      'data-url': url,
-      onClick: () => window.open(url, '_blank')
-    }, hasCover && React.createElement('div', {
-      className: 'lkc-cover'
-    }, React.createElement('img', {
-      src: coverUrl,
-      alt: '',
-      onError: e => {
-        e.target.closest('.lkc-cover').style.display = 'none';
-      }
-    })), React.createElement('div', {
-      className: 'lkc-body' + (hasCover ? ' has-cover' : '')
-    }, React.createElement('div', {
-      className: 'lkc-title'
-    }, meta.title), meta.subtitle && React.createElement('div', {
-      className: 'lkc-subtitle'
-    }, meta.subtitle), React.createElement('div', {
-      className: 'lkc-source'
-    }, React.createElement('span', {
-      className: 'lkc-source-icon'
-    }, '🎵'), React.createElement('span', {
-      className: 'lkc-source-dot'
-    }), React.createElement('span', {
-      className: 'lkc-source-text'
-    }, meta.source || '音乐'))));
-  }
-});
-BlockSystem.register('embedCard', {
-  isAtomic: true,
-  render(node, ctx) {
-    // embedCard is the upgraded version of link-card
-    // For now, delegate to LinkCard component
-    return React.createElement(LinkCard, {
-      key: node.id,
-      node: {
-        ...node,
-        type: 'link-card'
-      }
-    });
-  }
-});
-
-// Map old types to new
-BlockSystem.register('attachment', {
-  isAtomic: true,
-  render(node, ctx) {
-    return ctx.renderAttachment?.(node, ctx.files?.[node.fileId], ctx.LazyImage) || null;
-  }
-});
-BlockSystem.register('link-card', {
-  isAtomic: true,
-  render(node, ctx) {
-    return React.createElement(LinkCard, {
-      key: node.id,
-      node: {
-        ...node,
-        url: node.url,
-        meta: node.meta,
-        status: node.status
-      }
-    });
-  }
-});
 function Editor({
   memo,
   onClose,
@@ -3131,7 +1114,7 @@ function Editor({
           setRenderKey(prev => prev + 1);
         }
       }
-    }).catch(() => {});
+    }).catch(function(e) { console.warn('[\u6B64\u523B] draft load', e); });
     const map = {};
     for (const node of docRef.current || initialDoc) {
       if (node.type === "paragraph") {
@@ -3718,6 +1701,7 @@ function Editor({
     });
   }, []);
   var applySlashCommand = useCallback(function (cmd) {
+    recordUndoPoint();
     if (!cmd || slashApplyingRef.current) return;
     slashApplyingRef.current = true;
     if (slashRepositionRafRef.current) {
@@ -4111,7 +2095,7 @@ function Editor({
       return loadRenderCacheFromDB(db, memo.id);
     }).then(function (c) {
       if (c) pendingCache = c;
-    }).catch(function () {});
+    }).catch(function(e) { if(e) console.warn('[\u6B64\u523B]', e); });
     setTimeout(function () {
       var ps = el.querySelectorAll('p');
       if (!ps.length) return;
@@ -4395,7 +2379,7 @@ function Editor({
         if (Object.keys(rc).length > 0) {
           getDB().then(function (db) {
             saveRenderCacheToDB(db, memo.id, rc).catch(function () {});
-          }).catch(function () {});
+          }).catch(function(e) { if(e) console.warn('[\u6B64\u523B]', e); });
         }
       }
     } catch (_) {}
@@ -4413,7 +2397,7 @@ function Editor({
         doc: docRef.current,
         title: titleValueRef.current,
         updatedAt: new Date().toISOString()
-      }).catch(() => {});
+      }).catch(function(e) { console.warn('[\u6B64\u523B] draft load', e); });
     }, isDraft ? 300 : 600);
   }, [doSave, memo.id]);
   useEffect(() => {
@@ -4481,7 +2465,6 @@ function Editor({
     }, 200);
   }, []);
   var applyPatch = useCallback(patch => {
-    // 用 blockId 定位代替 index，避免 insert/remove 后 index 漂移
     const cur = docRef.current;
     patch.forEach(p => {
       if (p.op === "update") {
@@ -4497,19 +2480,53 @@ function Editor({
     });
     setRenderKey(prev => prev + 1);
   }, []);
+  // ===== 全量快照撤销/重做 =====
+  var lastSnapshotRef = useRef(null);
+  var recordUndoPoint = useCallback(function() {
+    var cur = docRef.current;
+    var prev = lastSnapshotRef.current;
+    if (!prev) { lastSnapshotRef.current = cur; return; }
+    if (prev === cur) return; // 同一引用 → 无变化
+    history.current.past.push({ snapshot: prev, inverse: null });
+    if (history.current.past.length > 100) history.current.past.shift();
+    history.current.future = [];
+    lastSnapshotRef.current = cur;
+  }, []);
   var undo = useCallback(() => {
-    const last = history.current.past.pop();
-    if (!last) return;
-    applyPatch(last.inverse);
-    history.current.future.push(last);
-    triggerAutoSave();
+    var h = history.current, last = h.past[h.past.length - 1];
+    if (last && last.snapshot) {
+      h.past.pop();
+      var restoreTo = JSON.parse(JSON.stringify(last.snapshot));
+      lastSnapshotRef.current = docRef.current;
+      docRef.current = restoreTo; setEditorDocRef(restoreTo);
+      var el = editorBodyRef.current;
+      if (el) el.innerHTML = renderDocToEditorHTML(restoreTo, files);
+      setRenderKey(function(p){return p+1;});
+      triggerAutoSave();
+      h.future.push({ inverse: null, snapshot: last.inverse || null });
+      return;
+    }
+    var p2 = h.past.pop();
+    if (!p2) return;
+    applyPatch(p2.inverse); h.future.push(p2); triggerAutoSave();
   }, [applyPatch, triggerAutoSave]);
   var redo = useCallback(() => {
-    const next = history.current.future.pop();
-    if (!next) return;
-    applyPatch(next.patch);
-    history.current.past.push(next);
-    triggerAutoSave();
+    var h = history.current, nxt = h.future[h.future.length - 1];
+    if (nxt && nxt.snapshot) {
+      h.future.pop();
+      var restoreTo = JSON.parse(JSON.stringify(nxt.snapshot));
+      lastSnapshotRef.current = docRef.current;
+      docRef.current = restoreTo; setEditorDocRef(restoreTo);
+      var el = editorBodyRef.current;
+      if (el) el.innerHTML = renderDocToEditorHTML(restoreTo, files);
+      setRenderKey(function(p){return p+1;});
+      triggerAutoSave();
+      h.past.push({ snapshot: restoreTo, inverse: null });
+      return;
+    }
+    var n2 = h.future.pop();
+    if (!n2) return;
+    applyPatch(n2.patch); h.past.push(n2); triggerAutoSave();
   }, [applyPatch, triggerAutoSave]);
   useEffect(() => {
     const handler = e => {
@@ -4523,6 +2540,17 @@ function Editor({
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
+  }, [undo, redo]);
+  // ===== beforeinput: iOS 三指手势撤销/重做 =====
+  useEffect(() => {
+    var handler = function(e) {
+      if (e.inputType === 'historyUndo') { e.preventDefault(); undo(); }
+      else if (e.inputType === 'historyRedo') { e.preventDefault(); redo(); }
+    };
+    var el = editorBodyRef.current;
+    if (!el) return;
+    el.addEventListener('beforeinput', handler);
+    return function() { el.removeEventListener('beforeinput', handler); };
   }, [undo, redo]);
   useEffect(() => {
     const SCROLL_THRESHOLD = 30;
@@ -4660,6 +2688,7 @@ function Editor({
 
   /* ===== Attachment insertion ===== */
   var insertAttachmentAtCursor = useCallback(async file => {
+    recordUndoPoint();
     var id = genId();
     var html = '<div contenteditable="false" class="atomic attachment" data-blockid="' + id + '" data-fileid="' + id + '"><div class="atomic-placeholder">📎 ' + escapeHTML(file.name) + '</div></div>';
     insertAtomicBlockToDOM(html, function () {
@@ -4856,6 +2885,7 @@ function Editor({
 
   /* ===== Link card insertion ===== */
   var insertLinkCardAtDOM = useCallback(async function (url) {
+    recordUndoPoint();
     var cardId = genId();
     var domain = '';
     try {
@@ -5009,6 +3039,7 @@ function Editor({
           if (changed) break;
         }
         if (changed) {
+          recordUndoPoint();
           setEditorDocRef(doc);
           el.innerHTML = renderDocToEditorHTML(doc, {});
         }
@@ -6384,6 +4415,131 @@ function Editor({
       padding: 7
     }
   }, /*#__PURE__*/React.createElement("button", {
+    onClick: function() { closeEditorMenu(); var h = history.current; if (h.past.length > 0) undo(); },
+    style: {
+      width: "100%",
+      minHeight: 50,
+      border: "none",
+      background: "transparent",
+      borderRadius: 17,
+      display: "flex",
+      alignItems: "center",
+      gap: 11,
+      padding: "8px 10px",
+      color: "var(--text-main)",
+      fontSize: 14,
+      fontFamily: "inherit",
+      cursor: history.current.past.length > 0 ? "pointer" : "default",
+      textAlign: "left",
+      opacity: history.current.past.length > 0 ? 1 : 0.3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 24,
+      height: 24,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flex: "none",
+      color: "#007aff"
+    },
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    width: "20",
+    height: "20",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("polyline", {
+    points: "1 4 1 10 7 10"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M3.51 15a9 9 0 1 0 2.13-9.36L1 10"
+  }))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      minWidth: 0,
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 15,
+      fontWeight: 650,
+      letterSpacing: "-0.1px"
+    }
+  }, "\u64A4\u9500"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 11,
+      color: "var(--text-secondary)",
+      marginTop: 2
+    }
+  }, "\u5FEB\u6377\u952E\u2192 Cmd+Z / \u4E09\u6307\u5DE6\u6ED1"))), /*#__PURE__*/React.createElement("button", {
+    onClick: function() { closeEditorMenu(); var h = history.current; if (h.future.length > 0) redo(); },
+    style: {
+      width: "100%",
+      minHeight: 50,
+      border: "none",
+      background: "transparent",
+      borderRadius: 17,
+      display: "flex",
+      alignItems: "center",
+      gap: 11,
+      padding: "8px 10px",
+      color: "var(--text-main)",
+      fontSize: 14,
+      fontFamily: "inherit",
+      cursor: history.current.future.length > 0 ? "pointer" : "default",
+      textAlign: "left",
+      opacity: history.current.future.length > 0 ? 1 : 0.3,
+      marginBottom: 4
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      width: 24,
+      height: 24,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flex: "none",
+      color: "#007aff"
+    },
+    "aria-hidden": "true"
+  }, /*#__PURE__*/React.createElement("svg", {
+    viewBox: "0 0 24 24",
+    width: "20",
+    height: "20",
+    fill: "none",
+    stroke: "currentColor",
+    strokeWidth: "2.5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }, /*#__PURE__*/React.createElement("polyline", {
+    points: "23 4 23 10 17 10"
+  }), /*#__PURE__*/React.createElement("path", {
+    d: "M20.49 15a9 9 0 1 1-2.12-9.36L23 10"
+  }))), /*#__PURE__*/React.createElement("span", {
+    style: {
+      minWidth: 0,
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 15,
+      fontWeight: 650,
+      letterSpacing: "-0.1px"
+    }
+  }, "\u91CD\u505A"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "block",
+      fontSize: 11,
+      color: "var(--text-secondary)",
+      marginTop: 2
+    }
+  }, "\u5FEB\u6377\u952E\u2192 Cmd+Shift+Z / \u4E09\u6307\u53F3\u6ED1"))), /*#__PURE__*/React.createElement("button", {
     onClick: handleAddAttachment,
     style: {
       width: "100%",
@@ -6894,222 +5050,6 @@ function Editor({
 }
 
 /* ---------- 纯色背景选择浮层 ---------- */
-const BgSheet = ({
-  currentColor,
-  onSelect,
-  onRemove,
-  onClose
-}) => {
-  const presetColors = ['#f5f5f5', '#e8e0d4', '#d4e8d0', '#d0e0e8', '#e8d0d4', '#fff3e0', '#e8e0f0', '#f0e8d0'];
-  const [closing, setClosing] = useState(true);
-  const closeTimerRef = useRef(null);
-  useEffect(() => {
-    requestAnimationFrame(() => requestAnimationFrame(() => setClosing(false)));
-    return () => clearTimeout(closeTimerRef.current);
-  }, []);
-  const closeWithAnim = useCallback(afterClose => {
-    clearTimeout(closeTimerRef.current);
-    setClosing(true);
-    closeTimerRef.current = setTimeout(() => {
-      if (afterClose) afterClose();else if (onClose) onClose();
-    }, 220);
-  }, [onClose]);
-  const colorNames = ['默认灰', '暖沙', '浅绿', '浅蓝', '浅粉', '米橙', '淡紫', '浅杏'];
-  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
-    onPointerDown: () => closeWithAnim(),
-    style: {
-      position: "fixed",
-      inset: 0,
-      zIndex: 9998,
-      background: closing ? "transparent" : "transparent",
-      transition: "background 220ms ease"
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: "fixed",
-      top: "calc(env(safe-area-inset-top) + 7px + 46px + 6px)",
-      right: 16,
-      zIndex: 9999,
-      width: 246,
-      transformOrigin: "85% -18px",
-      opacity: closing ? 0 : 1,
-      transform: closing ? "translateY(-10px) scale(0.92)" : "translateY(0) scale(1)",
-      transition: "opacity 180ms ease, transform 220ms cubic-bezier(0.34,1.56,0.64,1)",
-      willChange: "opacity, transform"
-    },
-    onPointerDown: e => e.stopPropagation()
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: "var(--popover-bg)",
-      backdropFilter: "blur(32px) saturate(1.25)",
-      WebkitBackdropFilter: "blur(32px) saturate(1.25)",
-      border: "0.5px solid var(--border-color)",
-      borderRadius: 22,
-      boxShadow: "0 6px 18px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.03)",
-      padding: 14,
-      overflow: "hidden"
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 10,
-      marginBottom: 14
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 24,
-      height: 24,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      color: "#af52de",
-      flex: "none"
-    },
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("svg", {
-    viewBox: "0 0 24 24",
-    width: "20",
-    height: "20",
-    fill: "none",
-    xmlns: "http://www.w3.org/2000/svg"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M12 3.5a8.5 8.5 0 1 0 8.5 8.5c0-1.1-.9-2-2-2h-1.6a1.8 1.8 0 0 1-1.8-1.8V6.5A3 3 0 0 0 12 3.5Z",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    strokeLinejoin: "round"
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "8",
-    cy: "10",
-    r: "1.1",
-    fill: "currentColor"
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "11",
-    cy: "7.7",
-    r: "1.1",
-    fill: "currentColor"
-  }), /*#__PURE__*/React.createElement("circle", {
-    cx: "15.2",
-    cy: "9",
-    r: "1.1",
-    fill: "currentColor"
-  }))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      minWidth: 0,
-      flex: 1
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontWeight: 700,
-      fontSize: 15,
-      color: "var(--text-main)",
-      letterSpacing: "-0.1px"
-    }
-  }, "\u80CC\u666F\u8272"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: "var(--text-secondary)",
-      marginTop: 2
-    }
-  }, "\u4E3A\u5F53\u524D\u7B14\u8BB0\u8BBE\u7F6E\u5E95\u8272"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4, 1fr)',
-      gap: 10,
-      marginBottom: 12
-    }
-  }, presetColors.map((c, i) => {
-    const selected = currentColor === c;
-    return /*#__PURE__*/React.createElement("button", {
-      key: c,
-      "aria-label": colorNames[i],
-      onClick: () => closeWithAnim(() => onSelect && onSelect(c)),
-      style: {
-        width: 42,
-        height: 42,
-        borderRadius: 21,
-        background: c,
-        cursor: 'pointer',
-        padding: 0,
-        border: selected ? '2px solid #007aff' : '0.5px solid rgba(0,0,0,0.12)',
-        boxShadow: selected ? '0 0 0 3px rgba(0,122,255,0.16)' : '0 2px 8px rgba(0,0,0,0.08)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'transform 160ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 160ms ease, border 160ms ease'
-      }
-    }, selected && /*#__PURE__*/React.createElement("svg", {
-      viewBox: "0 0 24 24",
-      width: "20",
-      height: "20",
-      fill: "none",
-      xmlns: "http://www.w3.org/2000/svg",
-      style: {
-        filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.18))'
-      }
-    }, /*#__PURE__*/React.createElement("path", {
-      d: "M5.5 12.3 10 16.7 18.8 7.8",
-      stroke: "#007aff",
-      strokeWidth: "2.5",
-      strokeLinecap: "round",
-      strokeLinejoin: "round"
-    })));
-  })), currentColor && /*#__PURE__*/React.createElement("div", {
-    style: {
-      borderTop: "0.5px solid var(--border-color)",
-      paddingTop: 7,
-      marginTop: 2
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    onClick: () => closeWithAnim(() => onRemove && onRemove()),
-    style: {
-      width: "100%",
-      minHeight: 46,
-      border: "none",
-      background: "transparent",
-      borderRadius: 16,
-      display: "flex",
-      alignItems: "center",
-      gap: 11,
-      padding: "8px 10px",
-      color: "#ff3b30",
-      fontSize: 14,
-      fontFamily: "inherit",
-      cursor: "pointer",
-      textAlign: "left"
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      width: 24,
-      height: 24,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flex: "none"
-    },
-    "aria-hidden": "true"
-  }, /*#__PURE__*/React.createElement("svg", {
-    viewBox: "0 0 24 24",
-    width: "20",
-    height: "20",
-    fill: "none",
-    xmlns: "http://www.w3.org/2000/svg"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M4.5 7.5h15M9 7.5V6a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 15 6v1.5M8.5 7.5l.4 10a1.5 1.5 0 0 0 1.5 1.4h3.2a1.5 1.5 0 0 0 1.5-1.4l.4-10M10.2 11v4.5M13.8 11v4.5",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }))), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 15,
-      fontWeight: 650,
-      letterSpacing: "-0.1px"
-    }
-  }, "\u79FB\u9664\u80CC\u666F"))))));
-};
-
-/* ---------- 备份视图 ---------- */
 const BackupView = ({
   onClose
 }) => {
@@ -7156,7 +5096,7 @@ const BackupView = ({
       req.onsuccess = function () {
         setAttachCount(req.result);
       };
-    }).catch(function () {});
+    }).catch(function(e) { if(e) console.warn('[\u6B64\u523B]', e); });
   }, []);
   var lastBackupTime = useMemo(function () {
     var uploads = history.filter(function (e) {
@@ -8199,234 +6139,53 @@ const BackupView = ({
   }());
 };
 /* ---------- SettingsView ---------- */
-function SettingsView({
-  onClose,
-  onOpenBackup
-}) {
-  const [fontSize, setFontSize] = useState(() => localStorage.getItem('sj_fontsize') || 'medium');
-  const applyFontSize = size => {
-    const map = {
-      small: '14px',
-      medium: '16px',
-      large: '19px'
-    };
-    document.documentElement.style.fontSize = map[size] || '16px';
-    localStorage.setItem('sj_fontsize', size);
-    setFontSize(size);
-  };
-  const sizeOptions = [{
-    key: 'small',
-    label: '小',
-    fs: '0.8125rem'
-  }, {
-    key: 'medium',
-    label: '中',
-    fs: '0.9375rem'
-  }, {
-    key: 'large',
-    label: '大',
-    fs: '1.0625rem'
-  }];
-  return /*#__PURE__*/React.createElement("div", {
-    style: {
-      background: 'var(--primary-bg)',
-      minHeight: '100vh'
-    }
-  }, /*#__PURE__*/React.createElement("button", {
-    className: "editor-fab left",
-    onPointerDown: function (e) {
-      e.stopPropagation();
-      onClose();
-    }
-  }, /*#__PURE__*/React.createElement("svg", {
-    xmlns: "http://www.w3.org/2000/svg",
-    viewBox: "0 0 24 24",
-    width: "22",
-    height: "22",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2.5",
-    strokeLinecap: "round",
-    strokeLinejoin: "round"
-  }, /*#__PURE__*/React.createElement("path", {
-    d: "M15 18l-6-6 6-6"
-  }))), /*#__PURE__*/React.createElement("div", {
-    className: "page-title compact",
-    style: {
-      visibility: 'visible',
-      opacity: 1,
-      pointerEvents: 'none'
-    }
-  }, "\u8BBE\u7F6E"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      animation: 'slideInFromRight 0.32s cubic-bezier(0.25,0.46,0.45,0.94) both'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '126px 20px calc(40px + env(safe-area-inset-bottom))'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "section-header",
-    style: {
-      paddingTop: 4
-    }
-  }, "\u5916\u89C2"), /*#__PURE__*/React.createElement("div", {
-    className: "list-group"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "list-item",
-    style: {
-      cursor: 'default'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-left"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-title"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "item-title-text"
-  }, "\u6587\u5B57\u5927\u5C0F")), /*#__PURE__*/React.createElement("div", {
-    className: "item-meta"
-  }, "\u8DDF\u968F\u6D4F\u89C8\u5668\u7F29\u653E")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      gap: 6,
-      flexShrink: 0
-    }
-  }, sizeOptions.map(({
-    key,
-    label,
-    fs
-  }) => /*#__PURE__*/React.createElement("button", {
-    key: key,
-    onClick: () => applyFontSize(key),
-    style: {
-      height: 32,
-      minWidth: 40,
-      padding: '0 12px',
-      borderRadius: 16,
-      border: fontSize === key ? '0.5px solid rgba(0,122,255,0.35)' : '0.5px solid var(--border-color)',
-      background: fontSize === key ? 'rgba(0,122,255,0.1)' : 'var(--btn-bg)',
-      color: fontSize === key ? '#007aff' : 'var(--text-main)',
-      fontSize: fs,
-      fontWeight: fontSize === key ? 700 : 500,
-      fontFamily: 'inherit',
-      cursor: 'pointer',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-      transition: 'all 0.18s ease',
-      lineHeight: 1
-    }
-  }, label))))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 12
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "section-header",
-    style: {
-      paddingTop: 4
-    }
-  }, "\u6570\u636E"), /*#__PURE__*/React.createElement("div", {
-    className: "list-group"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "list-item",
-    onClick: onOpenBackup
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-left"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-title"
-  }, /*#__PURE__*/React.createElement("span", {
-    className: "item-title-text"
-  }, "\u5907\u4EFD\u4E0E\u6062\u590D")), /*#__PURE__*/React.createElement("div", {
-    className: "item-meta"
-  }, "Google Drive \u4E91\u7AEF\u540C\u6B65")), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--text-secondary)',
-      fontSize: '1.125rem',
-      opacity: 0.45,
-      lineHeight: 1
-    }
-  }, "\u203A"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      height: 12
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    className: "section-header",
-    style: {
-      paddingTop: 4
-    }
-  }, "\u5173\u4E8E"), /*#__PURE__*/React.createElement("div", {
-    className: "list-group"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "list-item"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-left"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-title"
-  }, "\u7248\u672C")), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--text-secondary)',
-      fontSize: '0.875rem'
-    }
-  }, "2.0.0")), /*#__PURE__*/React.createElement("div", {
-    className: "list-item"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-left"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "item-title"
-  }, "\u8054\u7CFB\u6211\u4EEC")), /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--text-secondary)',
-      fontSize: '0.85rem'
-    }
-  }, "overtreess@gmail.com"))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontStyle: 'italic',
-      fontSize: 12,
-      color: 'var(--text-secondary)',
-      textAlign: 'center',
-      marginTop: 12,
-      marginBottom: 4,
-      opacity: 0.8
-    }
-  }, "\u6B64\u523B\uFF0C\u503C\u5F97\u88AB\u8BB0\u4F4F\u3002"))));
-}
-
-/* ---------- MemoList ---------- */
+var SettingsView = window.SettingsView;
+var SwipeRow = window.SwipeRow;
+var ImageCard = window.ImageCard;
 function MemoList() {
-  const [memos, setMemos] = useState(() => {
-    try {
-      const saved = localStorage.getItem("memos_app_v2");
-      const parsed = saved ? JSON.parse(saved) : [];
-      return parsed.map(m => {
-        if (!m.doc && m.content !== undefined) {
-          return Object.assign({}, m, {
-            doc: [{
-              id: genId(),
-              type: "paragraph",
-              children: [{
-                text: m.content || ""
-              }]
-            }],
-            content: undefined,
-            createdAt: m.createdAt || m.updatedAt || new Date().toISOString()
-          });
-        }
-        if (!m.doc) return Object.assign({}, m, {
-          doc: [{
-            id: genId(),
-            type: "paragraph",
-            children: [{
-              text: ""
-            }]
-          }],
-          createdAt: m.createdAt || m.updatedAt || new Date().toISOString()
-        });
-        if (!m.createdAt) m.createdAt = m.updatedAt || new Date().toISOString();
-        return m;
+  // ===== IndexedDB 主存储：先清，挂载后从 IDB 加载（localStorage 为只读备份） =====
+  const [memos, setMemos] = useState([]);
+  var idbInited = useRef(false);
+  function normalizeMemo(m) {
+    if (!m.doc && m.content !== undefined) {
+      return Object.assign({}, m, {
+        doc: [{ id: genId(), type: "paragraph", children: [{ text: m.content || "" }] }],
+        content: undefined,
+        createdAt: m.createdAt || m.updatedAt || new Date().toISOString()
       });
-    } catch {
-      return [];
     }
-  });
+    if (!m.doc) return Object.assign({}, m, {
+      doc: [{ id: genId(), type: "paragraph", children: [{ text: "" }] }],
+      createdAt: m.createdAt || m.updatedAt || new Date().toISOString()
+    });
+    if (!m.createdAt) m.createdAt = m.updatedAt || new Date().toISOString();
+    return m;
+  }
+  useEffect(function() {
+    if (idbInited.current) return;
+    idbInited.current = true;
+    (async function() {
+      try {
+        var db = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
+        if (db) {
+          var stored = await (window.CikeIdb ? window.CikeIdb.loadMemosFromDB(db) : null);
+          if (stored && stored.length > 0) {
+            setMemos(stored.map(normalizeMemo));
+            try { localStorage.setItem("memos_app_v2", JSON.stringify(stored)); } catch(e) {}
+            return;
+          }
+        }
+        // IDB 无数据 → localStorage 回退（迁移）
+        var saved = localStorage.getItem("memos_app_v2");
+        var parsed = saved ? JSON.parse(saved) : [];
+        var normalized = parsed.map(normalizeMemo);
+        if (db && normalized.length > 0) {
+          await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(db, normalized) : null);
+        }
+        setMemos(normalized);
+      } catch(e) { console.warn('[此刻] MemoList IDB init', e); }
+    })();
+  }, []);
   const [editingMemoId, setEditingMemoId] = useState(null);
   const [newEditorAutoFocusId, setNewEditorAutoFocusId] = useState(null);
   const editingMemo = editingMemoId ? memos.find(m => m.id === editingMemoId) || null : null;
@@ -8481,6 +6240,13 @@ function MemoList() {
         }) : m.doc
       }));
       localStorage.setItem("memos_app_v2", JSON.stringify(safe));
+      // 同步到 IndexedDB
+      (async function() {
+        try {
+          var db = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
+          if (db) await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(db, safe) : null);
+        } catch(e) {}
+      })();
     } catch (e) {}
   }, [memos]);
   const openEditor = memo => {
@@ -8551,7 +6317,7 @@ function MemoList() {
       if (fileIds.length > 0) {
         getDB().then(db => {
           fileIds.forEach(fid => deleteAttachmentFromDB(db, fid).catch(() => {}));
-        }).catch(() => {});
+        }).catch(function(e) { console.warn('[\u6B64\u523B] draft load', e); });
       }
     }
     setMemos(ms => ms.filter(m => m.id !== id));
