@@ -65,7 +65,7 @@
             R.createElement('div', { className:'list-item' },
               R.createElement('div', { className:'item-left' },
                 R.createElement('div', { className:'item-title' }, '\u7248\u672C')),
-              R.createElement('span', { style:{ color:'var(--text-secondary)', fontSize:'0.875rem' } }, '2.0.0')),
+              R.createElement('span', { style:{ color:'var(--text-secondary)', fontSize:'0.875rem' } }, '2.0.1')),
             R.createElement('div', { className:'list-item' },
               R.createElement('div', { className:'item-left' },
                 R.createElement('div', { className:'item-title' }, '\u8054\u7CFB\u6211\u4EEC')),
