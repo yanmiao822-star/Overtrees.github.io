@@ -4,7 +4,7 @@
 
 <p align="center">
   <img src="screenshots/list-view.jpg" width="280" alt="列表主页">
-  <img src="screenshots/visual-style.jpg" width="280" alt="视觉风格对比">
+  <img src="screenshots/settings-view.jpg" width="280" alt="设置页面">
 </p>
 
 ---
