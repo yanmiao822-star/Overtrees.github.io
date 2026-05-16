@@ -5,6 +5,7 @@
 <p align="center">
   <img src="screenshots/list-view.jpg" width="280" alt="列表主页">
   <img src="screenshots/settings-view.jpg" width="280" alt="设置页面">
+  <img src="screenshots/editor-view.jpg" width="280" alt="编辑器">
 </p>
 
 ---
