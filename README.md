@@ -2,6 +2,11 @@
 
 一个在 iOS 上好用的本地笔记。打开就能写，不用联网，不用注册账号。
 
+<p align="center">
+  <img src="screenshots/list-view.jpg" width="280" alt="列表主页">
+  <img src="screenshots/visual-style.jpg" width="280" alt="视觉风格对比">
+</p>
+
 ---
 
 ## 这 app 跟别的笔记有什么不一样
