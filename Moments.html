@@ -125,6 +125,7 @@
         padding: 0;
         height: 46px;
         border-radius: 23px;
+        corner-shape: squircle;
         font-size: 0.9375rem;
         font-weight: 600;
     }
@@ -152,6 +153,7 @@
         letter-spacing: -0.3px;
         padding: 6px 16px;
         border-radius: 20px;
+        corner-shape: squircle;
         background: var(--btn-bg);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
@@ -168,6 +170,7 @@
     .list-group {
         background: var(--card-bg);
         border-radius: 32px;
+        corner-shape: squircle;
         overflow: hidden;
         margin-bottom: 24px;
         border: 0.5px solid var(--border-color);
@@ -184,6 +187,7 @@
         flex: none; border: none; cursor: pointer; display: flex;
         flex-direction: column; align-items: center; justify-content: center; gap: 3px;
         width: 68px; height: 44px; border-radius: 22px;
+        corner-shape: squircle;
         backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         border: 0.5px solid rgba(255,255,255,0.22);
         font-size: 0.6875rem; font-family: inherit; font-weight: 600; color: #fff;
@@ -218,20 +222,12 @@
     }
     .pin-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-secondary); flex-shrink: 0; opacity: 0.5; }
     .item-meta { font-size: 0.75rem; color: var(--text-secondary); }
-    .item-thumb {
-        width: 48px; height: 48px; border-radius: 12px; object-fit: cover;
-        flex-shrink: 0; background: var(--border-color);
-        corner-shape: squircle;
-    }
-    @supports not (corner-shape: squircle) {
-        .item-thumb { corner-shape: round; }
-    }
     .item-right { display: none; }
     .item-time { font-size: 0.75rem; color: var(--text-secondary); }
     .img-card { border-bottom: 0.5px solid var(--border-color); }
     .img-card:last-child { border-bottom: none; }
-    .img-cover { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: var(--border-color); -webkit-touch-callout: none; border-radius: 32px 32px 0 0; }
-    .img-cover-fb { width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; background: var(--btn-bg); color: var(--text-secondary); border-radius: 32px 32px 0 0; }
+    .img-cover { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: var(--border-color); -webkit-touch-callout: none; border-radius: 32px 32px 0 0; corner-shape: squircle; }
+    .img-cover-fb { width: 100%; aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; background: var(--btn-bg); color: var(--text-secondary); border-radius: 32px 32px 0 0; corner-shape: squircle; }
     .img-body { padding: 10px 16px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .img-text { flex: 1; min-width: 0; }
     .img-text .t { font-size: 0.9375rem; font-weight: 650; margin-bottom: 2px; }
@@ -254,7 +250,7 @@
     .markdown-render > *:first-child { margin-top: 0; }
     .markdown-render > *:last-child { margin-bottom: 0; }
     /* ===== Table — 大圆角卡片 ===== */
-    .markdown-render table { width: auto; min-width: 160px; border-collapse: separate; border-spacing: 0; margin: 0.8em auto; font-size: 14px; border-radius: 20px; overflow: hidden; background: var(--card-bg); border: 0.5px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .markdown-render table { width: auto; min-width: 160px; border-collapse: separate; border-spacing: 0; margin: 0.8em auto; font-size: 14px; border-radius: 20px; corner-shape: squircle; overflow: hidden; background: var(--card-bg); border: 0.5px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .markdown-render thead tr th:first-child { border-top-left-radius: 20px; }
     .markdown-render thead tr th:last-child { border-top-right-radius: 20px; }
     .markdown-render tbody tr:last-child td:first-child { border-bottom-left-radius: 20px; }
@@ -290,12 +286,12 @@
     .markdown-render .callout code { background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
     .markdown-render pre { background: var(--card-bg); border: 0.5px solid var(--border-color); border-radius: 999px; padding: 14px 18px; font-size: 13px; line-height: 1.6; overflow-x: auto; margin: 0.6em 0; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .markdown-render pre code { background: none; padding: 0; font-size: inherit; border-radius: 0; }
-    .editor-body .img-text-card { border-radius: 22px; overflow: hidden; margin: 8px 0; background: var(--card-bg,#fff); border: 0.5px solid var(--border-color,rgba(0,0,0,0.06)); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+    .editor-body .img-text-card { border-radius: 22px; corner-shape: squircle; overflow: hidden; margin: 8px 0; background: var(--card-bg,#fff); border: 0.5px solid var(--border-color,rgba(0,0,0,0.06)); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
     .editor-body .img-text-card .itc-img-wrap { width: 100%; line-height: 0; max-height: 468px; overflow: hidden; }
     .editor-body .img-text-card .itc-img-wrap img { width: 100%; height: auto; display: block; }
     .editor-body .img-text-card .itc-text { padding: 12px 14px; font-size: 14px; line-height: 1.7; color: var(--text-main,#1a1a1a); min-height: 44px; outline: none; max-width: 100%; word-break: break-word; overflow-wrap: break-word; white-space: pre-wrap; }
     .editor-body .img-text-card .itc-text:empty::before { content: '点击输入文字'; color: #c7c7cc; }
-    .editor-body .img-text-row { display: flex; gap: 10px; border-radius: 22px; overflow: hidden; margin: 8px 0; background: var(--card-bg,#fff); border: 0.5px solid var(--border-color,rgba(0,0,0,0.06)); min-height: 181px; max-height: 196px; }
+    .editor-body .img-text-row { display: flex; gap: 10px; border-radius: 22px; corner-shape: squircle; overflow: hidden; margin: 8px 0; background: var(--card-bg,#fff); border: 0.5px solid var(--border-color,rgba(0,0,0,0.06)); min-height: 181px; max-height: 196px; }
     .editor-body .img-text-row .itr-img { flex: 0 0 50%; min-width: 0; background: rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: center; }
     .editor-body .img-text-row .itr-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .editor-body .img-text-row .itr-placeholder { font-size: 24px; opacity: 0.3; }
@@ -436,6 +432,7 @@
         max-height: 400px;
         overflow: hidden;
         border-radius: 32px;
+        corner-shape: squircle;
     }
     .lazy-img-thumb {
         width: 100%;
@@ -443,6 +440,7 @@
         display: block;
         object-fit: cover;
         border-radius: 32px;
+        corner-shape: squircle;
         max-height: 400px;
     }
     .lazy-img-full {
@@ -453,6 +451,7 @@
         height: 100%;
         object-fit: cover;
         border-radius: 32px;
+        corner-shape: squircle;
         opacity: 0;
         transition: opacity 0.3s ease;
     }
@@ -469,6 +468,7 @@
         width: 46px;
         height: 46px;
         border-radius: 23px;
+        corner-shape: squircle;
         background: var(--btn-bg);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
@@ -490,6 +490,7 @@
         background: linear-gradient(180deg, rgba(255,255,255,0.86), rgba(255,255,255,0.72));
         border: 1px solid rgba(255,255,255,0.44);
         border-radius: 30px;
+        corner-shape: squircle;
         padding: 18px;
         margin-bottom: 18px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.08);
@@ -572,6 +573,7 @@
         background: var(--card-bg);
         border: 0.5px solid var(--border-color);
         border-radius: 28px;
+        corner-shape: squircle;
         overflow: hidden;
         margin-bottom: 16px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.04);
@@ -670,6 +672,7 @@
         background: var(--card-bg);
         border: 0.5px solid var(--border-color);
         border-radius: 32px;
+        corner-shape: squircle;
         overflow: hidden;
         margin: 10px 0;
         cursor: pointer;
@@ -744,6 +747,7 @@
         background: var(--card-bg);
         border: 0.5px solid var(--border-color);
         border-radius: 32px;
+        corner-shape: squircle;
         overflow: hidden;
         margin: 10px 0;
     }
@@ -771,6 +775,7 @@
         background: var(--card-bg);
         border: 0.5px solid var(--border-color);
         border-radius: 32px;
+        corner-shape: squircle;
         padding: 12px 14px;
         margin: 10px 0;
         cursor: pointer;
@@ -784,8 +789,6 @@
     }
     .no-cover-fallback {
         display: none;
-    }
-        border: 1px solid #ffc107;
     }
     /* ===== Single contentEditable editor styles ===== */
     [contenteditable]:focus { outline: none; }
@@ -802,15 +805,15 @@
     .editor-body .todo-block input[type="checkbox"] { width: 18px; height: 18px; margin: 0; cursor: pointer; flex-shrink: 0; appearance: none; -webkit-appearance: none; border: none; background: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='9.5' stroke='%23C7C7CC' stroke-width='1.8'/%3E%3C/svg%3E") center/contain no-repeat; }
     .editor-body .todo-block input[type="checkbox"]:checked { background: url("data:image/svg+xml,%3Csvg width='18' height='18' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='11' fill='%23007AFF'/%3E%3Cpath d='M7 11l3 3 5-5' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat; }
     .editor-body .atomic { user-select: none; -webkit-user-select: none; cursor: default; }
-    .editor-body .atomic.attachment { margin: 8px 0; border-radius: 32px; overflow: hidden; }
+    .editor-body .atomic.attachment { margin: 8px 0; border-radius: 32px; corner-shape: squircle; overflow: hidden; }
     .editor-body .atomic[data-type="image"],
-    .editor-body .atomic[data-type="gallery"],
-    .editor-body .atomic[data-type="musicCard"] { margin: 8px 36px; }
-    .editor-body .atomic.attachment img { max-width: 100%; border-radius: 32px; display: block; }
-    .editor-body .atomic-placeholder { padding: 24px; text-align: center; background: var(--card-bg); border-radius: 32px; color: var(--text-secondary); font-size: 0.9375rem; border: 0.5px solid var(--border-color); }
-    .editor-body .link-card-block, .editor-body .link-card-err, .editor-body .link-card-link-card-loading { margin: 8px 0; border-radius: 32px; overflow: hidden; background: var(--card-bg); border: 0.5px solid var(--border-color); cursor: pointer; }
-    .editor-body .lkc-cover { width: 100%; aspect-ratio: 2.4/1; overflow: hidden; }
-    .editor-body .lkc-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .editor-body .atomic[data-type="gallery"] { margin: 8px 36px; }
+
+    .editor-body .atomic.attachment img { max-width: 100%; border-radius: 32px; corner-shape: squircle; display: block; }
+    .editor-body .atomic-placeholder { padding: 24px; text-align: center; background: var(--card-bg); border-radius: 32px; corner-shape: squircle; color: var(--text-secondary); font-size: 0.9375rem; border: 0.5px solid var(--border-color); }
+    .editor-body .link-card-block, .editor-body .link-card-err, .editor-body .link-card-link-card-loading { margin: 8px 0; border-radius: 32px; corner-shape: squircle; overflow: hidden; background: var(--card-bg); border: 0.5px solid var(--border-color); cursor: pointer; }
+    .editor-body .lkc-cover { width: 100%; aspect-ratio: 2.4/1; overflow: hidden; background: var(--border-color); }
+    .editor-body .lkc-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .editor-body .lkc-body { padding: 10px 14px 12px; }
     .editor-body .lkc-body.has-cover { padding-top: 6px; }
     .editor-body .lkc-title { font-size: 0.875rem; font-weight: 600; line-height: 1.4; color: var(--text-main); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -820,13 +823,9 @@
     .editor-body .lkc-source-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-secondary); opacity: 0.4; flex-shrink: 0; }
     .editor-body .lkc-source-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .editor-body .lke-inner { padding: 12px 14px; font-size: 0.8125rem; color: var(--text-secondary); display: flex; align-items: center; gap: 6px; }
-    .editor-body .lkc-cover { width: 100%; aspect-ratio: 2.4/1; overflow: hidden; background: var(--border-color); }
-    .editor-body .lkc-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
     @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
     @keyframes toastSlideUp { from { opacity: 0; transform: translateY(24px) scale(0.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
     @keyframes toastSpin { to { transform: rotate(360deg); } }
-    .editor-body .lkc-skeleton-cover { width: 100%; aspect-ratio: 2.4/1; background: linear-gradient(90deg, var(--card-bg) 25%, var(--border-color) 50%, var(--card-bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-    .editor-body .lkc-skeleton-line { height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--card-bg) 25%, var(--border-color) 50%, var(--card-bg) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; margin-bottom: 6px; }
     .editor-body .md-preview { margin: 0.2em 0; cursor: pointer; border-radius: 999px; padding: 2px 12px; transition: background 0.15s; user-select: none; -webkit-user-select: none; display: inline-block; }
     .editor-body .md-preview:hover { background: rgba(0,122,255,0.05); }
     .editor-body .md-preview.block { display: block; width: 100%; max-width: 100%; border-radius: 0; padding: 0; background: transparent; border: none; overflow: visible; margin: 4px 0; min-width: 0; box-shadow: none; }
@@ -1860,7 +1859,7 @@ function renderAtomicHTML(node, files) {
     if (node.type === 'attachment') {
         var f = files && files[node.fileId];
         if (f && f.type && f.type.startsWith('image/') && f.url) {
-            return '<div contenteditable="false" class="atomic attachment" data-blockid="' + node.id + '" data-fileid="' + node.fileId + '"><img src="' + f.url + '" alt="' + escapeHTML(f.name||'') + '" style="max-width:100%;border-radius:32px;display:block"></div>';
+            return '<div contenteditable="false" class="atomic attachment" data-blockid="' + node.id + '" data-fileid="' + node.fileId + '"><img src="' + f.url + '" alt="' + escapeHTML(f.name||'') + '" style="max-width:100%;border-radius:32px;corner-shape:squircle;display:block"></div>';
         }
         return '<div contenteditable="false" class="atomic attachment" data-blockid="' + node.id + '" data-fileid="' + node.fileId + '"><div class="atomic-placeholder">📎 ' + escapeHTML(f?f.name:'附件') + '</div></div>';
     }
@@ -1916,12 +1915,12 @@ function renderDocToEditorHTML(doc, files) {
                 return '<div class="img-text-row" data-blockid="' + node.id + '" data-type="imageTextRow" contenteditable="false"><div class="itr-img">' + rowImgHtml + '</div><div class="itr-text" contenteditable="true">' + text + '</div></div>';
             case 'gallery': {
                 var gallItems = node.attrs && node.attrs.items || [];
-                var gallHtml = gallItems.length > 0 ? '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;border-radius:12px;">' + gallItems.map(function(s) { var u = (s && s.fileId && files && files[s.fileId] && files[s.fileId].url) || (s && s.url) || s; return '<img src="' + escapeHTML(u) + '" style="width:100%;height:366px;object-fit:cover;border-radius:22px;">'; }).join('') + '</div>' : '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:6px 0 14px;"><div style="height:366px;background:rgba(0,0,0,0.03);border-radius:22px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c7c7cc;"><span style="font-size:18px;opacity:0.4;">🖼</span><span style="font-size:11px;margin-top:4px;opacity:0.5;">点击添加</span></div><div style="height:366px;background:rgba(0,0,0,0.02);border-radius:22px;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c7c7cc;"><span style="font-size:18px;opacity:0.3;">🖼</span><span style="font-size:11px;margin-top:4px;opacity:0.4;">多张图片</span></div></div>';
+                var gallHtml = gallItems.length > 0 ? '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px;border-radius:12px;corner-shape:squircle;">' + gallItems.map(function(s) { var u = (s && s.fileId && files && files[s.fileId] && files[s.fileId].url) || (s && s.url) || s; return '<img src="' + escapeHTML(u) + '" style="width:100%;height:366px;object-fit:cover;border-radius:22px;corner-shape:squircle;">'; }).join('') + '</div>' : '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:6px 0 14px;"><div style="height:366px;background:rgba(0,0,0,0.03);border-radius:22px;corner-shape:squircle;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c7c7cc;"><span style="font-size:18px;opacity:0.4;">🖼</span><span style="font-size:11px;margin-top:4px;opacity:0.5;">点击添加</span></div><div style="height:366px;background:rgba(0,0,0,0.02);border-radius:22px;corner-shape:squircle;display:flex;align-items:center;justify-content:center;flex-direction:column;color:#c7c7cc;"><span style="font-size:18px;opacity:0.3;">🖼</span><span style="font-size:11px;margin-top:4px;opacity:0.4;">多张图片</span></div></div>';
                 return '<div class="atomic" data-blockid="' + node.id + '" data-type="gallery" contenteditable="false">' + gallHtml + '</div>';
             }
             case 'image': {
                 var imgSrc = (node.attrs && node.attrs.fileId && files && files[node.attrs.fileId] && files[node.attrs.fileId].url) || '';
-                var imgHtml = imgSrc ? '<img src="' + escapeHTML(imgSrc) + '" style="max-width:100%;max-height:668px;border-radius:22px;display:block;margin:8px auto;object-fit:contain;">' : '<div style="height:566px;border-radius:22px;background:var(--card-bg);border:0.5px solid var(--border-color);display:flex;align-items:center;justify-content:center;color:#c7c7cc;font-size:13px;margin:8px 0;">📷 点击添加图片</div>';
+                var imgHtml = imgSrc ? '<img src="' + escapeHTML(imgSrc) + '" style="max-width:100%;max-height:668px;border-radius:22px;corner-shape:squircle;display:block;margin:8px auto;object-fit:contain;">' : '<div style="height:566px;border-radius:22px;corner-shape:squircle;background:var(--card-bg);border:0.5px solid var(--border-color);display:flex;align-items:center;justify-content:center;color:#c7c7cc;font-size:13px;margin:8px 0;">📷 点击添加图片</div>';
                 return '<div class="atomic" data-blockid="' + node.id + '" data-type="image" contenteditable="false">' + imgHtml + '</div>';
             }
             case 'divider':
@@ -1932,20 +1931,27 @@ function renderDocToEditorHTML(doc, files) {
                 var muUrl = node.url || '';
                 var muMeta = node.meta;
                 var muStatus = node.status || 'empty';
-                if (muUrl && muMeta) {
-                    var muCover = muMeta.cover || '';
+                if (muUrl && muMeta && muMeta.title) {
+                    var muCoverRaw = muMeta.cover ? proxyImg(muMeta.cover) : '';
                     var muTitle = muMeta.title || (muUrl ? new URL(muUrl).hostname.replace('www.','') : '音乐');
                     var muSource = muMeta.source || '音乐';
-                    var muHtml = '<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--card-bg);border-radius:12px;cursor:pointer;font-size:13px;">';
-                    if (muCover) muHtml += '<img src="' + escapeHTML(muCover) + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;" onerror="this.style.display=\'none\'">';
-                    else muHtml += '<div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div>';
-                    muHtml += '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML(muTitle) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">' + escapeHTML(muSource) + '</div></div></div>';
-                    return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard">' + muHtml + '</div>';
+                    var muHasCover = !!muCoverRaw;
+                    var muHtml = '<div contenteditable="false" class="link-card-block" data-blockid="' + node.id + '" data-type="musicCard" data-url="' + escapeHTML(muUrl) + '">';
+                    if (muHasCover) muHtml += '<div class="lkc-cover"><img src="' + escapeHTML(muCoverRaw) + '" alt="" onerror="this.closest(\'.lkc-cover\').style.display=\'none\'"></div>';
+                    muHtml += '<div class="lkc-body' + (muHasCover ? ' has-cover' : '') + '">';
+                    muHtml += '<div class="lkc-title">' + escapeHTML(muTitle) + '</div>';
+                    if (muMeta.subtitle) muHtml += '<div class="lkc-subtitle">' + escapeHTML(muMeta.subtitle) + '</div>';
+                    muHtml += '<div class="lkc-source"><span class="lkc-source-icon">🎵</span><span class="lkc-source-dot"></span><span class="lkc-source-text">' + escapeHTML(muSource) + '</span></div>';
+                    muHtml += '</div></div>';
+                    return muHtml;
                 }
                 if (muStatus === 'input') {
                     return '<div contenteditable="true" data-blockid="' + node.id + '" data-type="musicCard" data-music-url="pending" style="padding:12px 18px;border-radius:999px;background:var(--card-bg);border:0.5px solid var(--border-color);font-size:14px;color:var(--text-secondary);outline:none;">' + escapeHTML(node.url || '粘贴音乐链接到这里...') + '</div>';
                 }
-                return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard" style="padding:12px 18px;background:var(--card-bg);border-radius:999px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text-secondary);">🎵 <span>' + (node.url || '音乐链接') + '</span></div>';
+                if (muStatus === 'loading' && muUrl) {
+                    return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard" data-url="' + escapeHTML(muUrl) + '" class="link-card-skeleton"><div class="link-card-skeleton-cover"></div><div class="link-card-skeleton-body"><div class="link-card-skeleton-line" style="width:75%;"></div><div class="link-card-skeleton-line" style="width:50%;"></div></div></div>';
+                }
+                return '<div contenteditable="false" data-blockid="' + node.id + '" data-type="musicCard" style="padding:12px 16px;border-radius:999px;background:var(--card-bg);border:0.5px solid var(--border-color);font-size:14px;color:var(--text-secondary);display:flex;align-items:center;gap:10px;"><span>🎵</span><span>' + escapeHTML(node.url || '点击粘贴音乐链接') + '</span></div>';
             case 'embedCard':
             default:
                 text = esc(node.children&&node.children[0]?node.children[0].text:'');
@@ -1970,6 +1976,17 @@ function parseEditorDOM(containerEl) {
             continue;
         }
         if (el.contentEditable === 'false') {
+            /* 音乐卡片 → 强制保持 musicCard 类型 */
+            if (el.dataset.type === 'musicCard') {
+                var origMu = prevMap[el.dataset.blockid];
+                if (origMu) {
+                    origMu.type = 'musicCard';
+                    doc.push(origMu);
+                } else {
+                    doc.push({id:el.dataset.blockid||genId(),type:'musicCard',url:el.dataset.url||'',meta:null,status:el.dataset.url?'loading':'empty'});
+                }
+                continue;
+            }
             /* 带 data-mdtext 的渲染块 → 还原为段落文本 */
             if (el.dataset.mdtext) {
                 var raw = (el.dataset.mdtext || '').trim();
@@ -2217,23 +2234,45 @@ BlockSystem.register('musicCard', {
     render(node, ctx) {
         const url = node.url || '';
         const meta = node.meta;
-        if (!meta) {
+        const status = node.status || 'empty';
+        if (status === 'loading' && url) {
             return React.createElement('div', {
                 key: node.id, 'data-blockid': node.id, 'data-type': 'musicCard',
-                style: { padding: 12, background: 'var(--card-bg)', borderRadius: 12, display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'var(--text-secondary)' }
-            }, '🎵 ', React.createElement('span', null, url || '音乐链接'));
+                className: 'link-card-skeleton'
+            },
+                React.createElement('div', { className: 'link-card-skeleton-cover' }),
+                React.createElement('div', { className: 'link-card-skeleton-body' },
+                    React.createElement('div', { className: 'link-card-skeleton-line', style: { width: '75%' } }),
+                    React.createElement('div', { className: 'link-card-skeleton-line', style: { width: '50%' } })
+                )
+            );
+        }
+        if (!meta || !meta.title) {
+            return React.createElement('div', {
+                key: node.id, 'data-blockid': node.id, 'data-type': 'musicCard',
+                style: { padding: '12px 16px', borderRadius: 999, background: 'var(--card-bg)', border: '0.5px solid var(--border-color)', fontSize: 14, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 10 }
+            },
+                React.createElement('span', null, '🎵'),
+                React.createElement('span', null, url || '点击粘贴音乐链接')
+            );
         }
         const coverUrl = proxyImg(meta.cover);
-        const domain = url ? (new URL(url).hostname.replace('www.', '')) : '';
+        const hasCover = !!coverUrl;
         return React.createElement('div', {
-            key: node.id, 'data-blockid': node.id, 'data-type': 'musicCard',
-            style: { display: 'flex', alignItems: 'center', gap: 12, padding: 12, background: 'var(--card-bg)', borderRadius: 12, cursor: 'pointer' },
+            key: node.id, className: 'link-card-block', 'data-blockid': node.id, 'data-type': 'musicCard', 'data-url': url,
             onClick: () => window.open(url, '_blank')
         },
-            coverUrl ? React.createElement('img', { src: coverUrl, style: { width: 48, height: 48, borderRadius: 8, objectFit: 'cover' }, onError: e => { e.target.style.display = 'none'; } }) : React.createElement('div', { style: { width: 48, height: 48, borderRadius: 8, background: 'var(--btn-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 } }, '🎵'),
-            React.createElement('div', { style: { flex: 1, minWidth: 0 } },
-                React.createElement('div', { style: { fontSize: 14, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, meta.title || domain),
-                React.createElement('div', { style: { fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 } }, meta.source || '音乐')
+            hasCover && React.createElement('div', { className: 'lkc-cover' },
+                React.createElement('img', { src: coverUrl, alt: '', onError: e => { e.target.closest('.lkc-cover').style.display = 'none'; } })
+            ),
+            React.createElement('div', { className: 'lkc-body' + (hasCover ? ' has-cover' : '') },
+                React.createElement('div', { className: 'lkc-title' }, meta.title),
+                meta.subtitle && React.createElement('div', { className: 'lkc-subtitle' }, meta.subtitle),
+                React.createElement('div', { className: 'lkc-source' },
+                    React.createElement('span', { className: 'lkc-source-icon' }, '🎵'),
+                    React.createElement('span', { className: 'lkc-source-dot' }),
+                    React.createElement('span', { className: 'lkc-source-text' }, meta.source || '音乐')
+                )
             )
         );
     }
@@ -3409,8 +3448,11 @@ BlockSystem.register('link-card', {
             var cardId = genId();
             var domain = '';
             try { domain = new URL(url).hostname.replace('www.', ''); } catch(e) { domain = url; }
-            var html = '<div contenteditable="false" class="atomic link-card-link-card-loading" data-blockid="' + cardId + '" data-url="' + escapeHTML(url) + '"><div class="lkc-skeleton-cover"></div><div class="lkc-body"><div class="lkc-skeleton-line" style="width:75%"></div><div class="lkc-skeleton-line" style="width:50%"></div></div></div>';
-            docRef.current.push({ id:cardId, type:'link-card', url:url, meta:null, status:'loading' });
+            /* 检测是否为音乐平台链接 → 自动升级为音乐卡片 */
+            var isMusic = /music\.163\.com|163cn\.tv|y\.qq\.com|i\.y\.qq\.com|open\.spotify\.com/.test(url);
+            var cardType = isMusic ? 'musicCard' : 'link-card';
+            var html = '<div contenteditable="false" class="link-card-skeleton" data-blockid="' + cardId + '" data-url="' + escapeHTML(url) + '"><div class="link-card-skeleton-cover"></div><div class="link-card-skeleton-body"><div class="link-card-skeleton-line" style="width:75%"></div><div class="link-card-skeleton-line" style="width:50%"></div></div></div>';
+            docRef.current.push({ id:cardId, type:cardType, url:url, meta:null, status:'loading' });
             insertAtomicBlockToDOM(html);
             try {
                 var meta = await fetchLinkMeta(url);
@@ -3420,7 +3462,7 @@ BlockSystem.register('link-card', {
                 var ce = editorBodyRef.current;
                 if (ce) {
                     var cardEl = ce.querySelector('[data-blockid="' + cardId + '"]');
-                    if (cardEl) cardEl.outerHTML = renderAtomicHTML({ id:cardId, type:'link-card', url:url, meta:meta, status:meta&&meta.title?'ready':'error' }, files);
+                    if (cardEl) cardEl.outerHTML = renderAtomicHTML({ id:cardId, type:cardType, url:url, meta:meta, status:meta&&meta.title?'ready':'error' }, files);
                 }
             } catch(e) {
                 var doc2 = docRef.current;
@@ -3429,7 +3471,7 @@ BlockSystem.register('link-card', {
                 var ce2 = editorBodyRef.current;
                 if (ce2) {
                     var cardEl2 = ce2.querySelector('[data-blockid="' + cardId + '"]');
-                    if (cardEl2) cardEl2.outerHTML = renderAtomicHTML({ id:cardId, type:'link-card', url:url, meta:null, status:'error' }, files);
+                    if (cardEl2) cardEl2.outerHTML = renderAtomicHTML({ id:cardId, type:cardType, url:url, meta:null, status:'error' }, files);
                 }
             }
         }, [insertAtomicBlockToDOM]);
@@ -3595,6 +3637,50 @@ BlockSystem.register('link-card', {
             var text = e.clipboardData && e.clipboardData.getData('text/plain');
             if (!text) return;
             var trimmed = text.trim();
+
+            /* ---- 音乐卡片输入框内粘贴：立即处理链接，不依赖 blur ---- */
+            var sel = window.getSelection();
+            var focusNode = sel && sel.focusNode;
+            var focusEl = focusNode ? (focusNode.nodeType === 1 ? focusNode : focusNode.parentElement) : null;
+            var musicInput = focusEl && focusEl.closest('[data-music-url="pending"]');
+            if (musicInput) {
+                e.preventDefault();
+                /* 从粘贴文本中提取 URL（支持文本混有链接），否则尝试补协议后直接使用 */
+                var muRaw = trimmed;
+                var muUrl = extractUrlFromText(muRaw);
+                if (!muUrl && /^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(muRaw)) muUrl = muRaw;
+                if (!muUrl) muUrl = muRaw;
+                if (!muUrl.startsWith('http')) muUrl = 'https://' + muUrl;
+                var mId = musicInput.dataset.blockid;
+                var mDoc = docRef.current;
+                var mIdx = mDoc.findIndex(function(n) { return n.id === mId; });
+                if (mIdx !== -1) { mDoc[mIdx].url = muUrl; mDoc[mIdx].status = 'loading'; mDoc[mIdx].type = 'musicCard'; delete mDoc[mIdx].children; }
+                setEditorDocRef(docRef.current);
+                var mLoad = '<div contenteditable="false" data-blockid="' + mId + '" data-type="musicCard" data-url="' + escapeHTML(muUrl) + '" class="link-card-skeleton"><div class="link-card-skeleton-cover"></div><div class="link-card-skeleton-body"><div class="link-card-skeleton-line" style="width:75%;"></div><div class="link-card-skeleton-line" style="width:50%;"></div></div></div>';
+                musicInput.outerHTML = mLoad;
+                fetchLinkMeta(muUrl).then(function(meta) {
+                    var d2 = docRef.current; var i2 = d2.findIndex(function(n) { return n.id === mId; });
+                    if (i2 !== -1) { d2[i2].meta = meta; d2[i2].status = meta && meta.title ? 'ready' : 'error'; }
+                    var ce2 = editorBodyRef.current;
+                    if (ce2) {
+                        var el2 = ce2.querySelector('[data-blockid="' + mId + '"]');
+                        if (el2) {
+                            var cv = meta && meta.cover ? proxyImg(meta.cover) : ''; var tl = meta && meta.title || muUrl; var sr = meta && meta.source || '音乐';
+                            var hasCv = !!cv;
+                            var rh = '<div contenteditable="false" class="link-card-block" data-blockid="' + mId + '" data-type="musicCard" data-url="' + escapeHTML(muUrl) + '">';
+                            if (hasCv) rh += '<div class="lkc-cover"><img src="' + escapeHTML(cv) + '" alt="" onerror="this.closest(\'.lkc-cover\').style.display=\'none\'"></div>';
+                            rh += '<div class="lkc-body' + (hasCv ? ' has-cover' : '') + '">';
+                            rh += '<div class="lkc-title">' + escapeHTML(tl) + '</div>';
+                            rh += '<div class="lkc-source"><span class="lkc-source-icon">🎵</span><span class="lkc-source-dot"></span><span class="lkc-source-text">' + escapeHTML(sr) + '</span></div>';
+                            rh += '</div></div>';
+                            el2.outerHTML = rh;
+                            triggerAutoSave();
+                        }
+                    }
+                }).catch(function() { triggerAutoSave(); });
+                return;
+            }
+
             var isPureUrl = isUrl(trimmed);
             var embeddedUrl = isPureUrl ? null : extractUrlFromText(trimmed);
             if (isPureUrl || (embeddedUrl && /music\.163\.com|163cn\.tv|y\.qq\.com|i\.y\.qq\.com|open\.spotify\.com|b23\.tv|xiaohongshu\.com|xhslink\.com/i.test(embeddedUrl))) {
@@ -3807,45 +3893,6 @@ BlockSystem.register('link-card', {
         var handleEditorBlur = useCallback(function() {
             clearTimeout(mdCheckTimerRef.current);
             if (blurApplyingRef.current) return;
-            /* 立即处理音乐卡片输入（不等 400ms 防抖） */
-            try {
-                var elNow = editorBodyRef.current;
-                if (elNow) {
-                    var musicNow = elNow.querySelectorAll('[data-music-url="pending"]');
-                    for (var mn = 0; mn < musicNow.length; mn++) {
-                        var mp = musicNow[mn];
-                        var mt = (mp.textContent || '').trim();
-                        if (mt && mt !== '粘贴音乐链接到这里...' && (mt.startsWith('http://') || mt.startsWith('https://') || /^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(mt))) {
-                            if (!mt.startsWith('http')) mt = 'https://' + mt;
-                            var mId = mp.dataset.blockid;
-                            mp.removeAttribute('data-music-url');
-                            var mDoc = docRef.current;
-                            var mIdx = mDoc.findIndex(function(n) { return n.id === mId; });
-                            if (mIdx !== -1) { mDoc[mIdx].url = mt; mDoc[mIdx].status = 'loading'; mDoc[mIdx].type = 'musicCard'; delete mDoc[mIdx].children; }
-                            setEditorDocRef(docRef.current);
-                            var mLoad = '<div contenteditable="false" data-blockid="' + mId + '" data-type="musicCard" data-url="' + escapeHTML(mt) + '" style="padding:12px;background:var(--card-bg);border-radius:12px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-secondary);"><div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div><div style="flex:1;min-width:0;"><div class="lkc-skeleton-line" style="width:75%;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--card-bg) 25%,var(--border-color) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div><div class="lkc-skeleton-line" style="width:50%;height:12px;border-radius:6px;margin-top:8px;background:linear-gradient(90deg,var(--card-bg) 25%,var(--border-color) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div></div></div>';
-                            mp.outerHTML = mLoad;
-                            fetchLinkMeta(mt).then(function(meta) {
-                                var d2 = docRef.current; var i2 = d2.findIndex(function(n) { return n.id === mId; });
-                                if (i2 !== -1) { d2[i2].meta = meta; d2[i2].status = meta && meta.title ? 'ready' : 'error'; }
-                                var ce2 = editorBodyRef.current;
-                                if (ce2) {
-                                    var el2 = ce2.querySelector('[data-blockid="' + mId + '"]');
-                                    if (el2) {
-                                        var cv = meta && meta.cover || ''; var tl = meta && meta.title || mt; var sr = meta && meta.source || '音乐';
-                                        var rh = '<div contenteditable="false" data-blockid="' + mId + '" data-type="musicCard" data-url="' + escapeHTML(mt) + '" style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--card-bg);border-radius:12px;cursor:pointer;font-size:13px;">';
-                                        if (cv) rh += '<img src="' + escapeHTML(cv) + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;">';
-                                        else rh += '<div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div>';
-                                        rh += '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML(tl) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">' + escapeHTML(sr) + '</div></div></div>';
-                                        el2.outerHTML = rh;
-                                        triggerAutoSave();
-                                    }
-                                }
-                            }).catch(function() { triggerAutoSave(); });
-                        }
-                    }
-                }
-            } catch(_) {}
             mdCheckTimerRef.current = setTimeout(function() {
                 if (blurApplyingRef.current) return;
                 blurApplyingRef.current = true;
@@ -4001,11 +4048,19 @@ BlockSystem.register('link-card', {
                 for (var mui = 0; mui < muPs.length; mui++) {
                     var muP = muPs[mui];
                     var muText = (muP.textContent || '').trim();
-                    if (muText && muText !== '粘贴音乐链接到这里...' && (muText.startsWith('http://') || muText.startsWith('https://') || /^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(muText))) {
-                        /* 补全协议头 */
-                        if (!muText.startsWith('http')) muText = 'https://' + muText;
+                    /* 从文本中提取 URL（支持 "分享 xxx https://..."），否则尝试补协议后直接使用 */
+                    var extractedUrl = muText && muText !== '粘贴音乐链接到这里...' ? (extractUrlFromText(muText) || null) : null;
+                    var finalUrl = extractedUrl;
+                    if (!finalUrl) {
+                        /* 无 http 前缀的纯域名 → 补 https:// */
+                        if (/^[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}/.test(muText)) {
+                            finalUrl = 'https://' + muText;
+                        }
+                    }
+                    if (finalUrl) {
+                        if (!finalUrl.startsWith('http')) finalUrl = 'https://' + finalUrl;
                         var muId = muP.dataset.blockid;
-                        var muUrl3 = muText;
+                        var muUrl3 = finalUrl;
                         muP.removeAttribute('data-music-url');
                         /* 立即将 doc 中的 status 改为 loading，防止后续重渲染出输入框 */
                         var docMu3 = docRef.current;
@@ -4018,8 +4073,9 @@ BlockSystem.register('link-card', {
                         loadDiv.dataset.blockid = muId;
                         loadDiv.dataset.type = 'musicCard';
                         loadDiv.dataset.url = muUrl3;
-                        loadDiv.style.cssText = 'padding:12px;background:var(--card-bg);border-radius:12px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-secondary);';
-                        loadDiv.innerHTML = '<div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div><div style="flex:1;min-width:0;"><div class="lkc-skeleton-line" style="width:75%;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--card-bg) 25%,var(--border-color) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div><div class="lkc-skeleton-line" style="width:50%;height:12px;border-radius:6px;margin-top:8px;background:linear-gradient(90deg,var(--card-bg) 25%,var(--border-color) 50%,var(--card-bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;"></div></div>';
+                        loadDiv.innerHTML = '<div class="link-card-skeleton-cover"></div><div class="link-card-skeleton-body"><div class="link-card-skeleton-line" style="width:75%;"></div><div class="link-card-skeleton-line" style="width:50%;"></div></div>';
+                        loadDiv.className = 'link-card-skeleton';
+                        loadDiv.style.cssText = '';
                         muP.replaceWith(loadDiv);
                         /*
                          * 异步获取元数据
@@ -4032,17 +4088,19 @@ BlockSystem.register('link-card', {
                             if (ce2) {
                                 var el2 = ce2.querySelector('[data-blockid="' + muId + '"]');
                                 if (el2) {
-                                    var cv = meta && meta.cover || ''; var tl = meta && meta.title || muUrl3; var sr = meta && meta.source || '音乐';
+                                    var cv = meta && meta.cover ? proxyImg(meta.cover) : ''; var tl = meta && meta.title || muUrl3; var sr = meta && meta.source || '音乐';
                                     var finalDiv = document.createElement('div');
                                     finalDiv.contentEditable = 'false';
+                                    finalDiv.className = 'link-card-block';
                                     finalDiv.dataset.blockid = muId;
                                     finalDiv.dataset.type = 'musicCard';
                                     finalDiv.dataset.url = muUrl3;
-                                    finalDiv.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px;background:var(--card-bg);border-radius:12px;cursor:pointer;font-size:13px;';
                                     var finalHtml = '';
-                                    if (cv) finalHtml += '<img src="' + escapeHTML(cv) + '" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0;">';
-                                    else finalHtml += '<div style="width:48px;height:48px;border-radius:8px;background:var(--btn-bg);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🎵</div>';
-                                    finalHtml += '<div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHTML(tl) + '</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">' + escapeHTML(sr) + '</div></div>';
+                                    if (cv) finalHtml += '<div class="lkc-cover"><img src="' + escapeHTML(cv) + '" alt="" onerror="this.closest(\'.lkc-cover\').style.display=\'none\'"></div>';
+                                    finalHtml += '<div class="lkc-body' + (cv ? ' has-cover' : '') + '">';
+                                    finalHtml += '<div class="lkc-title">' + escapeHTML(tl) + '</div>';
+                                    finalHtml += '<div class="lkc-source"><span class="lkc-source-icon">🎵</span><span class="lkc-source-dot"></span><span class="lkc-source-text">' + escapeHTML(sr) + '</span></div>';
+                                    finalHtml += '</div>';
                                     finalDiv.innerHTML = finalHtml;
                                     el2.replaceWith(finalDiv);
                                     triggerAutoSave();
