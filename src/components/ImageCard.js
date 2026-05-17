@@ -47,19 +47,7 @@
     }
 
     // Swipe gesture (via shared hook)
-    var sw = w.CikeHooks.useSwipeGesture({
-      isNewCard: isNewCard,
-      onProgress: function(p) {
-        var r = p * 32;
-        var img = sw && sw.rowRef && sw.rowRef.current && sw.rowRef.current.querySelector('.img-cover, .img-cover-fb');
-        if (img) img.style.borderRadius = '32px 32px 0 ' + r + 'px';
-      }
-    });
-      if (sw.wrapperRef.current) {
-        sw.wrapperRef.current.style.borderTopRightRadius = (32 - Math.min(1, p) * 30) + 'px';
-        sw.wrapperRef.current.style.borderBottomRightRadius = (32 - Math.min(1, p) * 30) + 'px';
-      }
-    };
+    var sw = w.CikeHooks.useSwipeGesture({ isNewCard: isNewCard });
 
     return R.createElement('div', { className:'swipe-wrapper', ref:sw.wrapperRef },
       !isNewCard && R.createElement('div', { className:'swipe-actions' },
