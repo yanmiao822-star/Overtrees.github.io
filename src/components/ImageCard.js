@@ -55,7 +55,7 @@
       var r = p * 32;
       var htmlEl = sw.rowRef.current;
       var img = htmlEl && htmlEl.querySelector('.img-cover, .img-cover-fb');
-      if (img) img.style.borderRadius = '32px 32px ' + r + 'px ' + r + 'px';
+      if (img) img.style.borderRadius = '32px 32px 0 ' + r + 'px';
       // wrapper 右圆角跟随缩略图过渡，保持 overflow:hidden 裁切一致
       if (sw.wrapperRef.current) {
         sw.wrapperRef.current.style.borderTopRightRadius = (32 - Math.min(1, p) * 30) + 'px';
