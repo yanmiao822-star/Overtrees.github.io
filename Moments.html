@@ -5193,7 +5193,15 @@ const BackupView = ({
   const [statusMsg, setStatusMsg] = useState('');
   const [statusType, setStatusType] = useState('idle');
   const buildBackupPayload = useCallback(async () => {
-    const memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
+    var memos = JSON.parse(localStorage.getItem('memos_app_v2') || '[]');
+    // 优先从 IDB 读取（主存储）
+    try {
+      var _db5 = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
+      if (_db5) {
+        var _idb = await (window.CikeIdb ? window.CikeIdb.loadMemosFromDB(_db5) : null);
+        if (_idb && _idb.length > 0) memos = _idb;
+      }
+    } catch (_) {}
     const cleanMemos = memos.map(m => ({
       ...m,
       doc: m.doc ? m.doc.map(n => {
