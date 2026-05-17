@@ -16,7 +16,7 @@
       closeRef.current = setTimeout(function(){ if(after) after(); else if(onClose) onClose(); }, 220);
     }
 
-    return R.createElement(w.FloatPanel || FloatPanel, {
+    return R.createElement(w.FloatPanel, {
       onClose: function(){ closeWithAnim(); },
       closing: closing
     },
