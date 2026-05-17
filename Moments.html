@@ -6736,12 +6736,11 @@ class ErrorBoundary extends React.Component {
     var _cs = '';
     try { _cs = info && info.componentStack ? info.componentStack.split('\n').slice(0,8).join('\n') : ''; } catch(_){}
     try { this.setState({ stack: _st + '\n\nComponent Stack:\n' + _cs }); } catch(_){}
-    // 额外：捕获全局错误
+    // 全局错误兜底（避免 componentDidCatch 自身抛出时无反馈）
+    var _self = this;
     if (!window.__globalErrorSetup) { window.__globalErrorSetup = true;
       window.addEventListener('error', function(ev) {
-        var _el = document.getElementById('__dbg');
-        if (!_el) { _el = document.createElement('div'); _el.id = '__dbg'; _el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:300px;overflow:auto;background:rgba(0,0,0,0.92);color:#0f0;font-size:10px;font-family:monospace;padding:6px;z-index:9999;white-space:pre-wrap;'; document.body.appendChild(_el); }
-        _el.textContent = '[JS Error] ' + (ev.message||'') + '\n' + (ev.filename||'') + ':' + (ev.lineno||'') + '\n' + (ev.error && ev.error.stack ? ev.error.stack.substring(0,300) : '');
+        try { _self.setState({ stack: _self.state.stack + '\n[Global] ' + (ev.message||'') }); } catch(_){}
       });
     }}
   render() {
