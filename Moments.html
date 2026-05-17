@@ -2973,14 +2973,16 @@ function Editor({
       if (ce2) {
         var cardEl2 = ce2.querySelector('[data-blockid="' + cardId + '"]');
         if (cardEl2 && cardEl2.classList.contains('link-card-skeleton')) {
-          id: cardId,
-          type: cardType,
-          url: url,
-          meta: null,
-          status: 'error'
-        }, files);
+          cardEl2.outerHTML = renderAtomicHTML({
+            id: cardId,
+            type: cardType,
+            url: url,
+            meta: null,
+            status: 'error'
+          }, files);
       }
     }
+  }
   }, [insertAtomicBlockToDOM]);
 
   /* ===== DOM input handlers ===== */
