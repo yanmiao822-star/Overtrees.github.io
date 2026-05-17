@@ -2927,7 +2927,7 @@ function Editor({
       domain = url;
     }
     /* 检测是否为音乐平台链接 → 自动升级为音乐卡片 */
-    var isMusic = /music\.163\.com|163cn\.tv|y\.qq\.com|i\.y\.qq\.com|open\.spotify\.com/.test(url);
+    var isMusic = /music\.163\.com|163cn\.tv|y\.qq\.com|i\.y\.qq\.com|open\.spotify\.com|music\.apple\.com/.test(url);
     var cardType = isMusic ? 'musicCard' : 'link-card';
     var html = '<div contenteditable="false" class="link-card-skeleton" data-blockid="' + cardId + '" data-type="' + cardType + '" data-url="' + escapeHTML(url) + '"><div class="link-card-skeleton-cover"></div><div class="link-card-skeleton-body"><div class="link-card-skeleton-line" style="width:75%"></div><div class="link-card-skeleton-line" style="width:50%"></div></div></div>';
     docRef.current.push({
@@ -3252,7 +3252,7 @@ function Editor({
     }
     var isPureUrl = isUrl(trimmed);
     var embeddedUrl = isPureUrl ? null : extractUrlFromText(trimmed);
-    if (isPureUrl || embeddedUrl && /music\.163\.com|163cn\.tv|y\.qq\.com|i\.y\.qq\.com|open\.spotify\.com|b23\.tv|xiaohongshu\.com|xhslink\.com/i.test(embeddedUrl)) {
+    if (isPureUrl || embeddedUrl && /music\.163\.com|163cn\.tv|y\.qq\.com|i\.y\.qq\.com|open\.spotify\.com|music\.apple\.com|b23\.tv|xiaohongshu\.com|xhslink\.com/i.test(embeddedUrl)) {
       e.preventDefault();
       insertLinkCardAtDOM(isPureUrl ? trimmed : embeddedUrl);
       return;
