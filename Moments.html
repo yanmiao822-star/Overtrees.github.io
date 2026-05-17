@@ -6730,7 +6730,8 @@ class ErrorBoundary extends React.Component {
       return React.createElement('div', { style:{ padding:32, textAlign:'center', color:'var(--text-secondary)', fontSize:14 } },
         React.createElement('div', { style:{ fontSize:48, marginBottom:16 } }, '😵'),
         React.createElement('p', { style:{ margin:'0 0 8px', fontWeight:650 } }, '出了点问题'),
-        React.createElement('p', { style:{ margin:'0 0 16px', fontSize:12, opacity:0.6 } }, '页面渲染遇到了错误，刷新一下试试'),
+        React.createElement('p', { style:{ margin:'0 0 16px', fontSize:12, opacity:0.6 } }, (this.state.error||{}).message || '页面渲染遇到了错误'),
+        React.createElement('p', { style:{ margin:'0 0 16px', fontSize:10, opacity:0.4, maxWidth:300, marginLeft:'auto', marginRight:'auto', wordBreak:'break-all' } }, (this.state.error||{}).stack || ''),
         React.createElement('button', {
           onClick: function() { window.location.reload(); },
           style: { padding:'8px 20px', borderRadius:999, border:'0.5px solid var(--glass-border)', background:'var(--glass-bg)', color:'var(--text-main)', fontSize:14, cursor:'pointer' }
