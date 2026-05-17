@@ -6161,6 +6161,77 @@ function MemoList() {
     if (!m.createdAt) m.createdAt = m.updatedAt || new Date().toISOString();
     return m;
   }
+  function buildBuiltinMemos() {
+    var now = Date.now();
+    var day = 86400000;
+    function gid() { return genId(); }
+    return [
+      {
+        id: 'demo_exhibit',
+        title: '周末看展记录',
+        pinned: false,
+        createdAt: new Date(now).toISOString(),
+        updatedAt: new Date(now).toISOString(),
+        doc: [
+          { id: gid(), type: 'paragraph', children: [{ text: '今天去了 UCCA 的「非物质再现」展。光线透过亚克力板投射在墙上的影子会随着人的移动变化，站久了会忘记时间。' }] },
+          { id: gid(), type: 'paragraph', children: [{ text: '想起上周看的书里那句话：==所谓的边界，只是我们还没习惯的过渡带==' }] },
+          { id: gid(), type: 'heading', attrs: { level: 2 }, children: [{ text: '实用信息' }] },
+          { id: gid(), type: 'paragraph', children: [{ text: '地址：798 艺术区 UCCA。票价 100 元。' }] }
+        ]
+      },
+      {
+        id: 'demo_home',
+        title: '装修踩坑清单',
+        pinned: true,
+        createdAt: new Date(now - day).toISOString(),
+        updatedAt: new Date(now - day).toISOString(),
+        doc: [
+          { id: gid(), type: 'todo', attrs: { checked: true }, children: [{ text: '厨房插座至少留 6 个，台面要带开关' }] },
+          { id: gid(), type: 'todo', attrs: { checked: true }, children: [{ text: '卫生间防水刷到 1.8m，闭水试验做满 48h' }] },
+          { id: gid(), type: 'todo', attrs: { checked: false }, children: [{ text: '地板和瓷砖之间用极窄收边条，不要过门石' }] },
+          { id: gid(), type: 'todo', attrs: { checked: false }, children: [{ text: '衣柜做到顶，不要成品柜，顶部积灰严重' }] }
+        ]
+      },
+      {
+        id: 'demo_tools',
+        title: '好用的工具网站',
+        pinned: false,
+        createdAt: new Date(now - 3 * day).toISOString(),
+        updatedAt: new Date(now - 3 * day).toISOString(),
+        doc: [
+          { id: gid(), type: 'paragraph', children: [{ text: '几个日常高频用到的小工具，免费无广告。' }] },
+          { id: gid(), type: 'paragraph', children: [{ text: 'Excalidraw — 画架构图和流程图最顺手的白板。' }] },
+          { id: gid(), type: 'paragraph', children: [{ text: 'Carbon — 把代码生成漂亮的分享图，支持 20+ 主题。' }] }
+        ]
+      },
+      {
+        id: 'demo_book',
+        title: '读书笔记｜设计的觉醒',
+        pinned: false,
+        createdAt: new Date(now - 7 * day).toISOString(),
+        updatedAt: new Date(now - 7 * day).toISOString(),
+        doc: [
+          { id: gid(), type: 'paragraph', children: [{ text: '田中一光的随笔集，断断续续读了一个月。' }] },
+          { id: gid(), type: 'paragraph', children: [{ text: '「设计不是一种技能，而是捕捉事物本质的感觉和洞察力。」' }] },
+          { id: gid(), type: 'paragraph', children: [{ text: '「整理、排布、思考——设计的本质就是这三件事的循环。」' }] }
+        ]
+      },
+      {
+        id: 'demo_music',
+        title: '最近在听的歌',
+        pinned: false,
+        createdAt: new Date(now - 14 * day).toISOString(),
+        updatedAt: new Date(now - 14 * day).toISOString(),
+        doc: [
+          { id: gid(), type: 'heading', attrs: { level: 2 }, children: [{ text: '上周循环最多的几首' }] },
+          { id: gid(), type: 'paragraph', children: [{ text: 'She Her Her Hers — Arrows — 吉他前奏一响整个人都松下来了。适合下雨天窝在沙发上单曲循环。' }] },
+          { id: gid(), type: 'musicCard', url: 'https://c6.y.qq.com/base/fcgi-bin/u?__=1RE7gOYaMZgO', meta: null, status: 'loading' },
+          { id: gid(), type: 'paragraph', children: [{ text: '草东没有派对 — 床 — 烦躁的时候听最解压。' }] },
+          { id: gid(), type: 'paragraph', children: [{ text: '落日飞车 — My Jinji — 适合晚上开车听。' }] }
+        ]
+      }
+    ];
+  }
   useEffect(function() {
     if (idbInited.current) return;
     idbInited.current = true;
@@ -6179,9 +6250,13 @@ function MemoList() {
         var saved = localStorage.getItem("memos_app_v2");
         var parsed = saved ? JSON.parse(saved) : [];
         var normalized = parsed.map(normalizeMemo);
+        if (normalized.length === 0) {
+          normalized = buildBuiltinMemos();
+        }
         if (db && normalized.length > 0) {
           await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(db, normalized) : null);
         }
+        try { localStorage.setItem("memos_app_v2", JSON.stringify(normalized)); } catch(e) {}
         setMemos(normalized);
       } catch(e) { console.warn('[此刻] MemoList IDB init', e); }
     })();
