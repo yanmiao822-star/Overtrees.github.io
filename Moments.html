@@ -138,12 +138,12 @@
         padding: 0 16px; gap: 12px; pointer-events: auto;
     }
     .action-btn, .editor-btn {
-        background: var(--btn-bg);
+        background: var(--glass-bg);
         color: var(--text-main);
         text-decoration: none;
         cursor: pointer;
         backdrop-filter: blur(40px) saturate(2.5) brightness(1.08); -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
-        border: 0.5px solid var(--border-color);
+        border: 0.5px solid var(--glass-border);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -188,10 +188,10 @@
         padding: 6px 16px;
         border-radius: 20px;
         corner-shape: squircle;
-        background: var(--btn-bg);
+        background: var(--glass-bg);
         backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
         -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
-        border: 0.5px solid var(--border-color);
+        border: 0.5px solid var(--glass-border);
         opacity: 1;
         pointer-events: none;
         white-space: nowrap;
@@ -268,10 +268,10 @@
     .img-text .m { font-size: 0.75rem; color: var(--text-secondary); }
     .expand-btn {
         display: inline-flex; align-items: center; gap: 4px;
-        background: var(--btn-bg); padding: 4px 10px; border-radius: 14px;
+        background: var(--glass-bg); padding: 4px 10px; border-radius: 14px;
         font-size: 0.6875rem; color: var(--text-secondary); flex-shrink: 0; white-space: nowrap; cursor: pointer;
         backdrop-filter: blur(40px) saturate(2.5) brightness(1.08); -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
-        border: 0.5px solid var(--border-color);
+        border: 0.5px solid var(--glass-border);
     }
     .gap-16 { height: 16px; }
     .markdown-render {
@@ -496,10 +496,10 @@
         height: 46px;
         border-radius: 23px;
         corner-shape: squircle;
-        background: var(--btn-bg);
+        background: var(--glass-bg);
         backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
         -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
-        border: 0.5px solid var(--border-color);
+        border: 0.5px solid var(--glass-border);
         cursor: pointer;
         padding: 0;
         touch-action: manipulation;
@@ -661,9 +661,9 @@
         font-size: 0.8125rem;
     }
     .backup-btn {
-        background: var(--btn-bg);
+        background: var(--glass-bg);
         color: var(--text-main);
-        border: 0.5px solid var(--border-color);
+        border: 0.5px solid var(--glass-border);
         border-radius: 999px;
         height: 44px;
         padding: 0 18px;
@@ -672,7 +672,7 @@
         cursor: pointer;
         backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
         -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04), inset 0 0.5px 0 rgba(255,255,255,0.15);
         margin-right: 0;
         margin-bottom: 0;
         font-family: inherit;

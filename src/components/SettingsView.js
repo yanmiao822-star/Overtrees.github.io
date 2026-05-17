@@ -41,8 +41,8 @@
                   var sel = fontSize === opt.key;
                   return R.createElement('button', { key:opt.key, onClick:function(){applyFontSize(opt.key);},
                     style:{ height:32, minWidth:40, padding:'0 12px', borderRadius:16,
-                      border:sel ? '0.5px solid rgba(0,122,255,0.35)' : '0.5px solid var(--border-color)',
-                      background:sel ? 'rgba(0,122,255,0.1)' : 'var(--btn-bg)',
+                      border:sel ? '0.5px solid rgba(0,122,255,0.35)' : '0.5px solid var(--glass-border)',
+                      background:sel ? 'rgba(0,122,255,0.1)' : 'var(--glass-bg)',
                       color:sel ? '#007aff' : 'var(--text-main)',
                       fontSize:opt.fs, fontWeight:sel ? 700 : 500,
                       fontFamily:'inherit', cursor:'pointer',
