@@ -1,6 +1,6 @@
 # 此刻
 
-一个在 iOS 上好用的本地笔记。打开就能写，不用联网，不用注册账号。
+一款在 iOS 上好用的笔记 Web App，原生质感。打开就能写，断网可用、不用注册账号。iOS Safari & iOS PWA 模式双端适配体验一致，所见即所得。
 
 <p align="center">
   <img src="screenshots/list-view.jpg" width="280" alt="列表主页 — 时间分组、待办清单、音乐卡片预览">
