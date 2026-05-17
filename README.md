@@ -6,6 +6,7 @@
   <img src="screenshots/list-view.jpg" width="280" alt="列表主页 — 时间分组、待办清单、音乐卡片预览">
   <img src="screenshots/editor-view.jpg" width="280" alt="编辑器 — 段落、标题、分割线、Markdown 渲染">
   <img src="screenshots/settings-view.jpg" width="280" alt="设置页面 — 字号切换、备份恢复">
+  <img src="screenshots/music-card.jpg" width="280" alt="音乐卡片 — QQ音乐 / Apple Music / 网易云音乐 / Spotify 自动识别">
 </p>
 
 ---
