@@ -3,9 +3,9 @@
 一个在 iOS 上好用的本地笔记。打开就能写，不用联网，不用注册账号。
 
 <p align="center">
-  <img src="screenshots/list-view.jpg" width="280" alt="列表主页">
-  <img src="screenshots/settings-view.jpg" width="280" alt="设置页面">
-  <img src="screenshots/editor-view.jpg" width="280" alt="编辑器">
+  <img src="screenshots/list-view.jpg" width="280" alt="列表主页 — 时间分组、待办清单、音乐卡片预览">
+  <img src="screenshots/editor-view.jpg" width="280" alt="编辑器 — 段落、标题、分割线、Markdown 渲染">
+  <img src="screenshots/settings-view.jpg" width="280" alt="设置页面 — 字号切换、备份恢复">
 </p>
 
 ---
