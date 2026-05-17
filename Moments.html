@@ -6227,13 +6227,13 @@ const BackupView = ({
 var SettingsView = window.SettingsView;
 var SwipeRow = window.SwipeRow;
 var ImageCard = window.ImageCard;
-// 检查组件是否已加载
-if (typeof SwipeRow !== 'function' || typeof ImageCard !== 'function' || typeof SettingsView !== 'function') {
-  console.warn('[此刻] 组件未完全加载', {SwipeRow:typeof SwipeRow, ImageCard:typeof ImageCard, SettingsView:typeof SettingsView});
-  return React.createElement('div', {style:{padding:32,textAlign:'center',color:'var(--text-secondary)'}},
-    React.createElement('p', null, '组件加载中...'),
-    React.createElement('p', {style:{fontSize:12,opacity:0.5}}, '如果一直停留在这里，请刷新页面')
-  );
+// 组件加载检查（移入 MemoList 内部）
+function _checkComponents() {
+  if (typeof window.SwipeRow !== 'function' || typeof window.ImageCard !== 'function' || typeof window.SettingsView !== 'function') {
+    console.warn('[此刻] 组件未完全加载');
+    return false;
+  }
+  return true;
 }
 // 支持 ?open=id URL 参数自动打开笔记（用于截图/分享）
 var __preopenNoteId = (function(){try{var m=window.location.search.match(/[?&]open=([^&]+)/);return m?decodeURIComponent(m[1]):null}catch(e){return null}})();
