@@ -2544,8 +2544,8 @@ function Editor({
   // ===== beforeinput: iOS 三指手势撤销/重做 =====
   useEffect(() => {
     var handler = function(e) {
-      if (e.inputType === 'historyUndo') { e.preventDefault(); undo(); }
-      else if (e.inputType === 'historyRedo') { e.preventDefault(); redo(); }
+      if (e.inputType === 'historyUndo') { try { e.preventDefault(); } catch(_) {} setTimeout(function() { undo(); }, 0); }
+      else if (e.inputType === 'historyRedo') { try { e.preventDefault(); } catch(_) {} setTimeout(function() { redo(); }, 0); }
     };
     var el = editorBodyRef.current;
     if (!el) return;
