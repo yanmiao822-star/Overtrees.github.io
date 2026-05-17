@@ -6175,10 +6175,18 @@ const BackupView = ({
 var SettingsView = window.SettingsView;
 var SwipeRow = window.SwipeRow;
 var ImageCard = window.ImageCard;
+// 支持 ?open=id URL 参数自动打开笔记（用于截图/分享）
+var __preopenNoteId = (function(){try{var m=window.location.search.match(/[?&]open=([^&]+)/);return m?decodeURIComponent(m[1]):null}catch(e){return null}})();
 function MemoList() {
   // ===== IndexedDB 主存储：先清，挂载后从 IDB 加载（localStorage 为只读备份） =====
   const [memos, setMemos] = useState([]);
   var idbInited = useRef(false);
+  function tryOpenNote(list) {
+    if (typeof __preopenNoteId !== 'undefined' && __preopenNoteId) {
+      var found = list.filter(function(m) { return m && (m.id === __preopenNoteId || m.title.indexOf(__preopenNoteId) >= 0); });
+      if (found.length > 0) { setEditingMemoId(found[0].id); console.log('[此刻] auto-open', found[0].id); }
+    }
+  }
   function normalizeMemo(m) {
     if (!m.doc && m.content !== undefined) {
       return Object.assign({}, m, {
@@ -6274,8 +6282,9 @@ function MemoList() {
         if (db) {
           var stored = await (window.CikeIdb ? window.CikeIdb.loadMemosFromDB(db) : null);
           if (stored && stored.length > 0) {
-            setMemos(stored.map(normalizeMemo));
-            try { localStorage.setItem("memos_app_v2", JSON.stringify(stored)); } catch(e) {}
+            var ns = stored.map(normalizeMemo);
+            setMemos(ns);
+            tryOpenNote(ns);
             return;
           }
         }
@@ -6291,6 +6300,7 @@ function MemoList() {
         }
         try { localStorage.setItem("memos_app_v2", JSON.stringify(normalized)); } catch(e) {}
         setMemos(normalized);
+        tryOpenNote(normalized);
       } catch(e) { console.warn('[此刻] MemoList IDB init', e); }
     })();
   }, []);
