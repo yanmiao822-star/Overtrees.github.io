@@ -46,7 +46,7 @@
                       color:sel ? '#007aff' : 'var(--text-main)',
                       fontSize:opt.fs, fontWeight:sel ? 700 : 500,
                       fontFamily:'inherit', cursor:'pointer',
-                      backdropFilter:'blur(40px) saturate(2.5) brightness(1.08)', WebkitBackdropFilter:'blur(40px) saturate(2.5) brightness(1.08)',
+                      backdropFilter:'blur(40px) saturate(2.5) brightness(1.15)', WebkitBackdropFilter:'blur(40px) saturate(2.5) brightness(1.15)',
                       transition:'all 0.18s ease', lineHeight:1 }
                   }, opt.label);
                 })))),
