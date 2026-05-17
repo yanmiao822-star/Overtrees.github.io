@@ -1,8 +1,8 @@
 (function (w) {
   var C = {
     API_BASE: 'https://mynote.overtrees.workers.dev',
-    URL_REGEX: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&\/=]*)$/i,
-    URL_INLINE_REGEX: /https?:\/\/[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[\-a-zA-Z0-9()@:%_+.~#?&\/=]*/i,
+    URL_REGEX: /^https?:\/\/(www\.)?[-\u4e00-\u9fa5a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-\u4e00-\u9fa5a-zA-Z0-9()@:%_+.~#?&\/=]*)$/i,
+    URL_INLINE_REGEX: /https?:\/\/[-\u4e00-\u9fa5a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\u4e00-\u9fa5a-zA-Z0-9()@:%_+.~#?&\/=]*/i,
     NEW_CARD_ID: '__new_memo_card__',
     GOOGLE_CLIENT_ID: '369692322774-se6hvcg8lvlacbgl8hf3u4d3tme7aeht.apps.googleusercontent.com',
     GOOGLE_API_KEY: 'YOUR_API_KEY',
