@@ -5517,6 +5517,7 @@ const BackupView = ({
       const cloudAvatars = unzipped['avatars.json'] ? JSON.parse(fflate.strFromU8(unzipped['avatars.json'])) : null;
       await restoreAvatars(cloudAvatars || cloudBackup.avatars, db);
       localStorage.setItem('memos_app_v2', JSON.stringify(merged));
+      if (window.CikeIdb) { try { var _db3 = await window.CikeIdb.getDB(); await window.CikeIdb.saveMemosToDB(_db3, merged); } catch(_){} }
       showStatus('✅ 合并成功！正在刷新...');
       setTimeout(() => window.location.reload(), 800);
     } catch (e) {
@@ -5563,6 +5564,7 @@ const BackupView = ({
       const backupAvatars = unzipped['avatars.json'] ? JSON.parse(fflate.strFromU8(unzipped['avatars.json'])) : null;
       await restoreAvatars(backupAvatars || backup.avatars, db);
       localStorage.setItem('memos_app_v2', newMemosStr);
+      if (window.CikeIdb) { try { var _db4 = await window.CikeIdb.getDB(); await window.CikeIdb.saveMemosToDB(_db4, backup.memos); } catch(_){} }
       showStatus('✅ 云端恢复成功！正在刷新页面...');
       addHistoryEntry('restore', 'success', '从云端恢复', (backup.memos || []).length + ' 条笔记');
       setTimeout(() => window.location.reload(), 800);
