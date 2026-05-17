@@ -47,7 +47,13 @@
     }
 
     // Swipe gesture (via shared hook)
-    var sw = w.CikeHooks.useSwipeGesture({ isNewCard: isNewCard });
+    var sw = w.CikeHooks.useSwipeGesture({
+      isNewCard: isNewCard,
+      onProgress: function(p) {
+        var img = sw.rowRef.current && sw.rowRef.current.querySelector('.img-cover, .img-cover-fb');
+        if (img) img.style.borderRadius = '32px 32px 0 ' + (p * 32) + 'px';
+      }
+    });
 
     return R.createElement('div', { className:'swipe-wrapper', ref:sw.wrapperRef },
       !isNewCard && R.createElement('div', { className:'swipe-actions' },
