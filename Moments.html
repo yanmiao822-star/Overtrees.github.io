@@ -4460,15 +4460,6 @@ window.getDB = getDB;
     cy: "12",
     r: "2"
   }))), showMenu && /*#__PURE__*/React.createElement(FloatPanel, {
-    onPointerDown: closeEditorMenu,
-    style: {
-      position: "fixed",
-      inset: 0,
-      zIndex: 3001,
-      background: menuClosing ? "transparent" : "transparent",
-      transition: "background 220ms ease"
-    }
-  }), /*#__PURE__*/React.createElement("div", {
     onClose: closeEditorMenu,
     closing: menuClosing,
     style: { overlay: { zIndex: 2998 }, panel: { zIndex: 2999 } }
