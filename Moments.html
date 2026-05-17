@@ -2420,24 +2420,18 @@ function Editor({
     return () => clearTimeout(saveTimer.current);
   }, [title, triggerAutoSave]);
   const handleClose = async () => {
-    try {
-      clearTimeout(saveTimer.current);
-      const pending = Object.values(pendingAttachmentsRef.current);
-      if (pending.length > 0) await Promise.allSettled(pending);
-      if (window._pendingCardReaders && window._pendingCardReaders.length > 0) {
-        await Promise.allSettled(window._pendingCardReaders);
-      }
-      __debug_logs && __debug_logs.push('close: saving doc len='+((docRef.current||[]).length));
-      doSave(JSON.parse(JSON.stringify(docRef.current)));
-      setClosing(true);
-      setTimeout(function(){ onClose(); }, 280);
-    } catch(e) {
-      __debug_logs && __debug_logs.push('close ERR: '+(e.message||e));
-      console.error('[此刻] handleClose error', e);
-      // 即使出错也强制关闭编辑器，避免卡在空白页
-      setClosing(true);
-      setTimeout(function(){ onClose(); }, 50);
+    clearTimeout(saveTimer.current);
+    const pending = Object.values(pendingAttachmentsRef.current);
+    if (pending.length > 0) await Promise.allSettled(pending);
+    /* 等待 CardReader 完成 */
+    if (window._pendingCardReaders && window._pendingCardReaders.length > 0) {
+      await Promise.allSettled(window._pendingCardReaders);
     }
+    doSave(JSON.parse(JSON.stringify(docRef.current)));
+    setClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 280);
   };
   const handleAvatarSelected = async e => {
     const file = e.target.files && e.target.files[0];
@@ -6227,14 +6221,6 @@ const BackupView = ({
 var SettingsView = window.SettingsView;
 var SwipeRow = window.SwipeRow;
 var ImageCard = window.ImageCard;
-// 组件加载检查（移入 MemoList 内部）
-function _checkComponents() {
-  if (typeof window.SwipeRow !== 'function' || typeof window.ImageCard !== 'function' || typeof window.SettingsView !== 'function') {
-    console.warn('[此刻] 组件未完全加载');
-    return false;
-  }
-  return true;
-}
 // 支持 ?open=id URL 参数自动打开笔记（用于截图/分享）
 var __preopenNoteId = (function(){try{var m=window.location.search.match(/[?&]open=([^&]+)/);return m?decodeURIComponent(m[1]):null}catch(e){return null}})();
 function MemoList() {
@@ -6244,28 +6230,7 @@ function MemoList() {
   function tryOpenNote(list) {
     if (typeof __preopenNoteId !== 'undefined' && __preopenNoteId) {
       var found = list.filter(function(m) { return m && (m.id === __preopenNoteId || m.title.indexOf(__preopenNoteId) >= 0); });
-      if (found.length > 0) { setEditingMemoId(found[0].id); console.log('[此刻] auto-open', found[0].id);
-        var _ca = parseInt((location.search.match(/[?&]closeafter=(\d+)/)||[])[1],10);
-        if (_ca > 0) setTimeout(function(){ setEditingMemoId(null); }, _ca); }
-    }
-    // 检测上次是否渲染崩溃，是则清掉有问题的笔记
-    if (window.__lastRenderError) {
-      console.warn('[此刻] 检测到上次渲染崩溃，正在清除异常数据');
-      window.__lastRenderError = null;
-      var _safe = [];
-      for (var _i2 = 0; _i2 < list.length; _i2++) {
-        try { JSON.stringify(list[_i2]); _safe.push(list[_i2]); } catch(e) { console.warn('[此刻] 移除不可序列化的笔记', list[_i2].id); }
-      }
-      if (_safe.length !== list.length) {
-        setMemos(_safe);
-        (async function(){
-          try {
-            var _db6 = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
-            if (_db6) await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(_db6, _safe) : null);
-            localStorage.setItem('memos_app_v2', JSON.stringify(_safe));
-          } catch(e) {}
-        })();
-      }
+      if (found.length > 0) { setEditingMemoId(found[0].id); console.log('[此刻] auto-open', found[0].id); }
     }
   }
   function normalizeMemo(m) {
@@ -6394,31 +6359,6 @@ function MemoList() {
   const editingMemo = editingMemoId ? memos.find(m => m.id === editingMemoId) || null : null;
   const scrollRestoreRef = useRef(0);
   const [view, setView] = useState('list'); // 'list' | 'settings' | 'backup'
-  // 调试面板：?debug=1 或双击标题显示保存日志
-  if (typeof window.__debugToggleSetup === 'undefined') {
-    window.__debugToggleSetup = true;
-    if (location.search.indexOf('debug=1') >= 0) {
-      setTimeout(function(){
-        var _p = document.createElement('div');
-        _p.id = '__dbg';
-        _p.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:150px;overflow:auto;background:rgba(0,0,0,0.9);color:#0f0;font-size:10px;font-family:monospace;padding:6px;z-index:9999;white-space:pre-wrap;pointer-events:none;';
-        document.body.appendChild(_p);
-        var _update = function(){ var el=document.getElementById('__dbg'); if(el) el.textContent=(window.__debug_logs||[]).join('\n'); requestAnimationFrame(_update); };
-        _update();
-      }, 500);
-    }
-    document.addEventListener('dblclick', function(e){
-      if(e.target && e.target.closest && e.target.closest('.page-title')){
-        var _el = document.getElementById('__dbg');
-        if(_el){_el.remove();return;}
-        _el = document.createElement('div');
-        _el.id = '__dbg';
-        _el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:150px;overflow:auto;background:rgba(0,0,0,0.9);color:#0f0;font-size:10px;font-family:monospace;padding:6px;z-index:9999;white-space:pre-wrap;';
-        _el.textContent = (window.__debug_logs||[]).join('\n');
-        document.body.appendChild(_el);
-      }
-    });
-  }
 
   const [scrollY, setScrollY] = useState(0);
   const TITLE_THRESHOLD = 30;
@@ -6453,35 +6393,21 @@ function MemoList() {
   const titleOpacity = 1 - shrinkProgress * 0.3;
   const isCompact = shrinkProgress >= 1;
   useEffect(() => {
-    var _logs = window.__debug_logs = window.__debug_logs || [];
     try {
       const safe = memos.map(m => ({
         ...m,
         doc: m.doc ? m.doc.map(function(n) { return n; }) : m.doc
       }));
-      var lsStr = JSON.stringify(safe);
-      localStorage.setItem("memos_app_v2", lsStr);
-      _logs.push('LS ok:'+safe.length+' memos '+ (lsStr.length/1024).toFixed(1)+'KB');
+      localStorage.setItem("memos_app_v2", JSON.stringify(safe));
+      // 同步到 IndexedDB
       (async function() {
         try {
-          var _tdb = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
-          if (!_tdb) { _logs.push('IDB: no db'); return; }
-          await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(_tdb, safe) : null);
-          _logs.push('IDB ok:'+safe.length+' memos');
-        } catch(e) { _logs.push('IDB err:'+(e.message||e)); }
+          var db = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
+          if (db) await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(db, safe) : null);
+        } catch(e) { console.warn('[此刻] IDB save', e); }
       })();
-    } catch (e) { _logs.push('LS err:'+(e.message||e)); }
+    } catch (e) { console.warn('[此刻] localStorage save', e); }
   }, [memos]);
-  // 调试工具栏：点击标题 5 次显示日志
-  window.__toggleDebug = function() {
-    var el = document.getElementById('debug-panel');
-    if (el) { el.remove(); return; }
-    el = document.createElement('div');
-    el.id = 'debug-panel';
-    el.style.cssText = 'position:fixed;bottom:0;left:0;right:0;max-height:200px;overflow:auto;background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;font-family:monospace;padding:8px;z-index:9999;white-space:pre-wrap;';
-    el.textContent = (window.__debug_logs||[]).join('\n');
-    document.body.appendChild(el);
-  };
   const openEditor = memo => {
     if (memo.id === NEW_CARD_ID) {
       handleNew();
@@ -6714,7 +6640,7 @@ function MemoList() {
     onExpand: () => toggleBlock(`${gi}-txt`)
   })) : group.textMemos.map((memo, mi) => /*#__PURE__*/React.createElement("div", {
     key: memo.id
-  }, /*#__PURE__*/React.createElement('div', null, /*#__PURE__*/React.createElement(SwipeRow, {
+  }, /*#__PURE__*/React.createElement(SwipeRow, {
     memo: memo,
     onOpen: () => openEditor(memo),
     onPin: togglePin,
@@ -6726,33 +6652,7 @@ function MemoList() {
     onClose: closeEditor,
     onSave: saveMemo,
     autoFocus: newEditorAutoFocusId === editingMemo.id
-  })));
-}
-class ErrorBoundary extends React.Component {
-  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
-  static getDerivedStateFromError(e) { return { hasError: true, error: e }; }
-  componentDidCatch(e, info) { 
-    try {
-      console.error('[此刻] Render Error', e, info); 
-      window.__lastRenderError = e;
-      this.setState({ stack: (e ? e.message||'' : '') + '\n\nComponent Stack:\n' + (info && info.componentStack ? info.componentStack.split('\n').slice(0,8).join('\n') : '') });
-    } catch(_) {}
-  }
-  render() {
-    if (this.state.hasError) {
-      return React.createElement('div', { style:{ padding:32, textAlign:'center', color:'var(--text-secondary)', fontSize:14 } },
-        React.createElement('div', { style:{ fontSize:48, marginBottom:16 } }, '😵'),
-        React.createElement('p', { style:{ margin:'0 0 8px', fontWeight:650 } }, '出了点问题'),
-        React.createElement('p', { style:{ margin:'0 0 16px', fontSize:12, opacity:0.6 } }, (this.state.error||{}).message || '页面渲染遇到了错误'),
-        React.createElement('p', { style:{ margin:'0 0 12px', fontSize:10, opacity:0.5, maxWidth:320, marginLeft:'auto', marginRight:'auto', wordBreak:'break-all', lineHeight:1.4 } }, (this.state.stack || this.state.error.stack || '')),
-        React.createElement('button', {
-          onClick: function() { window.location.reload(); },
-          style: { padding:'8px 20px', borderRadius:999, border:'0.5px solid var(--glass-border)', background:'var(--glass-bg)', color:'var(--text-main)', fontSize:14, cursor:'pointer' }
-        }, '刷新页面')
-      );
-    }
-    return this.props.children;
-  }
+  }));
 }
 ReactDOM.createRoot(document.getElementById("memo-list-root")).render( /*#__PURE__*/React.createElement(MemoList, null));
 </script>
