@@ -6240,6 +6240,25 @@ function MemoList() {
         var _ca = parseInt((location.search.match(/[?&]closeafter=(\d+)/)||[])[1],10);
         if (_ca > 0) setTimeout(function(){ setEditingMemoId(null); }, _ca); }
     }
+    // 检测上次是否渲染崩溃，是则清掉有问题的笔记
+    if (window.__lastRenderError) {
+      console.warn('[此刻] 检测到上次渲染崩溃，正在清除异常数据');
+      window.__lastRenderError = null;
+      var _safe = [];
+      for (var _i2 = 0; _i2 < list.length; _i2++) {
+        try { JSON.stringify(list[_i2]); _safe.push(list[_i2]); } catch(e) { console.warn('[此刻] 移除不可序列化的笔记', list[_i2].id); }
+      }
+      if (_safe.length !== list.length) {
+        setMemos(_safe);
+        (async function(){
+          try {
+            var _db6 = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
+            if (_db6) await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(_db6, _safe) : null);
+            localStorage.setItem('memos_app_v2', JSON.stringify(_safe));
+          } catch(e) {}
+        })();
+      }
+    }
   }
   function normalizeMemo(m) {
     if (!m.doc && m.content !== undefined) {
@@ -6701,7 +6720,27 @@ function MemoList() {
     autoFocus: newEditorAutoFocusId === editingMemo.id
   }));
 }
-ReactDOM.createRoot(document.getElementById("memo-list-root")).render( /*#__PURE__*/React.createElement(MemoList, null));
+// ===== ErrorBoundary：捕获渲染崩溃，避免空白页 =====
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { hasError: false, error: null }; }
+  static getDerivedStateFromError(e) { return { hasError: true, error: e }; }
+  componentDidCatch(e, info) { console.error('[此刻] Render Error', e, info); window.__lastRenderError = e; }
+  render() {
+    if (this.state.hasError) {
+      return React.createElement('div', { style:{ padding:32, textAlign:'center', color:'var(--text-secondary)', fontSize:14 } },
+        React.createElement('div', { style:{ fontSize:48, marginBottom:16 } }, '😵'),
+        React.createElement('p', { style:{ margin:'0 0 8px', fontWeight:650 } }, '出了点问题'),
+        React.createElement('p', { style:{ margin:'0 0 16px', fontSize:12, opacity:0.6 } }, '页面渲染遇到了错误，刷新一下试试'),
+        React.createElement('button', {
+          onClick: function() { window.location.reload(); },
+          style: { padding:'8px 20px', borderRadius:999, border:'0.5px solid var(--glass-border)', background:'var(--glass-bg)', color:'var(--text-main)', fontSize:14, cursor:'pointer' }
+        }, '刷新页面')
+      );
+    }
+    return this.props.children;
+  }
+}
+ReactDOM.createRoot(document.getElementById("memo-list-root")).render( /*#__PURE__*/React.createElement(ErrorBoundary, null, React.createElement(MemoList, null)));
 </script>
 
 <script>
