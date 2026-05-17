@@ -75,6 +75,8 @@
         --card-bg: #f6f8fa;
         --btn-bg: rgba(240, 240, 242, 0.7);
         --popover-bg: rgba(240, 240, 242, 0.94);
+        --glass-bg: rgba(255, 255, 255, 0.5);
+        --glass-border: rgba(255, 255, 255, 0.6);
         --border-color: rgba(0, 0, 0, 0.05);
     }
     @media (prefers-color-scheme: dark) {
@@ -85,6 +87,8 @@
             --card-bg: #1c1c1e;
             --btn-bg: rgba(44, 44, 46, 0.7);
             --popover-bg: rgba(44, 44, 46, 0.94);
+            --glass-bg: rgba(20, 20, 24, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.1);
             --border-color: rgba(255, 255, 255, 0.1);
         }
     }
@@ -526,8 +530,8 @@
         padding: 18px;
         margin-bottom: 18px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        backdrop-filter: blur(18px);
-        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
+        -webkit-backdrop-filter: blur(40px) saturate(2.5) brightness(1.08);
     }
     @media (prefers-color-scheme: dark) {
         .backup-hero {
@@ -4445,9 +4449,11 @@ function Editor({
       right: 16,
       top: "calc(env(safe-area-inset-top) + 7px + 46px + 6px)",
       width: 246,
-      background: "var(--popover-bg)",
-      backdropFilter: "blur(32px) saturate(1.25)",
-      WebkitBackdropFilter: "blur(32px) saturate(1.25)",
+      background: "var(--glass-bg)",
+      backdropFilter: "blur(40px) saturate(2.5) brightness(1.08)",
+      WebkitBackdropFilter: "blur(40px) saturate(2.5) brightness(1.08)",
+      border: "0.5px solid var(--glass-border)",
+      boxShadow: "0 2px 20px rgba(0,0,0,0.12), inset 0 0.5px 0 rgba(255,255,255,0.15)",
       border: "0.5px solid var(--border-color)",
       borderRadius: 22,
       boxShadow: "0 6px 18px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.03)",
@@ -5913,8 +5919,8 @@ const BackupView = ({
       width: '100%',
       maxWidth: 600,
       background: 'var(--btn-bg)',
-      backdropFilter: 'blur(18px)',
-      WebkitBackdropFilter: 'blur(18px)',
+      backdropFilter: 'blur(40px) saturate(2.5) brightness(1.08)',
+      WebkitBackdropFilter: 'blur(40px) saturate(2.5) brightness(1.08)',
       border: '0.5px solid var(--border-color)',
       borderRadius: 28,
       padding: '14px 14px calc(14px + env(safe-area-inset-bottom))',
@@ -5987,8 +5993,8 @@ const BackupView = ({
       width: '100%',
       maxWidth: 600,
       background: 'var(--btn-bg)',
-      backdropFilter: 'blur(18px)',
-      WebkitBackdropFilter: 'blur(18px)',
+      backdropFilter: 'blur(40px) saturate(2.5) brightness(1.08)',
+      WebkitBackdropFilter: 'blur(40px) saturate(2.5) brightness(1.08)',
       border: '0.5px solid var(--border-color)',
       borderRadius: 28,
       padding: '14px 14px calc(14px + env(safe-area-inset-bottom))',
@@ -6058,8 +6064,8 @@ const BackupView = ({
       width: '100%',
       maxWidth: 600,
       background: 'var(--btn-bg)',
-      backdropFilter: 'blur(18px)',
-      WebkitBackdropFilter: 'blur(18px)',
+      backdropFilter: 'blur(40px) saturate(2.5) brightness(1.08)',
+      WebkitBackdropFilter: 'blur(40px) saturate(2.5) brightness(1.08)',
       border: '0.5px solid var(--border-color)',
       borderRadius: 28,
       padding: '14px 14px calc(14px + env(safe-area-inset-bottom))',
@@ -6147,8 +6153,8 @@ const BackupView = ({
         bottom: 'calc(env(safe-area-inset-bottom) + 16px)',
         zIndex: 5000,
         background: 'var(--btn-bg)',
-        backdropFilter: 'blur(18px)',
-        WebkitBackdropFilter: 'blur(18px)',
+        backdropFilter: 'blur(40px) saturate(2.5) brightness(1.08)',
+        WebkitBackdropFilter: 'blur(40px) saturate(2.5) brightness(1.08)',
         border: '0.5px solid ' + borderColor,
         borderRadius: 28,
         padding: '14px 16px',
