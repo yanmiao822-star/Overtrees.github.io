@@ -2952,13 +2952,16 @@ function Editor({
       var ce = editorBodyRef.current;
       if (ce) {
         var cardEl = ce.querySelector('[data-blockid="' + cardId + '"]');
-        if (cardEl) cardEl.outerHTML = renderAtomicHTML({
-          id: cardId,
-          type: cardType,
-          url: url,
-          meta: meta,
-          status: meta && meta.title ? 'ready' : 'error'
-        }, files);
+        // 仅当骨架屏还在时替换，防止与 handleEditorInput 渲染冲突
+        if (cardEl && cardEl.classList.contains('link-card-skeleton')) {
+          cardEl.outerHTML = renderAtomicHTML({
+            id: cardId,
+            type: cardType,
+            url: url,
+            meta: meta,
+            status: meta && meta.title ? 'ready' : 'error'
+          }, files);
+        }
       }
     } catch (e) {
       var doc2 = docRef.current;
@@ -2969,7 +2972,7 @@ function Editor({
       var ce2 = editorBodyRef.current;
       if (ce2) {
         var cardEl2 = ce2.querySelector('[data-blockid="' + cardId + '"]');
-        if (cardEl2) cardEl2.outerHTML = renderAtomicHTML({
+        if (cardEl2 && cardEl2.classList.contains('link-card-skeleton')) {
           id: cardId,
           type: cardType,
           url: url,
