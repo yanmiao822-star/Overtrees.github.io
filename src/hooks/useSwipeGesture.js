@@ -13,7 +13,7 @@
       var pinP = Math.max(0, Math.min(1, (p - 0.35) / 0.65)), delP = Math.min(1, p / 0.55);
       if (btn1Ref.current) { btn1Ref.current.style.transform = 'translateX(' + ((1 - pinP) * 60) + 'px)'; btn1Ref.current.style.opacity = pinP; btn1Ref.current.style.pointerEvents = pinP > 0.3 ? 'auto' : 'none'; }
       if (btn2Ref.current) { btn2Ref.current.style.transform = 'translateX(' + ((1 - delP) * 30) + 'px)'; btn2Ref.current.style.opacity = delP; btn2Ref.current.style.pointerEvents = delP > 0.3 ? 'auto' : 'none'; }
-      if (wrapperRef.current) { wrapperRef.current.style.borderTopRightRadius = Math.max(32 * p, 2) + 'px'; wrapperRef.current.style.borderBottomRightRadius = Math.max(32 * p, 2) + 'px'; }
+      if (wrapperRef.current) { var r = 32 - Math.min(1, p) * 30; wrapperRef.current.style.borderTopRightRadius = r + 'px'; wrapperRef.current.style.borderBottomRightRadius = r + 'px'; }
     }, []);
 
     var setTranslate = useCallback(function (x) { if (rowRef.current) rowRef.current.style.transform = 'translateX(' + x + 'px)'; applyProgress(Math.min(1, Math.abs(x) / ACTION_W)); }, [applyProgress]);
