@@ -7,9 +7,9 @@
     var closing = props.closing;
 
     return R.createElement(R.Fragment, null,
-      R.createElement('div', { onClick: onClose, style: Object.assign({ position:'fixed', inset:0, zIndex:9997, background:'transparent' }, style.overlay||{}) }),
+      R.createElement('div', { onClick: onClose, style: Object.assign({ position:'fixed', inset:0, zIndex:99999, background:'transparent' }, style.overlay||{}) }),
       R.createElement('div', { style: Object.assign({
-        position:'fixed', zIndex:9998, right:12,
+        position:'fixed', zIndex:999999, right:12,
         top:'calc(env(safe-area-inset-top) + 7px + 46px + 4px)',
         minWidth:180,
         background:'var(--glass-bg)',
