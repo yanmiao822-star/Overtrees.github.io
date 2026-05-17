@@ -5305,6 +5305,7 @@ const BackupView = ({
       if (fail > 0) showStatus(`附件恢复完成：成功 ${success}，跳过 ${fail}`);
       await restoreAvatars(backup.avatars, db);
       localStorage.setItem('memos_app_v2', newMemosStr);
+      await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(db, backup.memos) : null);
       showStatus('✅ 恢复成功！正在刷新页面...');
       addHistoryEntry('restore', 'success', '从本地文件恢复', file.name);
       setTimeout(() => window.location.reload(), 800);
