@@ -2420,18 +2420,25 @@ function Editor({
     return () => clearTimeout(saveTimer.current);
   }, [title, triggerAutoSave]);
   const handleClose = async () => {
-    clearTimeout(saveTimer.current);
-    const pending = Object.values(pendingAttachmentsRef.current);
-    if (pending.length > 0) await Promise.allSettled(pending);
-    /* 等待 CardReader 完成 */
-    if (window._pendingCardReaders && window._pendingCardReaders.length > 0) {
-      await Promise.allSettled(window._pendingCardReaders);
+    try {
+      clearTimeout(saveTimer.current);
+      const pending = Object.values(pendingAttachmentsRef.current);
+      if (pending.length > 0) await Promise.allSettled(pending);
+      if (window._pendingCardReaders && window._pendingCardReaders.length > 0) {
+        await Promise.allSettled(window._pendingCardReaders);
+      }
+      // 调试：保存前记录 doc 状态
+      console.log('[此刻] debug handleClose start', {
+        docLen: (docRef.current || []).length,
+        pending: pending.length,
+        hasAttachment: (docRef.current || []).some(function(n){return n.type==='attachment';})
+      });
+      doSave(JSON.parse(JSON.stringify(docRef.current)));
+      setClosing(true);
+      setTimeout(() => { onClose(); }, 280);
+    } catch(e) {
+      console.error('[此刻] handleClose error', e);
     }
-    doSave(JSON.parse(JSON.stringify(docRef.current)));
-    setClosing(true);
-    setTimeout(() => {
-      onClose();
-    }, 280);
   };
   const handleAvatarSelected = async e => {
     const file = e.target.files && e.target.files[0];
@@ -6398,15 +6405,18 @@ function MemoList() {
         ...m,
         doc: m.doc ? m.doc.map(function(n) { return n; }) : m.doc
       }));
-      localStorage.setItem("memos_app_v2", JSON.stringify(safe));
-      // 同步到 IndexedDB
+      var lsStr = JSON.stringify(safe);
+      localStorage.setItem("memos_app_v2", lsStr);
+      console.log('[此刻] save to LS ok, memos:', safe.length, 'size:', (lsStr.length/1024).toFixed(1)+'KB');
       (async function() {
         try {
-          var db = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
-          if (db) await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(db, safe) : null);
-        } catch(e) { console.warn('[此刻] IDB save', e); }
+          var _tdb = await (window.CikeIdb ? window.CikeIdb.getDB() : null);
+          if (!_tdb) { console.warn('[此刻] IDB save: no db'); return; }
+          await (window.CikeIdb ? window.CikeIdb.saveMemosToDB(_tdb, safe) : null);
+          console.log('[此刻] save to IDB ok, memos:', safe.length);
+        } catch(e) { console.warn('[此刻] IDB save err:', e); }
       })();
-    } catch (e) { console.warn('[此刻] localStorage save', e); }
+    } catch (e) { console.warn('[此刻] LS save err:', e); }
   }, [memos]);
   const openEditor = memo => {
     if (memo.id === NEW_CARD_ID) {
