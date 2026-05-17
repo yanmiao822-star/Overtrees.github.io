@@ -6737,7 +6737,7 @@ class ErrorBoundary extends React.Component {
       window.__lastRenderError = e;
       this.setState({ stack: (e ? e.message||'' : '') + '\n\nComponent Stack:\n' + (info && info.componentStack ? info.componentStack.split('\n').slice(0,8).join('\n') : '') });
     } catch(_) {}
-  }}
+  }
   render() {
     if (this.state.hasError) {
       return React.createElement('div', { style:{ padding:32, textAlign:'center', color:'var(--text-secondary)', fontSize:14 } },
