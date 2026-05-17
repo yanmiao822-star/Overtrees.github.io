@@ -6724,7 +6724,10 @@ function MemoList() {
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false, error: null }; }
   static getDerivedStateFromError(e) { return { hasError: true, error: e }; }
-  componentDidCatch(e, info) { console.error('[此刻] Render Error', e, info); window.__lastRenderError = e; }
+  componentDidCatch(e, info) { console.error('[此刻] Render Error', e, info); window.__lastRenderError = e;
+    var _st = this.state.error ? (this.state.error.message||'') : '';
+    var _cs = info && info.componentStack ? info.componentStack.split('\n').slice(0,5).join('\n') : '';
+    this.setState({ stack: _st + '\n\n' + _cs }); }
   render() {
     if (this.state.hasError) {
       return React.createElement('div', { style:{ padding:32, textAlign:'center', color:'var(--text-secondary)', fontSize:14 } },
