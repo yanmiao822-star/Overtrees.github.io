@@ -47,16 +47,14 @@
     }
 
     // Swipe gesture (via shared hook)
-    var sw = w.CikeHooks.useSwipeGesture({ isNewCard: isNewCard });
-    // 左滑缩略图圆角动画：闭合时底部直角（32px 32px 0 0），滑出时全圆角（32px 32px 32px 32px）
-    var _origApply = sw.applyProgress;
-    sw.applyProgress = function(p) {
-      _origApply(p);
-      var r = p * 32;
-      var htmlEl = sw.rowRef.current;
-      var img = htmlEl && htmlEl.querySelector('.img-cover, .img-cover-fb');
-      if (img) img.style.borderRadius = '32px 32px 0 ' + r + 'px';
-      // wrapper 右圆角跟随缩略图过渡，保持 overflow:hidden 裁切一致
+    var sw = w.CikeHooks.useSwipeGesture({
+      isNewCard: isNewCard,
+      onProgress: function(p) {
+        var r = p * 32;
+        var img = sw && sw.rowRef && sw.rowRef.current && sw.rowRef.current.querySelector('.img-cover, .img-cover-fb');
+        if (img) img.style.borderRadius = '32px 32px 0 ' + r + 'px';
+      }
+    });
       if (sw.wrapperRef.current) {
         sw.wrapperRef.current.style.borderTopRightRadius = (32 - Math.min(1, p) * 30) + 'px';
         sw.wrapperRef.current.style.borderBottomRightRadius = (32 - Math.min(1, p) * 30) + 'px';
