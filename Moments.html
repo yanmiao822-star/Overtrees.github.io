@@ -2483,14 +2483,16 @@ function Editor({
   // ===== 全量快照撤销/重做 =====
   var lastSnapshotRef = useRef(null);
   var recordUndoPoint = useCallback(function() {
-    var cur = docRef.current;
+    // 深拷贝当前 doc，确保后续 push/修改不受影响
+    var snapshot = JSON.parse(JSON.stringify(docRef.current));
     var prev = lastSnapshotRef.current;
-    if (!prev) { lastSnapshotRef.current = cur; return; }
-    if (prev === cur) return; // 同一引用 → 无变化
+    if (!prev) { lastSnapshotRef.current = snapshot; return; }
+    // 序列化比较，避免引用相等但内容已变的情况
+    if (JSON.stringify(prev) === JSON.stringify(snapshot)) return;
     history.current.past.push({ snapshot: prev, inverse: null });
     if (history.current.past.length > 100) history.current.past.shift();
     history.current.future = [];
-    lastSnapshotRef.current = cur;
+    lastSnapshotRef.current = snapshot;
   }, []);
   var undo = useCallback(() => {
     var h = history.current, last = h.past[h.past.length - 1];
