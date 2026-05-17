@@ -911,7 +911,7 @@ function focusEditableWithCaret(target, offset = 0) {
 }
 
 /* ---------- Worker API ---------- */
-const API_BASE = window.CikeConstants ? window.CikeConstants.API_BASE : 'https://mynote.yanmiao822.workers.dev';
+const API_BASE = window.CikeConstants ? window.CikeConstants.API_BASE : 'https://mynote.overtrees.workers.dev';
 const URL_REGEX = window.CikeConstants ? window.CikeConstants.URL_REGEX : /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&\/=]*)$/i;
 const URL_INLINE_REGEX = window.CikeConstants ? window.CikeConstants.URL_INLINE_REGEX : /https?:\/\/[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&\/=]*/i;
 function isUrl(str) {

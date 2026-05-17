@@ -1,6 +1,6 @@
 (function (w) {
   var C = {
-    API_BASE: 'https://mynote.yanmiao822.workers.dev',
+    API_BASE: 'https://mynote.overtrees.workers.dev',
     URL_REGEX: /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&\/=]*)$/i,
     URL_INLINE_REGEX: /https?:\/\/[\-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[\-a-zA-Z0-9()@:%_+.~#?&\/=]*/i,
     NEW_CARD_ID: '__new_memo_card__',
