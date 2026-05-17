@@ -6237,7 +6237,9 @@ function MemoList() {
   function tryOpenNote(list) {
     if (typeof __preopenNoteId !== 'undefined' && __preopenNoteId) {
       var found = list.filter(function(m) { return m && (m.id === __preopenNoteId || m.title.indexOf(__preopenNoteId) >= 0); });
-      if (found.length > 0) { setEditingMemoId(found[0].id); console.log('[此刻] auto-open', found[0].id); }
+      if (found.length > 0) { setEditingMemoId(found[0].id); console.log('[此刻] auto-open', found[0].id);
+        var _ca = parseInt((location.search.match(/[?&]closeafter=(\d+)/)||[])[1],10);
+        if (_ca > 0) setTimeout(function(){ setEditingMemoId(null); }, _ca); }
     }
   }
   function normalizeMemo(m) {
