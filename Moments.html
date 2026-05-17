@@ -6726,9 +6726,8 @@ function MemoList() {
     onClose: closeEditor,
     onSave: saveMemo,
     autoFocus: newEditorAutoFocusId === editingMemo.id
-  }));
+  })));
 }
-// ===== ErrorBoundary：捕获渲染崩溃，避免空白页 =====
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false, error: null }; }
   static getDerivedStateFromError(e) { return { hasError: true, error: e }; }
