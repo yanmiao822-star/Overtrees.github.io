@@ -6731,18 +6731,13 @@ function MemoList() {
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { hasError: false, error: null }; }
   static getDerivedStateFromError(e) { return { hasError: true, error: e }; }
-  componentDidCatch(e, info) { console.error('[此刻] Render Error', e, info); window.__lastRenderError = e;
-    var _st = e ? (e.message||'') : '';
-    var _cs = '';
-    try { _cs = info && info.componentStack ? info.componentStack.split('\n').slice(0,8).join('\n') : ''; } catch(_){}
-    try { this.setState({ stack: _st + '\n\nComponent Stack:\n' + _cs }); } catch(_){}
-    // 全局错误兜底（避免 componentDidCatch 自身抛出时无反馈）
-    var _self = this;
-    if (!window.__globalErrorSetup) { window.__globalErrorSetup = true;
-      window.addEventListener('error', function(ev) {
-        try { _self.setState({ stack: _self.state.stack + '\n[Global] ' + (ev.message||'') }); } catch(_){}
-      });
-    }}
+  componentDidCatch(e, info) { 
+    try {
+      console.error('[此刻] Render Error', e, info); 
+      window.__lastRenderError = e;
+      this.setState({ stack: (e ? e.message||'' : '') + '\n\nComponent Stack:\n' + (info && info.componentStack ? info.componentStack.split('\n').slice(0,8).join('\n') : '') });
+    } catch(_) {}
+  }}
   render() {
     if (this.state.hasError) {
       return React.createElement('div', { style:{ padding:32, textAlign:'center', color:'var(--text-secondary)', fontSize:14 } },
