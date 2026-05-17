@@ -71,7 +71,7 @@
             R.createElement('div', { className:'t', style:{ display:'flex', alignItems:'center', gap:6, width:'100%' } },
               R.createElement('span', { style:{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, memo.title || '\u65E0\u6807\u9898'),
               !isNewCard && tags.length > 0 && R.createElement('div', { style:{ display:'flex', gap:4, flexWrap:'wrap', overflow:'hidden', justifyContent:'flex-end', flex:1, minWidth:0 } },
-                tags.map(function(t){ return R.createElement('span', { key:t, style:{ fontSize:10, color:'#007aff', background:'rgba(0,122,255,0.08)', padding:'0 5px', borderRadius:999, lineHeight:'18px', whiteSpace:'nowrap' } }, t); }))),
+                tags.map(function(t){ return R.createElement('span', { key:t, style:{ fontSize:10, color:'#007aff', background:'var(--glass-bg)', backdropFilter:'blur(40px) saturate(2.5) brightness(1.15)', WebkitBackdropFilter:'blur(40px) saturate(2.5) brightness(1.15)', padding:'0 5px', borderRadius:999, lineHeight:'18px', whiteSpace:'nowrap', border:'0.5px solid var(--glass-border)' } }, t); }))),
             R.createElement('div', { className:'m', style:{ display:'flex', alignItems:'center', gap:6 } },
               R.createElement('span', null, typeof w.timeAgo === 'function' ? w.timeAgo(memo.updatedAt) : memo.updatedAt),
               R.createElement('span', { style:{ color:'var(--text-secondary)', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 } }, '\u00B7 ' + preview),

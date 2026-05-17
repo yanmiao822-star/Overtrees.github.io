@@ -72,7 +72,7 @@
             !isNewCard && memo.pinned && R.createElement('span', { className:'pin-dot' }),
             R.createElement('span', { className:'item-title-text' }, isNewCard ? '\u65B0\u5EFA\u7B14\u8BB0' : (memo.title || '\u65E0\u6807\u9898')),
             !isNewCard && tags.length > 0 && R.createElement('div', { style:{ display:'flex', gap:4, flexWrap:'wrap', overflow:'hidden', justifyContent:'flex-end', flex:1, minWidth:0 } },
-              tags.map(function(t){return R.createElement('span', { key:t, style:{fontSize:10, color:'#007aff', background:'rgba(0,122,255,0.08)', padding:'0 5px', borderRadius:999, lineHeight:'18px', whiteSpace:'nowrap'} }, t);}))),
+              tags.map(function(t){return R.createElement('span', { key:t, style:{fontSize:10, color:'#007aff', background:'var(--glass-bg)', backdropFilter:'blur(40px) saturate(2.5) brightness(1.15)', WebkitBackdropFilter:'blur(40px) saturate(2.5) brightness(1.15)', padding:'0 5px', borderRadius:999, lineHeight:'18px', whiteSpace:'nowrap', border:'0.5px solid var(--glass-border)'} }, t);}))),
           R.createElement('div', { className:'item-meta', style:{ display:'flex', alignItems:'center', gap:6 } },
             R.createElement('span', { style:{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 } },
               (isNewCard ? '\u73B0\u5728' : (typeof w.timeAgo === 'function' ? w.timeAgo(memo.updatedAt) : memo.updatedAt)),
