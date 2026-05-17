@@ -927,6 +927,8 @@ function focusEditableWithCaret(target, offset = 0) {
     : false;
 }
 
+window.getDB = getDB;
+
 /* ---------- Worker API ---------- */
 const API_BASE = window.CikeConstants ? window.CikeConstants.API_BASE : 'https://mynote.overtrees.workers.dev';
 const URL_REGEX = window.CikeConstants ? window.CikeConstants.URL_REGEX : /^https?:\/\/(www\.)?[-\u4e00-\u9fa5a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-\u4e00-\u9fa5a-zA-Z0-9()@:%_+.~#?&\/=]*)$/i;
@@ -1094,6 +1096,16 @@ function Editor({
   autoFocus = false
 }) {
   const [closing, setClosing] = useState(false);
+// 模块化依赖导出
+window.fetchLinkMeta = fetchLinkMeta;
+window.proxyImg = proxyImg;
+window.escapeHTML = escapeHTML;
+window.createThumbnail = createThumbnail;
+window.renderAtomicHTML = renderAtomicHTML;
+window.renderDocToEditorHTML = renderDocToEditorHTML;
+window.parseEditorDOM = parseEditorDOM;
+window.timeAgo = timeAgo;
+window.getDB = getDB;
   const [animDone, setAnimDone] = useState(false);
   useEffect(() => {
     if (closing) return;
