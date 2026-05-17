@@ -2544,8 +2544,8 @@ function Editor({
   // ===== beforeinput: iOS 三指手势撤销/重做 =====
   useEffect(() => {
     var handler = function(e) {
-      if (e.inputType === 'historyUndo') { try { e.preventDefault(); } catch(_) {} setTimeout(function() { undo(); }, 0); }
-      else if (e.inputType === 'historyRedo') { try { e.preventDefault(); } catch(_) {} setTimeout(function() { redo(); }, 0); }
+      if (e.inputType === 'historyUndo') { e.preventDefault(); setTimeout(function() { undo(); }, 0); }
+      else if (e.inputType === 'historyRedo') { e.preventDefault(); setTimeout(function() { redo(); }, 0); }
     };
     var el = editorBodyRef.current;
     if (!el) return;
@@ -2992,8 +2992,16 @@ function Editor({
     inputTimerRef.current = setTimeout(function () {
       var el = editorBodyRef.current;
       if (!el) return;
+      var prevDoc = JSON.parse(JSON.stringify(docRef.current));
       setEditorDocRef(docRef.current);
       docRef.current = parseEditorDOM(el);
+      // 文本变化时记录撤销点（比较序列化差异避免引用相等误判）
+      if (JSON.stringify(prevDoc) !== JSON.stringify(docRef.current)) {
+        lastSnapshotRef.current = docRef.current;
+        history.current.past.push({ snapshot: prevDoc, inverse: null });
+        if (history.current.past.length > 100) history.current.past.shift();
+        history.current.future = [];
+      }
       /* ---- 智能前缀触发 ---- */
       /* 斜杠菜单打开时跳过，避免与 / 命令冲突 */
       if (!showSlash) {
