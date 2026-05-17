@@ -2552,6 +2552,39 @@ function Editor({
     el.addEventListener('beforeinput', handler);
     return function() { el.removeEventListener('beforeinput', handler); };
   }, [undo, redo]);
+  // 打开已有笔记时，自动补拉 loading 态音乐/链接卡片
+  useEffect(() => {
+    const cards = (docRef.current || []).filter(function (n) {
+      return n && n.id && n.url && (n.type === 'musicCard' || n.type === 'link-card') && (!n.meta || n.status === 'loading');
+    });
+    if (!cards.length) return;
+
+    cards.forEach(function (card) {
+      fetchLinkMeta(card.url).then(function (meta) {
+        const cur = docRef.current || [];
+        const idx = cur.findIndex(function (n) { return n.id === card.id; });
+        if (idx === -1) return;
+        cur[idx].meta = meta;
+        cur[idx].status = meta && meta.title ? 'ready' : 'error';
+        const ce = editorBodyRef.current;
+        if (ce) {
+          const el = ce.querySelector('[data-blockid="' + card.id + '"]');
+          if (el) el.outerHTML = renderAtomicHTML(cur[idx], files);
+        }
+      }).catch(function (e) {
+        console.warn('[此刻] hydrate card meta', e);
+        const cur = docRef.current || [];
+        const idx = cur.findIndex(function (n) { return n.id === card.id; });
+        if (idx === -1) return;
+        cur[idx].status = 'error';
+        const ce = editorBodyRef.current;
+        if (ce) {
+          const el = ce.querySelector('[data-blockid="' + card.id + '"]');
+          if (el) el.outerHTML = renderAtomicHTML(cur[idx], files);
+        }
+      });
+    });
+  }, [memo.id]);
   useEffect(() => {
     const SCROLL_THRESHOLD = 30;
     let scrollRaf = null;
