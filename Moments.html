@@ -2427,17 +2427,16 @@ function Editor({
       if (window._pendingCardReaders && window._pendingCardReaders.length > 0) {
         await Promise.allSettled(window._pendingCardReaders);
       }
-      // 调试：保存前记录 doc 状态
-      console.log('[此刻] debug handleClose start', {
-        docLen: (docRef.current || []).length,
-        pending: pending.length,
-        hasAttachment: (docRef.current || []).some(function(n){return n.type==='attachment';})
-      });
+      __debug_logs && __debug_logs.push('close: saving doc len='+((docRef.current||[]).length));
       doSave(JSON.parse(JSON.stringify(docRef.current)));
       setClosing(true);
-      setTimeout(() => { onClose(); }, 280);
+      setTimeout(function(){ onClose(); }, 280);
     } catch(e) {
+      __debug_logs && __debug_logs.push('close ERR: '+(e.message||e));
       console.error('[此刻] handleClose error', e);
+      // 即使出错也强制关闭编辑器，避免卡在空白页
+      setClosing(true);
+      setTimeout(function(){ onClose(); }, 50);
     }
   };
   const handleAvatarSelected = async e => {
