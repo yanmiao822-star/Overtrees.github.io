@@ -37,7 +37,6 @@
       setThumb(null);
       var firstAttach = memo.doc && memo.doc.find(function(n){return n.type === 'attachment';});
       if (!firstAttach) return;
-      if (firstAttach.thumbDataUrl) { setThumb(firstAttach.thumbDataUrl); return; }
       var cancelled = false;
       (async function() {
         try {

@@ -5204,16 +5204,7 @@ const BackupView = ({
     } catch (_) {}
     const cleanMemos = memos.map(m => ({
       ...m,
-      doc: m.doc ? m.doc.map(n => {
-        if (n.thumbDataUrl) {
-          const {
-            thumbDataUrl,
-            ...rest
-          } = n;
-          return rest;
-        }
-        return n;
-      }) : m.doc
+      doc: m.doc ? m.doc.map(n => n) : m.doc
     }));
     const db = await getDB();
     const tx = db.transaction('avatars', 'readonly');
@@ -6378,16 +6369,7 @@ function MemoList() {
     try {
       const safe = memos.map(m => ({
         ...m,
-        doc: m.doc ? m.doc.map(n => {
-          if (n.thumbDataUrl) {
-            const {
-              thumbDataUrl,
-              ...rest
-            } = n;
-            return rest;
-          }
-          return n;
-        }) : m.doc
+        doc: m.doc ? m.doc.map(function(n) { return n; }) : m.doc
       }));
       localStorage.setItem("memos_app_v2", JSON.stringify(safe));
       // 同步到 IndexedDB

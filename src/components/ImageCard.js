@@ -13,7 +13,6 @@
       setThumb(null);
       var firstAtt = memo.doc && memo.doc.find(function(n){return n.type === 'attachment';});
       if (!firstAtt) return;
-      if (firstAtt.thumbDataUrl) { setThumb(firstAtt.thumbDataUrl); return; }
       var cancelled = false;
       (async function() {
         try {
