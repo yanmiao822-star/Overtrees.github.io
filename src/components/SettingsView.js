@@ -69,7 +69,7 @@
             R.createElement('div', { className:'list-item' },
               R.createElement('div', { className:'item-left' },
                 R.createElement('div', { className:'item-title' }, '\u8054\u7CFB\u6211\u4EEC')),
-              R.createElement('span', { style:{ color:'var(--text-secondary)', fontSize:'0.85rem' } }, 'overtreess@gmail.com'))),
+              R.createElement('span', { style:{ color:'var(--text-secondary)', fontSize:'0.85rem' } }, 'overcanopies@gmail.com'))),
           R.createElement('div', { style:{ fontStyle:'italic', fontSize:12, color:'var(--text-secondary)', textAlign:'center', marginTop:12, marginBottom:4, opacity:0.8 } },
             '\u6B64\u523B\uFF0C\u503C\u5F97\u88AB\u8BB0\u4F4F\u3002'))));
   }
