@@ -47,16 +47,7 @@
     }
 
     // Swipe gesture (via shared hook)
-    var sw = w.CikeHooks.useSwipeGesture({
-      isNewCard: isNewCard,
-      onProgress: function(p) {
-        // 从 wrapper 内查找缩略图（更可靠，不依赖 sw.rowRef）
-        var wrapper = sw.wrapperRef && sw.wrapperRef.current;
-        if (!wrapper) return;
-        var img = wrapper.querySelector('.img-cover, .img-cover-fb');
-        if (img) img.style.borderRadius = '32px 32px 0 ' + (p * 32) + 'px';
-      }
-    });
+    var sw = w.CikeHooks.useSwipeGesture({ isNewCard: isNewCard });
 
     return R.createElement('div', { className:'swipe-wrapper', ref:sw.wrapperRef },
       !isNewCard && R.createElement('div', { className:'swipe-actions' },
