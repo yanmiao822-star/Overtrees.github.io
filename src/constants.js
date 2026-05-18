@@ -4,7 +4,7 @@
     URL_REGEX: /^https?:\/\/(www\.)?[-\u4e00-\u9fa5a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-\u4e00-\u9fa5a-zA-Z0-9()@:%_+.~#?&\/=]*)$/i,
     URL_INLINE_REGEX: /https?:\/\/[-\u4e00-\u9fa5a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\u4e00-\u9fa5a-zA-Z0-9()@:%_+.~#?&\/=]*/i,
     NEW_CARD_ID: '__new_memo_card__',
-    GOOGLE_CLIENT_ID: '369692322774-se6hvcg8lvlacbgl8hf3u4d3tme7aeht.apps.googleusercontent.com',
+    GOOGLE_CLIENT_ID: '993589743002-6o74a8e7d5jck2g55rag7me7q60ogehr.apps.googleusercontent.com',
     GOOGLE_API_KEY: 'YOUR_API_KEY',
     BACKUP_FILE_NAME: 'memories_backup.json'
   };
