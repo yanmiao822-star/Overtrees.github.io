@@ -734,7 +734,11 @@ const BackupView = ({
   }, history.slice(0, 6).map(function (entry, i) {
     var dotColor = entry.status === 'success' ? '#34c759' : entry.status === 'fail' ? '#ff3b30' : '#007aff';
     var typeLabel = entry.type === 'upload' ? '云端' : entry.type === 'export' ? '导出' : entry.type === 'restore' ? '恢复' : '连接';
-    var ts = entry.timestamp ? entry.timestamp.slice(0, 16).replace('T', ' ') : '';
+    var ts = entry.timestamp ? (function(iso){
+      var d = new Date(iso);
+      var pad = function(n){return String(n).padStart(2,'0');};
+      return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    })(entry.timestamp) : '';
     return React.createElement('div', {
       key: i,
       style: {
