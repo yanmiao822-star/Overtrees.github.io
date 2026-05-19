@@ -5057,18 +5057,20 @@ window.getDB = getDB;
 
 /* ---------- 天气 ---------- */
 var WeatherCache = {
+  VERSION: 2,
   KEY: 'weather_cache',
   get: function() {
     try {
       var raw = localStorage.getItem(this.KEY);
       if (!raw) return null;
       var d = JSON.parse(raw);
+      if (d.v !== 2) return null;
       if (Date.now() - d.ts > 1800000) return null;
       return d;
     } catch(e) { return null; }
   },
   set: function(data) {
-    try { localStorage.setItem(this.KEY, JSON.stringify({ temp: data.temp, city: data.city, ts: Date.now() })); } catch(e) {}
+    try { localStorage.setItem(this.KEY, JSON.stringify({ temp: data.temp, city: data.city, ts: Date.now(), v: 2 })); } catch(e) {}
   }
 };
 async function refreshGoogleAvatar() {
