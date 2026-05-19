@@ -5482,7 +5482,7 @@ function MemoList() {
       margin: '0 auto'
     },
     onClick: () => setView('settings')
-  }, "\u6B64\u523B"), /*#__PURE__*/React.createElement("h1", {
+  }, "\u6B64\u523B"), /*#__PURE__*/React.createElement("div", { style: { position: "relative" } }, /*#__PURE__*/React.createElement("h1", {
     className: "page-title",
     style: {
       transform: `scale(${titleScale}) translateY(${titleTranslateY}px)`,
@@ -5515,9 +5515,9 @@ function MemoList() {
   })), weather ? /*#__PURE__*/React.createElement("div", {
     style: {
       position: "absolute",
-      right: 16,
-      top: "50%",
-      transform: "translateY(-50%)",
+      right: 20,
+      top: 11,
+      transform: "none",
       textAlign: "right",
       pointerEvents: "none",
       opacity: isCompact ? 0 : 1,
@@ -5526,20 +5526,20 @@ function MemoList() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 46,
-      fontWeight: 700,
+      fontSize: 34,
+      fontWeight: 600,
       lineHeight: 1,
       letterSpacing: -2,
       color: "var(--text-main)"
     }
   }, weather.temp, "\u00B0"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 20,
+      fontSize: 16,
       color: "var(--text-secondary)",
       lineHeight: 1.2,
       marginTop: 2
     }
-  }, weather.city)) : null, /*#__PURE__*/React.createElement("div", {
+  }, weather.city)) : null), /*#__PURE__*/React.createElement("div", {
     className: "container"
   }, /*#__PURE__*/React.createElement("div", {
     className: "list-group"
