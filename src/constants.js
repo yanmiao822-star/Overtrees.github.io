@@ -6,6 +6,7 @@
     NEW_CARD_ID: '__new_memo_card__',
     GOOGLE_CLIENT_ID: '993589743002-6o74a8e7d5jck2g55rag7me7q60ogehr.apps.googleusercontent.com',
     GOOGLE_API_KEY: 'YOUR_API_KEY',
+    OPENWEATHER_API_KEY: 'YOUR_API_KEY',
     BACKUP_FILE_NAME: 'memories_backup.json'
   };
 

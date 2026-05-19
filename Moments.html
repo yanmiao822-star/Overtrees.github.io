@@ -5055,6 +5055,69 @@ window.getDB = getDB;
   })));
 }
 
+/* ---------- 天气 ---------- */
+var WeatherCache = {
+  KEY: 'weather_cache',
+  get: function() {
+    try {
+      var raw = localStorage.getItem(this.KEY);
+      if (!raw) return null;
+      var d = JSON.parse(raw);
+      if (Date.now() - d.ts > 1800000) return null;
+      return d;
+    } catch(e) { return null; }
+  },
+  set: function(data) {
+    try { localStorage.setItem(this.KEY, JSON.stringify({ temp: data.temp, city: data.city, ts: Date.now() })); } catch(e) {}
+  }
+};
+async function fetchWeather() {
+  var cached = WeatherCache.get();
+  if (cached) return cached;
+  try {
+    var pos = await Promise.race([
+      new Promise(function(resolve, reject) {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000, enableHighAccuracy: false });
+      }),
+      new Promise(function(_, reject) { setTimeout(function(){ reject(new Error('timeout')); }, 5000); })
+    ]);
+    var lat = pos.coords.latitude, lng = pos.coords.longitude;
+    localStorage.setItem('weather_lat', lat);
+    localStorage.setItem('weather_lng', lng);
+    /* 主 API：OpenWeatherMap */
+    var owmKey = window.CikeConstants && window.CikeConstants.OPENWEATHER_API_KEY;
+    if (owmKey && owmKey !== 'YOUR_API_KEY') {
+      try {
+        var ctrl = new AbortController();
+        var t1 = setTimeout(function(){ ctrl.abort(); }, 3000);
+        var res = await fetch('https://api.openweathermap.org/data/2.5/weather?lat=' + lat + '&lon=' + lng + '&appid=' + owmKey + '&units=metric', { signal: ctrl.signal });
+        clearTimeout(t1);
+        if (res.ok) {
+          var j = await res.json();
+          var r = { temp: Math.round(j.main.temp), city: j.name };
+          WeatherCache.set(r); return r;
+        }
+      } catch(e) {}
+    }
+    /* 兜底：wttr.in */
+    try {
+      var ctrl2 = new AbortController();
+      var t2 = setTimeout(function(){ ctrl2.abort(); }, 5000);
+      var res2 = await fetch('https://wttr.in/' + lat + ',' + lng + '?format=j1', { signal: ctrl2.signal });
+      clearTimeout(t2);
+      if (res2.ok) {
+        var j2 = await res2.json();
+        var cc = j2.current_condition && j2.current_condition[0];
+        var area = j2.nearest_area && j2.nearest_area[0];
+        if (cc && area) {
+          var r2 = { temp: parseInt(cc.temp_C), city: area.areaName[0].value };
+          WeatherCache.set(r2); return r2;
+        }
+      }
+    } catch(e) {}
+  } catch(e) {}
+  return null;
+}
 /* ---------- 纯色背景选择浮层 ---------- */
 /* ---------- SettingsView ---------- */
 var SettingsView = window.SettingsView;
@@ -5067,6 +5130,10 @@ var __preopenNoteId = (function(){try{var m=window.location.search.match(/[?&]op
 function MemoList() {
   // ===== IndexedDB 主存储：先清，挂载后从 IDB 加载（localStorage 为只读备份） =====
   const [memos, setMemos] = useState([]);
+  const [weather, setWeather] = useState(null);
+  useEffect(function() {
+    fetchWeather().then(function(r){ if (r) setWeather(r); });
+  }, []);
   var idbInited = useRef(false);
   function tryOpenNote(list) {
     if (typeof __preopenNoteId !== 'undefined' && __preopenNoteId) {
@@ -5400,7 +5467,7 @@ function MemoList() {
       onOpenBackup: () => setView('backup')
     });
   }
-  return /*#__PURE__*/React.createElement(React.Fragment, null, !isEditorOpen && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("header", {
+  return /*#__PURE__*/React.createElement(React.Fragment, null, !isEditorOpen && /*#__PURE__*/React.createElement("div", { style: { position: "relative" } }, /*#__PURE__*/React.createElement("header", {
     className: "main-header"
   }, /*#__PURE__*/React.createElement("div", {
     className: "header-actions"
@@ -5445,7 +5512,34 @@ function MemoList() {
       borderRadius: "50%",
       background: "var(--btn-bg)"
     }
-  })), /*#__PURE__*/React.createElement("div", {
+  })), weather ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      right: 16,
+      top: "50%",
+      transform: "translateY(-50%)",
+      textAlign: "right",
+      pointerEvents: "none",
+      opacity: isCompact ? 0 : 1,
+      visibility: isCompact ? "hidden" : "visible",
+      transition: "opacity 280ms ease"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 46,
+      fontWeight: 700,
+      lineHeight: 1,
+      letterSpacing: -2,
+      color: "var(--text-main)"
+    }
+  }, weather.temp, "\u00B0"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 20,
+      color: "var(--text-secondary)",
+      lineHeight: 1.2,
+      marginTop: 2
+    }
+  }, weather.city)) : null, /*#__PURE__*/React.createElement("div", {
     className: "container"
   }, /*#__PURE__*/React.createElement("div", {
     className: "list-group"
