@@ -248,6 +248,7 @@ const BackupView = ({
     if (resp.status === 401) {
       setGoogleToken(null);
       localStorage.removeItem('google_token');
+    localStorage.removeItem('google_avatar');
       return true;
     }
     return false;
@@ -259,13 +260,14 @@ const BackupView = ({
     }
     const client = google.accounts.oauth2.initTokenClient({
       client_id: GOOGLE_CLIENT_ID,
-      scope: 'https://www.googleapis.com/auth/drive.appdata',
+      scope: 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/userinfo.profile',
       callback: tokenResponse => {
         if (tokenResponse && tokenResponse.access_token) {
           setGoogleToken(tokenResponse.access_token);
           localStorage.setItem('google_token', tokenResponse.access_token);
           showStatus('✅ Google 账号已连接');
           addHistoryEntry('connect', 'success', 'Google 账号已连接', '');
+          /* 获取 Google 头像 */          fetch('https://www.googleapis.com/oauth2/v2/userinfo', {            headers: { Authorization: 'Bearer ' + tokenResponse.access_token }          }).then(function(r){ return r.json(); }).then(function(data){            if (data && data.picture) localStorage.setItem('google_avatar', data.picture);          }).catch(function(){});
         } else {
           showStatus('❌ 授权失败，请重试');
           addHistoryEntry('connect', 'fail', 'Google 授权失败', '');
@@ -284,6 +286,7 @@ const BackupView = ({
     if (googleToken && typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) google.accounts.oauth2.revoke(googleToken, () => {});
     setGoogleToken(null);
     localStorage.removeItem('google_token');
+    localStorage.removeItem('google_avatar');
     showStatus('已断开 Google 账号');
   }, [googleToken, showStatus]);
   const handleCloudBackup = useCallback(async () => {

@@ -2441,7 +2441,15 @@ window.getDB = getDB;
     if (window._pendingCardReaders && window._pendingCardReaders.length > 0) {
       await Promise.allSettled(window._pendingCardReaders);
     }
-    doSave(JSON.parse(JSON.stringify(docRef.current)));
+    // 新建笔记且没有任何改动（未输入文字、未改背景色、未设头像）→ 不保存，直接删除
+    var isNewNote = memo.id && /^\d+$/.test(memo.id) && memo.id.length > 10;
+    var isEmptyEnough = !hasTyped && !bgColor && !avatarUrl;
+    if (isNewNote && isEmptyEnough) {
+      DraftStore.clear(memo.id);
+      onSave(memo.id, { _delete: true });
+    } else {
+      doSave(JSON.parse(JSON.stringify(docRef.current)));
+    }
     setClosing(true);
     setTimeout(() => {
       onClose();
@@ -5315,7 +5323,13 @@ function MemoList() {
     setMemos(ms => ms.filter(m => m.id !== id));
     if (editingMemo && editingMemo.id === id) closeEditor();
   };
-  const saveMemo = useCallback((id, changes) => setMemos(ms => ms.map(m => m.id === id ? Object.assign({}, m, changes) : m)), []);
+  const saveMemo = useCallback((id, changes) => {
+    if (changes && changes._delete) {
+      setMemos(ms => ms.filter(m => m.id !== id));
+    } else {
+      setMemos(ms => ms.map(m => m.id === id ? Object.assign({}, m, changes) : m));
+    }
+  }, []);
   const newCardDoc = useMemo(() => [{
     id: genId(),
     type: "paragraph",
@@ -5414,7 +5428,24 @@ function MemoList() {
       width: 'fit-content'
     },
     onClick: () => setView('settings')
-  }, "\u6B64\u523B"), /*#__PURE__*/React.createElement("div", {
+  }, localStorage.getItem('google_avatar') ? /*#__PURE__*/React.createElement("img", {
+    src: localStorage.getItem('google_avatar'),
+    alt: "",
+    style: {
+      width: 66,
+      height: 66,
+      borderRadius: "50%",
+      display: "block",
+      objectFit: "cover"
+    }
+  }) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 66,
+      height: 66,
+      borderRadius: "50%",
+      background: "var(--btn-bg)"
+    }
+  })), /*#__PURE__*/React.createElement("div", {
     className: "container"
   }, /*#__PURE__*/React.createElement("div", {
     className: "list-group"
