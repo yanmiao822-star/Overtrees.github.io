@@ -5071,6 +5071,21 @@ var WeatherCache = {
     try { localStorage.setItem(this.KEY, JSON.stringify({ temp: data.temp, city: data.city, ts: Date.now() })); } catch(e) {}
   }
 };
+async function refreshGoogleAvatar() {
+  var token = localStorage.getItem("google_token");
+  if (!token) return;
+  try {
+    var res = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", { headers: { Authorization: "Bearer " + token }, signal: AbortSignal.timeout(4000) });
+    if (res.ok) {
+      var data = await res.json();
+      if (data.picture) localStorage.setItem("google_avatar", data.picture);
+    } else if (res.status === 401) {
+      localStorage.removeItem("google_token");
+      localStorage.removeItem("google_avatar");
+    }
+  } catch(e) {}
+}
+
 async function fetchWeather() {
   var cached = WeatherCache.get();
   if (cached) return cached;
@@ -5084,6 +5099,50 @@ async function fetchWeather() {
     var lat = pos.coords.latitude, lng = pos.coords.longitude;
     localStorage.setItem('weather_lat', lat);
     localStorage.setItem('weather_lng', lng);
+    /* 反向地理编码获取城市+区/县 */
+    var cityDisplay = null;
+    try {
+      var geoRes = await fetch("https://nominatim.openstreetmap.org/reverse?lat=" + lat + "&lon=" + lng + "&format=json&zoom=14&accept-language=zh", { headers: { "User-Agent": "Mynote/1.0" }, signal: AbortSignal.timeout(4000) });
+      if (geoRes.ok) {
+        var geo = await geoRes.json();
+        if (geo && geo.address) {
+          var c = geo.address.city || geo.address.town || geo.address.county || "";
+          var d = geo.address.suburb || geo.address.city_district || geo.address.county || "";
+          if (c && d && d !== c) cityDisplay = c + "\u2022" + d;
+          else if (c) cityDisplay = c;
+        }
+      }
+    
+    } catch(e) {
+      try {
+        var ipRes = await fetch("https://ip-api.com/json/?fields=lat,lon,city,regionName", { signal: AbortSignal.timeout(4000) });
+        if (ipRes.ok) {
+          var ipD = await ipRes.json();
+          if (ipD && ipD.lat) { lat = ipD.lat; lng = ipD.lon; }
+          if (lat != null && ipD.city && ipD.regionName) cityDisplay = ipD.city + "\u2022" + ipD.regionName;
+          else if (lat != null && ipD.city) cityDisplay = ipD.city;
+        }
+      } catch(e2) {}
+    }
+
+    /* \u6700\u540e\u515c\u5e95\uff1alat\u4e3a\u7a7a\u65f6\u7528 wttr.in \u81ea\u52a8 IP */
+    if (lat == null) {
+      try {
+        var fbRes = await fetch("https://wttr.in/?format=j1", { signal: AbortSignal.timeout(6000) });
+        if (fbRes.ok) {
+          var fb = await fbRes.json();
+          var cc = fb.current_condition && fb.current_condition[0];
+          var area = fb.nearest_area && fb.nearest_area[0];
+          if (cc && area) {
+            var r = { temp: parseInt(cc.temp_C), city: area.areaName[0].value };
+            WeatherCache.set(r); return r;
+          }
+        }
+      } catch(e3) {}
+      return null;
+    }
+
+
     /* 主 API：OpenWeatherMap */
     var owmKey = window.CikeConstants && window.CikeConstants.OPENWEATHER_API_KEY;
     if (owmKey && owmKey !== 'YOUR_API_KEY') {
@@ -5094,7 +5153,7 @@ async function fetchWeather() {
         clearTimeout(t1);
         if (res.ok) {
           var j = await res.json();
-          var r = { temp: Math.round(j.main.temp), city: j.name };
+          var r = { temp: Math.round(j.main.temp), city: cityDisplay || j.name };
           WeatherCache.set(r); return r;
         }
       } catch(e) {}
@@ -5110,7 +5169,7 @@ async function fetchWeather() {
         var cc = j2.current_condition && j2.current_condition[0];
         var area = j2.nearest_area && j2.nearest_area[0];
         if (cc && area) {
-          var r2 = { temp: parseInt(cc.temp_C), city: area.areaName[0].value };
+          var r2 = { temp: parseInt(cc.temp_C), city: cityDisplay || area.areaName[0].value };
           WeatherCache.set(r2); return r2;
         }
       }
@@ -5132,7 +5191,7 @@ function MemoList() {
   const [memos, setMemos] = useState([]);
   const [weather, setWeather] = useState(null);
   useEffect(function() {
-    fetchWeather().then(function(r){ if (r) setWeather(r); });
+    refreshGoogleAvatar(); fetchWeather().then(function(r){ if (r) setWeather(r); });
   }, []);
   var idbInited = useRef(false);
   function tryOpenNote(list) {
@@ -5526,7 +5585,7 @@ function MemoList() {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 34,
+      fontSize: 48,
       fontWeight: 600,
       lineHeight: 1,
       letterSpacing: -2,
@@ -5534,7 +5593,7 @@ function MemoList() {
     }
   }, weather.temp, "\u00B0"), /*#__PURE__*/React.createElement("div", {
     style: {
-      fontSize: 16,
+      fontSize: 12,
       color: "var(--text-secondary)",
       lineHeight: 1.2,
       marginTop: 2
