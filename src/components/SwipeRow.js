@@ -4,7 +4,7 @@
   var useState = R.useState, useEffect = R.useEffect, useRef = R.useRef, useCallback = R.useCallback;
 
   function SwipeRow(_ref) {
-    var memo = _ref.memo, onOpen = _ref.onOpen, onPin = _ref.onPin, onDelete = _ref.onDelete, expandText = _ref.expandText, onExpand = _ref.onExpand;
+    var memo = _ref.memo, onOpen = _ref.onOpen, onPin = _ref.onPin, onDelete = _ref.onDelete, expandText = _ref.expandText, onExpand = _ref.onExpand, weather = _ref.weather;
     var rowRef = useRef(null), wrapperRef = useRef(null), btn1Ref = useRef(null), btn2Ref = useRef(null);
     var ACTION_W = 168, THRESHOLD = 55, MIN_DX = 5;
     var _useState = useState(null), thumb = _useState[0], setThumb = _useState[1];
@@ -77,7 +77,10 @@
             R.createElement('span', { style:{ overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', flex:1 } },
               (isNewCard ? '\u73B0\u5728' : (typeof w.timeAgo === 'function' ? w.timeAgo(memo.updatedAt) : memo.updatedAt)),
               '\u00A0\u00A0', isNewCard ? '\u70B9\u51FB\u8BB0\u5F55\u4F60\u7684\u77AC\u95F4' : preview),
-            expandText && R.createElement('span', { className:'expand-btn', onClick:function(e){e.stopPropagation();onExpand&&onExpand();} }, expandText)))));
+            expandText && R.createElement('span', { className:'expand-btn', onClick:function(e){e.stopPropagation();onExpand&&onExpand();} }, expandText))),
+        isNewCard && weather && R.createElement('div', { style:{ display:'flex', flexDirection:'column', alignItems:'flex-end', justifyContent:'center', gap:1, flexShrink:0, paddingLeft:12 } },
+          R.createElement('span', { style:{ fontSize:16, fontWeight:650, color:'var(--text-main)', lineHeight:1.1, letterSpacing:-0.5 } }, weather.temp, '\u00B0'),
+          R.createElement('span', { style:{ fontSize:12, color:'var(--text-secondary)', lineHeight:1.2 } }, weather.city))));
   }
 
   w.SwipeRow = SwipeRow;
